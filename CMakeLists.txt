@@ -1,0 +1,44 @@
+cmake_minimum_required(VERSION 2.8)
+project( TG )
+set(BUILD_SHARED_LIBS OFF)
+
+
+find_package( OpenCV REQUIRED )
+
+if (OpenCV_FOUND)
+   include_directories(${OpenCV_INCLUDE_DIRS})
+endif()
+
+find_library(XercesLibrary NAMES xerces-c PATHS /usr/local/lib)
+if(NOT XercesLibrary)
+  message(FATAL_ERROR "Failed to find the Xerces library.")
+endif()
+
+SET(TG_HEADERS 	  
+				StandardHeaders.h
+				StatisticalFunctions.h
+				sorting.h
+				folder.h
+				GaborAngleFeature.h
+				Morphology.h
+					)  
+
+
+SET(TG_SOURCES     
+				main.cpp  
+				StatisticalFunctions.cpp
+				sorting.cpp
+				folder.cpp
+				GaborAngleFeature.cpp
+				Morphology.cpp
+					)
+				
+
+
+# Or set it globally for all targets:
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+ADD_EXECUTABLE(gabor ${TG_HEADERS} ${TG_SOURCES} )
+TARGET_LINK_LIBRARIES(gabor ${OpenCV_LIBS} ${XercesLibrary})
+set(CMAKE_BUILD_TYPE Debug)
+
