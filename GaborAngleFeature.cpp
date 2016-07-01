@@ -7,6 +7,9 @@ vector<vector<float> > GetMyGaborFeature(Mat image, char *im_name)
   printf("%s\n",im_name);
   makedir(im_name);
   
+  
+   
+  
   Mat erodedimage = Erosion(0,1,image);
   
   char *output;
@@ -14,6 +17,10 @@ vector<vector<float> > GetMyGaborFeature(Mat image, char *im_name)
   
   Mat dilatedimage = Dilation(0,1,image);
   
+  Mat erodedimage1 = Erosion(0,3,image);
+  output=(char *)malloc(2001*sizeof(char));
+  output = CreateNameIntoFolder(im_name,"erodedimage.png");
+  imwrite(output,erodedimage1);
   
   Mat boundaryimage; 
   subtract(dilatedimage,erodedimage,boundaryimage);
@@ -146,6 +153,8 @@ vector<vector<float> > GetMyGaborFeature(Mat image, char *im_name)
     }
   }
 
+  
+  
   output=(char *)malloc(2001*sizeof(char));
   output = CreateNameIntoFolder(im_name,"overallgaborfeature.png");
   imwrite(output,Wtgabor);
@@ -156,7 +165,11 @@ vector<vector<float> > GetMyGaborFeature(Mat image, char *im_name)
   imwrite(output,dest);
   Wtgabor.release();
   
-  Mat newdest = Dilation(0,1,dest);
+  Mat newdest = Dilation(0,2,Uniformimage);
+  output=(char *)malloc(2001*sizeof(char));
+  output = CreateNameIntoFolder(im_name,"Boundary_dilatedimage.png");
+  imwrite(output,newdest);
+  cvtColor(newdest,newdest,CV_BGR2GRAY);
   
   vector<vector<Point> > contours;
   vector<Vec4i> hierarchy;
@@ -183,7 +196,7 @@ vector<vector<float> > GetMyGaborFeature(Mat image, char *im_name)
       
      for( int j = 0; j < contours.size(); j++ )
      {
-       if(hierarchy[j][2] == -1)
+       if(hierarchy[j][3] == -1)
        {
 	 rectangle( cont, boundRect[j].tl(), boundRect[j].br(), Scalar(120,70,150), 2, 8, 0 );
        }
