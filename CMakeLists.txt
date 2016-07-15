@@ -21,6 +21,10 @@ SET(TG_HEADERS
 				folder.h
 				GaborAngleFeature.h
 				Morphology.h
+				ColorQuantization.h
+				SmoothingGapfilling.h
+				Image_proc_functions.h
+				binarization.h
 					)  
 
 
@@ -31,6 +35,10 @@ SET(TG_SOURCES
 				folder.cpp
 				GaborAngleFeature.cpp
 				Morphology.cpp
+				ColorQuantization.cpp
+				SmoothingGapfilling.cpp
+				Image_proc_functions.cpp
+				binarization.cpp
 					)
 				
 

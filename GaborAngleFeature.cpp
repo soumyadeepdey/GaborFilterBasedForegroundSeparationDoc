@@ -8,52 +8,16 @@ vector<vector<float> > GetMyGaborFeature(Mat image, char *im_name)
   makedir(im_name);
   
   
+   //Mat blurimage; 
+  // GaussianBlur(image,blurimage,Size(11,11),0,0);
+  //
+   char *output;
+  
+//   output=(char *)malloc(2001*sizeof(char));
+//   output = CreateNameIntoFolder(im_name,"bluredimage.png");
+//   imwrite(output,blurimage);
    
   
-  Mat erodedimage = Erosion(0,1,image);
-  
-  char *output;
-  
-  
-  Mat dilatedimage = Dilation(0,1,image);
-  
-  Mat erodedimage1 = Erosion(0,3,image);
-  output=(char *)malloc(2001*sizeof(char));
-  output = CreateNameIntoFolder(im_name,"erodedimage.png");
-  imwrite(output,erodedimage1);
-  
-  Mat boundaryimage; 
-  subtract(dilatedimage,erodedimage,boundaryimage);
-
-  output=(char *)malloc(2001*sizeof(char));
-  output = CreateNameIntoFolder(im_name,"boundaryimage.png");
-  imwrite(output,boundaryimage);
-  erodedimage.release();
-  dilatedimage.release();
-  
-  Mat Gr;
-  cvtColor(boundaryimage,Gr,CV_BGR2GRAY);
-  threshold(Gr,Gr,30,255,0);
-  
-  Mat Uniformimage;
-  boundaryimage.copyTo(Uniformimage);
-  for(int i=0;i<boundaryimage.rows;i++)
-  {
-    for(int j=0;j<boundaryimage.cols;j++)
-    {
-      if(Gr.at<uchar>(i,j) == 0)
-      {
-	Uniformimage.at<Vec3b>(i,j)[0] = 0;
-	Uniformimage.at<Vec3b>(i,j)[1] = 0;
-	Uniformimage.at<Vec3b>(i,j)[2] = 0;
-      }
-    }
-  }
-  
-  output=(char *)malloc(2001*sizeof(char));
-  output = CreateNameIntoFolder(im_name,"uniboundaryimage.png");
-  imwrite(output,Uniformimage);
-  boundaryimage.release();
   
   
   int kernel_size = 3; // 5
@@ -107,36 +71,20 @@ vector<vector<float> > GetMyGaborFeature(Mat image, char *im_name)
 	
 	Mat test;
 	convertScaleAbs( GaborDest, test );
+	//GaborDest.copyTo(test);
 	GaborDest.release();
 	if(Wtgabor.empty())
 	  test.copyTo(Wtgabor);
-	
-	/// Total Gradient (approximate)
-	addWeighted( Wtgabor, 0.5, test, 0.5, 0, Wtgabor );
-      
-	vector<uchar> h_data;
+	else
+	  /// Total Gradient (approximate)
+	  addWeighted( Wtgabor, 0.5, test, 0.5, 0, Wtgabor );
 
-	for(int i=0;i<test.rows;i++)
-	{
-	  for(int j=0;j<test.cols;j++)
-	  {
-	    if(test.at<uchar>(i,j) != 0)
-	      h_data.push_back(test.at<uchar>(i,j));
-	  }
-	}
-	
-	Mat HistD = Mat(h_data.size(),1,CV_8UC1,h_data.data());
-	h_data.clear();
-	vector<float> thist = FindHist(HistD);
-	GaborAngleHist.push_back(thist);
-	
-
-	
+	/*
 	char *name;
 	
 	char *output;
 	
-	thist.clear();
+	
 	
 	
 	name=(char *)malloc(2001*sizeof(char));
@@ -144,8 +92,9 @@ vector<vector<float> > GetMyGaborFeature(Mat image, char *im_name)
 	
 	output=(char *)malloc(2001*sizeof(char));
 	output = CreateNameIntoFolder(im_name,name);
-	
-	//imwrite(output,test);
+	imwrite(output,test);
+	*/
+	//
 	test.release();
 	
 	th_i = th_i + 15;
@@ -153,57 +102,21 @@ vector<vector<float> > GetMyGaborFeature(Mat image, char *im_name)
     }
   }
 
-  
-  
+  //Mat nWtgdest;
+  //convertScaleAbs( Wtgabor, nWtgdest );
   output=(char *)malloc(2001*sizeof(char));
   output = CreateNameIntoFolder(im_name,"overallgaborfeature.png");
   imwrite(output,Wtgabor);
   Mat dest;
-  threshold(Wtgabor,dest,30,255,0);
+  threshold(Wtgabor,dest,10,255,0);
   output=(char *)malloc(2001*sizeof(char));
   output = CreateNameIntoFolder(im_name,"overallgaborfeature_threshold.png");
   imwrite(output,dest);
   Wtgabor.release();
   
-  Mat newdest = Dilation(0,2,Uniformimage);
-  output=(char *)malloc(2001*sizeof(char));
-  output = CreateNameIntoFolder(im_name,"Boundary_dilatedimage.png");
-  imwrite(output,newdest);
-  cvtColor(newdest,newdest,CV_BGR2GRAY);
   
-  vector<vector<Point> > contours;
-  vector<Vec4i> hierarchy;
   
-  /// Find contours
-      findContours( newdest, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );	
-      
-      
-      /// Approximate contours to polygons + get bounding rects and circles
-      vector<vector<Point> > contours_poly( contours.size() );
-      vector<Rect> boundRect( contours.size() );
-      vector<RotatedRect> boundRotatedRect ( contours.size() );
-
-
-      
-      for( int j = 0; j < contours.size(); j++ )
-	{ approxPolyDP( Mat(contours[j]), contours_poly[j], 3, true );
-	  boundRect[j] = boundingRect( Mat(contours_poly[j]) );
-	  boundRotatedRect[j] = minAreaRect( Mat(contours_poly[j]) );
-	}
-	
-      Mat cont;
-      image.copyTo(cont);
-      
-     for( int j = 0; j < contours.size(); j++ )
-     {
-       if(hierarchy[j][3] == -1)
-       {
-	 rectangle( cont, boundRect[j].tl(), boundRect[j].br(), Scalar(120,70,150), 2, 8, 0 );
-       }
-     }
   
-  output = CreateNameIntoFolder(im_name,"contour.png");
-  imwrite(output,cont);
   
   printf("Done\n");
   
