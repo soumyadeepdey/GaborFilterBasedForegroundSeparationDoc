@@ -91,9 +91,26 @@ int main(int argc, char* argv[])
  
   /***************************************************************/
   
+ 
+  
+  Mat invimg = FindImageInverse(boundaryimage);
+  output=(char *)malloc(2001*sizeof(char));
+  output = CreateNameIntoFolder(name,"InvBoundary.png");
+  imwrite(output,invimg);
+  
+  Mat Binary = binarization(invimg,1);
+  
+  output=(char *)malloc(2001*sizeof(char));
+  output = CreateNameIntoFolder(name,"BinImage.png");
+  imwrite(output,Binary);
+  
+  
+  /*
   Mat Gr;
-  //cvtColor(boundaryimage,Gr,CV_BGR2GRAY);  // Change this for checking gradient
-  grad.copyTo(Gr);
+  cvtColor(boundaryimage,Gr,CV_BGR2GRAY);  // Change this for checking gradient
+  
+  //grad.copyTo(Gr);
+  
   threshold(Gr,Gr,35,255,1);
   
   
@@ -113,6 +130,7 @@ int main(int argc, char* argv[])
   output=(char *)malloc(2001*sizeof(char));
   output = CreateNameIntoFolder(name,"BinImage.png");
   imwrite(output,bin);
+  */
   
   Mat Uniformimage;
   boundaryimage.copyTo(Uniformimage);
@@ -120,7 +138,7 @@ int main(int argc, char* argv[])
   {
     for(int j=0;j<boundaryimage.cols;j++)
     {
-      if(Gr.at<uchar>(i,j) == 0)
+      if(Binary.at<uchar>(i,j) == 255)
       {
 	Uniformimage.at<Vec3b>(i,j)[0] = 0;
 	Uniformimage.at<Vec3b>(i,j)[1] = 0;
@@ -134,16 +152,16 @@ int main(int argc, char* argv[])
   imwrite(output,Uniformimage);
   boundaryimage.release();
   
-  Mat Hgap = horizontal_gapfilling(bin,8);
+  Mat Hgap = horizontal_gapfilling(Binary,8);
   Mat Vgap = vertical_gapfilling(Hgap,5);
   
   Hgap.release();
-  bin.release();
-  
+  Binary.release();
+  /*
   Gr.release();
   Gr = FindImageInverse(Vgap);
   Hgap.release();
-  
+  */
   /*
   Mat newdest = Dilation(0,2,Uniformimage);
   output=(char *)malloc(2001*sizeof(char));
@@ -161,11 +179,17 @@ int main(int argc, char* argv[])
   vector<vector<Point> > contours;
   vector<Vec4i> hierarchy;
   
+  Mat temp;
+  Vgap.copyTo(temp);
+  temp = FindImageInverse(temp);
+  
   /// Find contours
       //findContours( newdest, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
       //findContours( newdest, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-      findContours( Gr, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );	
-      
+      //findContours( temp, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+      findContours( temp, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+      //findContours( Gr, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+   temp.release();   
       
       /// Approximate contours to polygons + get bounding rects and circles
       vector<vector<Point> > contours_poly( contours.size() );
@@ -260,7 +284,9 @@ int main(int argc, char* argv[])
   //output = CreateNameIntoFolder(name,"contour.png"); // for boundary image
   //output = CreateNameIntoFolder(name,"contour1.png"); // For gradient
   //output = CreateNameIntoFolder(name,"contour2.png");
-  output = CreateNameIntoFolder(name,"contour3.png");
+  //output = CreateNameIntoFolder(name,"contour3.png");
+  //output = CreateNameIntoFolder(name,"contour6.png");
+  output = CreateNameIntoFolder(name,"contour7.png");
   imwrite(output,cont);
   
   /*vector<vector<float> > GFData;
