@@ -87,7 +87,7 @@ Mat IITkgp_functions::binarization(Mat image, int type)
     if(type == 1)
     {     
       blockSize = (windowsize * 10) + 1;
-      adaptiveThreshold(  TempGray, TempBinary, maximum_BINARY_value, ADAPTIVE_THRESH_GAUSSIAN_C,  threshold_type,  blockSize, tempwinval);
+      adaptiveThreshold(  gray, binary, maximum_BINARY_value, ADAPTIVE_THRESH_GAUSSIAN_C,  threshold_type,  blockSize, tempwinval);
       TempBinary.copyTo(binary);
 
     }
