@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
   output = CreateNameIntoFolder(name,"InvBoundary.png");
   imwrite(output,invimg);
   
-  Mat Binary = binarization(invimg,1);
+  Mat Binary = binarization(invimg,5);
   
   output=(char *)malloc(2001*sizeof(char));
   output = CreateNameIntoFolder(name,"BinImage.png");
