@@ -14,6 +14,7 @@ int main(int argc, char* argv[])
   char *name;
   name = input_image_name_cut(argv[1]);
   makedir(name);
+  
   Mat blurimage; 
    GaussianBlur(src,blurimage,Size(3,3),0,0);
   
@@ -98,7 +99,9 @@ int main(int argc, char* argv[])
   output = CreateNameIntoFolder(name,"InvBoundary.png");
   imwrite(output,invimg);
   
-  Mat Binary = binarization(invimg,1);
+  Mat Boundary_Binary = binarization(invimg,1);
+  
+  Mat Binary = binarization(src,1);
   
   output=(char *)malloc(2001*sizeof(char));
   output = CreateNameIntoFolder(name,"BinImage.png");
@@ -131,7 +134,7 @@ int main(int argc, char* argv[])
   output = CreateNameIntoFolder(name,"BinImage.png");
   imwrite(output,bin);
   */
-  
+  /*
   Mat Uniformimage;
   boundaryimage.copyTo(Uniformimage);
   for(int i=0;i<boundaryimage.rows;i++)
@@ -150,13 +153,122 @@ int main(int argc, char* argv[])
   output=(char *)malloc(2001*sizeof(char));
   output = CreateNameIntoFolder(name,"uniboundaryimage.png");
   imwrite(output,Uniformimage);
+  */
   boundaryimage.release();
   
   Mat Hgap = horizontal_gapfilling(Binary,8);
   Mat Vgap = vertical_gapfilling(Hgap,5);
   
   Hgap.release();
-  Binary.release();
+  
+   vector<vector<Point> > contours;
+  vector<Vec4i> hierarchy;
+  
+  Mat temp;
+  Vgap.copyTo(temp);
+  temp = FindImageInverse(temp);
+  
+  /// Find contours
+      //findContours( newdest, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+      //findContours( newdest, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+      //findContours( temp, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+      findContours( temp, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+      //findContours( Gr, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+   temp.release();   
+      
+      /// Approximate contours to polygons + get bounding rects and circles
+      vector<vector<Point> > contours_poly( contours.size() );
+      vector<Rect> boundRect( contours.size() );
+      //vector<RotatedRect> boundRotatedRect ( contours.size() );
+
+
+      
+      for( int j = 0; j < contours.size(); j++ )
+	{ 
+	  approxPolyDP( Mat(contours[j]), contours_poly[j], 3, true );
+	  boundRect[j] = boundingRect( Mat(contours_poly[j]) );
+	 // boundRotatedRect[j] = minAreaRect( Mat(contours_poly[j]) );
+	}
+	
+      Mat cont = Mat(src.rows,src.cols,CV_8UC3,Scalar(255,255,255));;
+      src.copyTo(cont);
+
+     int avg_height = 0;
+     int count = 0;
+     for( int j = 0; j < contours.size(); j++ )
+     {
+       if(hierarchy[j][3] == -1)
+       {
+	 rectangle( cont, boundRect[j].tl(), boundRect[j].br(), Scalar(100,100,10), 2, 8, 0 );
+	 //drawContours(cont, contours, j, Scalar(0, 0, 250), CV_FILLED);
+	 avg_height = avg_height +  boundRect[j].height;
+	 count++;
+       }
+     }
+
+     avg_height = avg_height/count;
+     
+     
+     Mat temp_img;
+     int p,q;
+     for( int j = 0; j < contours.size(); j++ )
+     {
+       if(hierarchy[j][3] == -1 && boundRect[j].height > 4*avg_height && boundRect[j].width > 5*avg_height)
+       {
+	 printf("I am there\n");
+	 //rectangle( cont, boundRect[j].tl(), boundRect[j].br(), Scalar(100,10,200), 2, 8, 0 );
+	 
+	 temp_img = Mat(boundRect[j].height,boundRect[j].width,CV_8UC1,Scalar(255));
+	 p = 0;
+	 for(int m=boundRect[j].y;m<boundRect[j].y+boundRect[j].height;m++)
+	 {
+	    q = 0;
+	    for(int n=boundRect[j].x;n<boundRect[j].x+boundRect[j].width;n++)
+	    {
+	      int temp_col = boundRect[j].width;
+	      bool measure_dist;
+	      {
+		if(pointPolygonTest(contours_poly[j],Point(n,m),measure_dist) > 0.0)
+		{
+		  temp_img.at<uchar>(p,q) = Boundary_Binary.at<uchar>(m,n);		  
+		}
+	      }
+	      q++;
+	    }
+	    p++;
+	 }
+	 temp_img = FindImageInverse(temp_img);
+	 vector<vector<Point> > temp_contours;
+	 vector<Vec4i> temp_hierarchy;
+	 findContours( temp_img, temp_contours, temp_hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+	 vector<vector<Point> > temp_contours_poly( temp_contours.size() );
+	 vector<Rect> temp_boundRect( temp_contours.size() );
+	 for( int l = 0; l < temp_contours.size(); l++ )
+	 { 
+	    approxPolyDP( Mat(temp_contours[l]), temp_contours_poly[l], 3, true );
+	    temp_boundRect[l] = boundingRect( Mat(temp_contours_poly[l]) );
+	 }
+	 for( int l = 0; l < temp_contours.size(); l++ )
+	 {
+	    if(temp_hierarchy[l][3] == -1 && ((temp_boundRect[l].area()/boundRect[j].area()) < 0.8))
+	    {
+	      Point top = boundRect[j].tl(); Point bottom = boundRect[j].tl();
+	      top.x = top.x+temp_boundRect[l].x;
+	      top.y = top.y+temp_boundRect[l].y;
+	      bottom.x = bottom.x+temp_boundRect[l].x+temp_boundRect[l].width;
+	      bottom.y = bottom.y+temp_boundRect[l].y+temp_boundRect[l].height;
+	      rectangle( cont, top, bottom, Scalar(0,10,230), 2, 8, 0 );
+	    }
+	  }
+	 temp_img.release();
+	 
+       }
+     }
+
+  output = CreateNameIntoFolder(name,"contour10.png");
+  imwrite(output,cont);
+  
+ // Binary.release();
   /*
   Gr.release();
   Gr = FindImageInverse(Vgap);
@@ -176,118 +288,7 @@ int main(int argc, char* argv[])
   
   
   //threshold(Gr,Gr,30,255,0);
-  vector<vector<Point> > contours;
-  vector<Vec4i> hierarchy;
-  
-  Mat temp;
-  Vgap.copyTo(temp);
-  temp = FindImageInverse(temp);
-  
-  /// Find contours
-      //findContours( newdest, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-      //findContours( newdest, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-      //findContours( temp, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-      findContours( temp, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-      //findContours( Gr, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-   temp.release();   
-      
-      /// Approximate contours to polygons + get bounding rects and circles
-      vector<vector<Point> > contours_poly( contours.size() );
-      vector<Rect> boundRect( contours.size() );
-      vector<RotatedRect> boundRotatedRect ( contours.size() );
-
-
-      
-      for( int j = 0; j < contours.size(); j++ )
-	{ 
-	  approxPolyDP( Mat(contours[j]), contours_poly[j], 3, true );
-	  boundRect[j] = boundingRect( Mat(contours_poly[j]) );
-	 // boundRotatedRect[j] = minAreaRect( Mat(contours_poly[j]) );
-	}
-	
-      Mat cont;
-      src.copyTo(cont);
-     int avg_ht = 0;
-     int cnt = 0;
-     for( int j = 0; j < contours.size(); j++ )
-     {
-       if(hierarchy[j][3] == -1)
-       {
-	 avg_ht+=boundRect[j].height;
-	 cnt++;
-	 rectangle( cont, boundRect[j].tl(), boundRect[j].br(), Scalar(10,170,100), 2, 8, 0 );
-       }
-     }
-     
-     avg_ht/=cnt;
-     /*
-     vector<vector<Point> > sub_contours;
-     vector<Vec4i> sub_hierarchy;
-     Mat temp_img;
-     int p,q;
-     for( int j = 0; j < contours.size(); j++ )
-     {
-       if(hierarchy[j][3] == -1 && ((boundRect[j].height > 4 * avg_ht) || (boundRect[j].width > 5 * avg_ht) ))
-       {
-	 rectangle( cont, boundRect[j].tl(), boundRect[j].br(), Scalar(0,40,200), 2, 8, 0 );
-	 temp_img = Mat(boundRect[j].height,boundRect[j].width,CV_8UC3,Scalar(0,0,0));
-	 p = 0;
-	 for(int m=boundRect[j].y;m<boundRect[j].y+boundRect[j].height;m++)
-	 {
-	    q = 0;
-	    for(int n=boundRect[j].x;n<boundRect[j].x+boundRect[j].width;n++)
-	    {
-	      int temp_col = boundRect[j].width;
-	      bool measure_dist;
-	      {
-		if(pointPolygonTest(contours_poly[j],Point(n,m),measure_dist) <= 0.0)
-		{
-		  for(int h=0;h<QuantizedImage.channels();h++)
-		    temp_img.at<Vec3b>(p,q)[h] = QuantizedImage.at<Vec3b>(m,n)[h];
-		}
-	      }
-	    }
-	 }
-	 char *tname;
-	 tname=(char *)malloc(2001*sizeof(char));
-	 int vt = sprintf(tname,"block_%d.png",j);
-	 output=(char *)malloc(2001*sizeof(char));
-	 output = CreateNameIntoFolder(name,tname);
-	// imwrite(output,temp_img);
-	 Mat TGr;
-	 cvtColor(temp_img,TGr,CV_BGR2GRAY);
-	 
-	 //temp_img = Gr(boundRect[j]);
-	 findContours( TGr, sub_contours, sub_hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-	 vector<vector<Point> > sub_contours_poly( sub_contours.size() );
-	 vector<Rect> sub_boundRect( sub_contours.size() );
-	 for( int k = 0; k < sub_contours.size(); k++ )
-	 { 
-	    approxPolyDP( Mat(sub_contours[k]), sub_contours_poly[k], 3, true );
-	    sub_boundRect[k] = boundingRect( Mat(sub_contours_poly[k]) );
-	 }
-	 for( int k = 0; k < sub_contours.size(); k++ )
-	 {
-	   if(sub_hierarchy[k][3] == -1)
-	   {
-	     rectangle( cont, sub_boundRect[k].tl(), sub_boundRect[k].br(), Scalar(200,40,0), 2, 8, 0 );
-	   }
-	 }
-	 sub_boundRect.clear();
-	 sub_contours_poly.clear();
-	 sub_contours.clear();
-	 sub_hierarchy.clear();
-	 temp_img.release();
-       }
-     }
-     */
-  //output = CreateNameIntoFolder(name,"contour.png"); // for boundary image
-  //output = CreateNameIntoFolder(name,"contour1.png"); // For gradient
-  //output = CreateNameIntoFolder(name,"contour2.png");
-  //output = CreateNameIntoFolder(name,"contour3.png");
-  //output = CreateNameIntoFolder(name,"contour6.png");
-  output = CreateNameIntoFolder(name,"contour7.png");
-  imwrite(output,cont);
+ 
   
   /*vector<vector<float> > GFData;
   GFData = GetMyGaborFeature(QuantizedImage,name);*/
