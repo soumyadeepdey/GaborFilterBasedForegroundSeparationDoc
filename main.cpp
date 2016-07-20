@@ -5,6 +5,13 @@
 #include "SmoothingGapfilling.h"
 #include "Image_proc_functions.h"
 #include "binarization.h"
+#include "RectangleTest.h"
+
+typedef struct SegmentationBlocks
+{
+  Rect B;
+  vector<Rect> child;
+}SB;
 
 using namespace IITkgp_functions;
 
@@ -190,19 +197,26 @@ int main(int argc, char* argv[])
 	 // boundRotatedRect[j] = minAreaRect( Mat(contours_poly[j]) );
 	}
 	
-      Mat cont = Mat(src.rows,src.cols,CV_8UC3,Scalar(255,255,255));;
-      src.copyTo(cont);
+      vector<SB> blocks;
+	
+      Mat cont = Mat(src.rows,src.cols,CV_8UC3,Scalar(255,255,255));
+      //src.copyTo(cont);
 
      int avg_height = 0;
      int count = 0;
+     vector<bool> flag(contours.size(),false);
      for( int j = 0; j < contours.size(); j++ )
      {
-       if(hierarchy[j][3] == -1)
+       if(hierarchy[j][3] == -1 && boundRect[j].height > 6 &&  boundRect[j].width > 10)
        {
 	 rectangle( cont, boundRect[j].tl(), boundRect[j].br(), Scalar(100,100,10), 2, 8, 0 );
 	 //drawContours(cont, contours, j, Scalar(0, 0, 250), CV_FILLED);
 	 avg_height = avg_height +  boundRect[j].height;
 	 count++;
+	 SB B;
+	 B.B = boundRect[j];
+	 blocks.push_back(B);
+	 flag[j]=true;
        }
      }
 
@@ -211,9 +225,10 @@ int main(int argc, char* argv[])
      
      Mat temp_img;
      int p,q;
+     int bc = 0;
      for( int j = 0; j < contours.size(); j++ )
      {
-       if(hierarchy[j][3] == -1 && boundRect[j].height > 4*avg_height && boundRect[j].width > 5*avg_height)
+       if(hierarchy[j][3] == -1 && boundRect[j].height > 4*avg_height && boundRect[j].width > 5*avg_height && flag[j])
        {
 	 printf("I am there\n");
 	 //rectangle( cont, boundRect[j].tl(), boundRect[j].br(), Scalar(100,10,200), 2, 8, 0 );
@@ -237,7 +252,11 @@ int main(int argc, char* argv[])
 	    }
 	    p++;
 	 }
-	 temp_img = FindImageInverse(temp_img);
+	 Mat Temp_Hgap = horizontal_gapfilling(temp_img,8);
+	 Mat Temp_Vgap = vertical_gapfilling(Temp_Hgap,5);
+	 Temp_Hgap.release();
+	 temp_img = FindImageInverse(Temp_Vgap);
+	 Temp_Vgap.release();
 	 vector<vector<Point> > temp_contours;
 	 vector<Vec4i> temp_hierarchy;
 	 findContours( temp_img, temp_contours, temp_hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
@@ -250,7 +269,8 @@ int main(int argc, char* argv[])
 	 }
 	 for( int l = 0; l < temp_contours.size(); l++ )
 	 {
-	    if(temp_hierarchy[l][3] == -1 && ((temp_boundRect[l].area()/boundRect[j].area()) < 0.8))
+	   float frac = (temp_boundRect[l].area()*1.0)/(boundRect[j].area()*1.0);
+	    if(temp_hierarchy[l][3] == -1 && (frac < 0.9) && temp_boundRect[l].height > 6 &&  temp_boundRect[l].width > 10)
 	    {
 	      Point top = boundRect[j].tl(); Point bottom = boundRect[j].tl();
 	      top.x = top.x+temp_boundRect[l].x;
@@ -258,15 +278,71 @@ int main(int argc, char* argv[])
 	      bottom.x = bottom.x+temp_boundRect[l].x+temp_boundRect[l].width;
 	      bottom.y = bottom.y+temp_boundRect[l].y+temp_boundRect[l].height;
 	      rectangle( cont, top, bottom, Scalar(0,10,230), 2, 8, 0 );
+	      Rect R;
+	      R.x = top.x;
+	      R.y = top.y;
+	      R.height = temp_boundRect[l].height;
+	      R.width = temp_boundRect[l].width;
+	      blocks[bc].child.push_back(R);
 	    }
 	  }
 	 temp_img.release();
-	 
+	 bc++;
+       }
+     }
+      output = CreateNameIntoFolder(name,"contour10.png");
+      imwrite(output,cont);
+      
+      
+      
+     for(int i=0;i<blocks.size();i++)
+     {
+       if(!blocks[i].child.empty()) // 
+       {
+	 vector<Rect> C = blocks[i].child;
+	 for(int j=0;j<C.size();j++)
+	 {
+	   for(int k=0;k<C.size();k++)
+	   {
+	     if(j!=k)
+	     {
+	       int val = FindOverlappingRectangles(C[j],C[k]);
+	       if(val == 2)
+	       {
+		 C.erase(C.begin()+k);
+	       }
+	     }
+	   }
+	   for(int m=0;m<blocks.size();m++)
+	   {
+	     if(m!=i && FindOverlappingRectangles(C[j],blocks[m].B) == 2 && blocks[m].child.empty())
+	     {
+	       blocks.erase(blocks.begin()+m);
+	     }
+	   }
+	 }
+	 blocks[i].child = C;
        }
      }
 
-  output = CreateNameIntoFolder(name,"contour10.png");
-  imwrite(output,cont);
+     cont.release();
+     //cont = Mat(src.rows,src.cols,CV_8UC3,Scalar(255,255,255));
+     src.copyTo(cont);
+     for(int i=0;i<blocks.size();i++)
+     {
+       rectangle( cont, blocks[i].B.tl(), blocks[i].B.br(), Scalar(250,10,10), 2, 8, 0 );
+       if(!blocks[i].child.empty())
+       {
+	 vector<Rect> C = blocks[i].child;
+	 for(int j=0;j<C.size();j++)
+	 {
+	   rectangle( cont, C[j].tl(), C[j].br(), Scalar(10,10,250), 2, 8, 0 );
+	 }
+       }
+     }
+     
+     output = CreateNameIntoFolder(name,"contour11.png");
+      imwrite(output,cont);
   
  // Binary.release();
   /*

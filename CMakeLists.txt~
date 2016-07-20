@@ -23,6 +23,8 @@ SET(TG_HEADERS
 				Morphology.h
 				ColorQuantization.h
 				SmoothingGapfilling.h
+				Image_proc_functions.h
+				binarization.h
 					)  
 
 
@@ -35,6 +37,8 @@ SET(TG_SOURCES
 				Morphology.cpp
 				ColorQuantization.cpp
 				SmoothingGapfilling.cpp
+				Image_proc_functions.cpp
+				binarization.cpp
 					)
 				
 
