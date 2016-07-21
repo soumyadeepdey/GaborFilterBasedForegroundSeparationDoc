@@ -55,6 +55,18 @@ namespace IITkgp_functions {
     */
     
     Rect JoinVectorRect2SingleRect(vector<Rect> R);
+    
+    
+    /**
+     * @Function: PolygonInsidePolygonTest
+     * @brief : Take 2 polygon as an input
+     * @return : 	0: poly 1 and poly 2 are disjoint
+     * 		1: poly 2 is outside poly 1
+     * 	    	2: poly 2 is inside poly 1
+     * 	    	3: poly 1 and 2 are partly overlapped
+     * */
+    
+    int PolygonInsidePolygonTest(vector<Point> Poly1, vector<Point> Poly2); 
 
   
 }

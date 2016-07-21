@@ -199,3 +199,23 @@ RectDist IITkgp_functions::DistanceBetweenRectangle(Rect r1, Rect r2)
 
 /*-------------------------------------------------------------------------------------------------------------------------*/
 
+
+int IITkgp_functions::PolygonInsidePolygonTest(vector<Point> Poly1, vector<Point> Poly2)
+{
+  double sum = 0.0;
+  for(int i=0;i<Poly2.size();i++)
+  {
+    bool measuredist = false;
+    double dist = pointPolygonTest(Poly1,Poly2[i],measuredist);
+    if (dist == 0)
+    {
+      return 3;
+    }
+    sum = sum + dist;
+  }
+  if(sum == Poly2.size())
+    return 2;
+  if(sum == Poly2.size()*-1)
+    return 1;
+}
+

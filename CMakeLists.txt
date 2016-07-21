@@ -26,6 +26,8 @@ SET(TG_HEADERS
 				Image_proc_functions.h
 				binarization.h
 				RectangleTest.h
+				connectedcomponent.h
+				PixelValidation.h
 					)  
 
 
@@ -41,6 +43,8 @@ SET(TG_SOURCES
 				Image_proc_functions.cpp
 				binarization.cpp
 				RectangleTest.cpp
+				connectedcomponent.cpp
+				PixelValidation.cpp
 					)
 				
 

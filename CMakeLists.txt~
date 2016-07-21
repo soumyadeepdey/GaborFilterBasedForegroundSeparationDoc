@@ -25,6 +25,7 @@ SET(TG_HEADERS
 				SmoothingGapfilling.h
 				Image_proc_functions.h
 				binarization.h
+				RectangleTest.h
 					)  
 
 
@@ -39,6 +40,7 @@ SET(TG_SOURCES
 				SmoothingGapfilling.cpp
 				Image_proc_functions.cpp
 				binarization.cpp
+				RectangleTest.cpp
 					)
 				
 

@@ -6,6 +6,10 @@
 #include "Image_proc_functions.h"
 #include "binarization.h"
 #include "RectangleTest.h"
+#include "connectedcomponent.h"
+
+RNG rng(12345);
+
 
 typedef struct SegmentationBlocks
 {
@@ -48,7 +52,7 @@ int main(int argc, char* argv[])
   /************************Gradient Computation***************************************/
   
   Mat gray;
-  int ddepth = CV_8U;
+  int ddepth = CV_32F;
   int scale = 1;
   int delta = 0;
   Mat grad;
@@ -58,6 +62,7 @@ int main(int argc, char* argv[])
   /// Generate grad_x and grad_y
   Mat grad_x, grad_y;
   Mat abs_grad_x, abs_grad_y;
+  Mat abs_grad;
 
   /// Gradient X
   //Scharr( src_gray, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
@@ -70,12 +75,13 @@ int main(int argc, char* argv[])
   convertScaleAbs( grad_y, abs_grad_y );
 
   /// Total Gradient (approximate)
-  addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad );
-  
+  addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, abs_grad );
+  //addWeighted( grad_x, 0.5, grad_y, 0.5, 0, grad );
+  //convertScaleAbs( grad, abs_grad );
   
   output=(char *)malloc(2001*sizeof(char));
   output = CreateNameIntoFolder(name,"GradientImage.png");
-  imwrite(output,grad);
+  imwrite(output,abs_grad);
   
   
   /***************************************************************/
@@ -141,14 +147,14 @@ int main(int argc, char* argv[])
   output = CreateNameIntoFolder(name,"BinImage.png");
   imwrite(output,bin);
   */
-  /*
+  
   Mat Uniformimage;
   boundaryimage.copyTo(Uniformimage);
   for(int i=0;i<boundaryimage.rows;i++)
   {
     for(int j=0;j<boundaryimage.cols;j++)
     {
-      if(Binary.at<uchar>(i,j) == 255)
+      if(Boundary_Binary.at<uchar>(i,j) == 255)
       {
 	Uniformimage.at<Vec3b>(i,j)[0] = 0;
 	Uniformimage.at<Vec3b>(i,j)[1] = 0;
@@ -160,8 +166,8 @@ int main(int argc, char* argv[])
   output=(char *)malloc(2001*sizeof(char));
   output = CreateNameIntoFolder(name,"uniboundaryimage.png");
   imwrite(output,Uniformimage);
-  */
-  boundaryimage.release();
+  
+  //boundaryimage.release();
   
   Mat Hgap = horizontal_gapfilling(Binary,8);
   Mat Vgap = vertical_gapfilling(Hgap,5);
@@ -228,7 +234,7 @@ int main(int argc, char* argv[])
      int bc = 0;
      for( int j = 0; j < contours.size(); j++ )
      {
-       if(hierarchy[j][3] == -1 && boundRect[j].height > 4*avg_height && boundRect[j].width > 5*avg_height && flag[j])
+       if(hierarchy[j][3] == -1 && boundRect[j].height > 3*avg_height && boundRect[j].width > 3*avg_height && flag[j])
        {
 	 printf("I am there\n");
 	 //rectangle( cont, boundRect[j].tl(), boundRect[j].br(), Scalar(100,10,200), 2, 8, 0 );
@@ -241,9 +247,9 @@ int main(int argc, char* argv[])
 	    for(int n=boundRect[j].x;n<boundRect[j].x+boundRect[j].width;n++)
 	    {
 	      int temp_col = boundRect[j].width;
-	      bool measure_dist;
+	      bool measure_dist = false;
 	      {
-		if(pointPolygonTest(contours_poly[j],Point(n,m),measure_dist) > 0.0)
+		if(pointPolygonTest(contours_poly[j],Point(n,m),measure_dist) >= 0.0)
 		{
 		  temp_img.at<uchar>(p,q) = Boundary_Binary.at<uchar>(m,n);		  
 		}
@@ -252,9 +258,96 @@ int main(int argc, char* argv[])
 	    }
 	    p++;
 	 }
-	 Mat Temp_Hgap = horizontal_gapfilling(temp_img,8);
+	 
+	char *tname; 
+	tname=(char *)malloc(2001*sizeof(char));
+	sprintf(tname, "blk_%d.png",j);
+	
+	output=(char *)malloc(2001*sizeof(char));
+	output = CreateNameIntoFolder(name,tname);
+	imwrite(output,temp_img);
+	 
+	 nocc *component = FindConnectedComponent(temp_img,temp_img);
+	 vector<vector<Point> > temp_contours = Convert_nocc2pointvector(component);
+	 printf("Done\n");
+	 vector<vector<Point> > temp_contours_poly( temp_contours.size() );
+	 vector<Rect> temp_boundRect( temp_contours.size() );
+	 for( int l = 0; l < temp_contours.size(); l++ )
+	 {
+	   for(int m=0;m< temp_contours[l].size();m++)
+	   {
+	     temp_contours[l][m].x = temp_contours[l][m].x + boundRect[j].x;
+	     temp_contours[l][m].y = temp_contours[l][m].y + boundRect[j].y;
+	   }
+	 }
+	 for( int l = 0; l < temp_contours.size(); l++ )
+	 { 
+	    approxPolyDP( Mat(temp_contours[l]), temp_contours_poly[l], 3, true );
+	    temp_boundRect[l] = boundingRect( Mat(temp_contours_poly[l]) );
+	 }
+	 vector<Vec4i> temp_hierarchy(temp_contours.size());
+	 for( int l = 0; l < temp_contours.size(); l++ )
+	 {
+	   temp_hierarchy[l][0] = -1;
+	   temp_hierarchy[l][1] = -1;
+	   temp_hierarchy[l][2] = -1;
+	   temp_hierarchy[l][3] = -1;
+	 }
+	 for( int l = 0; l < temp_contours.size(); l++ )
+	 {
+	   float frac = (temp_boundRect[l].area()*1.0)/(boundRect[j].area()*1.0);
+	   if(frac < 0.7)
+	   {
+	    for(int m=0;m< temp_contours.size();m++)
+	    {
+	      float frac1 = (temp_boundRect[m].area()*1.0)/(boundRect[j].area()*1.0);
+	      if(frac1 < 0.7 && l!=m)
+	      {
+		  int val = FindOverlappingRectangles(temp_boundRect[l],temp_boundRect[m]);
+		  //int val = PolygonInsidePolygonTest(temp_contours_poly[l],temp_contours_poly[m]);
+		  if(val==2)
+		  {
+		   // printf("Working\n");
+		    temp_hierarchy[m][3] = l;
+		    if(temp_hierarchy[l][2]!=-1)
+		      temp_hierarchy[l][2] = m;
+		  }
+		
+	      }
+	    }
+	  }
+	 }
+	 for( int l = 0; l < temp_contours.size(); l++ )
+	 {
+	    float frac = (temp_boundRect[l].area()*1.0)/(boundRect[j].area()*1.0);
+	    if(temp_hierarchy[l][3] == -1 && frac < 0.7)
+	    //if(temp_hierarchy[l][3] == -1)
+	    {
+	      //Point top = boundRect[j].tl(); Point bottom = boundRect[j].br();
+	      //top.x = top.x+temp_boundRect[l].x;
+	      //top.y = top.y+temp_boundRect[l].y;
+	      //bottom.x = bottom.x+temp_boundRect[l].x+temp_boundRect[l].width;
+	      //bottom.y = bottom.y+temp_boundRect[l].y+temp_boundRect[l].height;
+	      rectangle( cont, temp_boundRect[l].tl(), temp_boundRect[l].br(), Scalar(0,10,230), 2, 8, 0 );
+	      Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+	      drawContours(cont, temp_contours, l, color, CV_FILLED);
+	     // Rect R;
+	      //R.x = top.x;
+	     // R.y = top.y;
+	     // R.height = temp_boundRect[l].height;
+	     // R.width = temp_boundRect[l].width;
+	      //blocks[bc].child.push_back(R);
+	      blocks[bc].child.push_back(temp_boundRect[l]);
+	    }
+	    
+	 }
+	 
+	 /*
+	  * 
+	  Mat Temp_Hgap = horizontal_gapfilling(temp_img,8);
 	 Mat Temp_Vgap = vertical_gapfilling(Temp_Hgap,5);
 	 Temp_Hgap.release();
+	
 	 temp_img = FindImageInverse(Temp_Vgap);
 	 Temp_Vgap.release();
 	 vector<vector<Point> > temp_contours;
@@ -286,6 +379,9 @@ int main(int argc, char* argv[])
 	      blocks[bc].child.push_back(R);
 	    }
 	  }
+	  */
+	  
+	  
 	 temp_img.release();
 	 bc++;
        }
