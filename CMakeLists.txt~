@@ -14,6 +14,13 @@ if(NOT XercesLibrary)
   message(FATAL_ERROR "Failed to find the Xerces library.")
 endif()
 
+SET(ALETHIA_PARSER_HEADERS
+				AlethiaParser/AlethiaParser.h
+								)
+SET(ALETHIA_PARSER_SOURCE
+				AlethiaParser/AlethiaParser.cpp
+								)
+
 SET(TG_HEADERS 	  
 				StandardHeaders.h
 				StatisticalFunctions.h
@@ -26,6 +33,8 @@ SET(TG_HEADERS
 				Image_proc_functions.h
 				binarization.h
 				RectangleTest.h
+				connectedcomponent.h
+				PixelValidation.h
 					)  
 
 
@@ -41,6 +50,8 @@ SET(TG_SOURCES
 				Image_proc_functions.cpp
 				binarization.cpp
 				RectangleTest.cpp
+				connectedcomponent.cpp
+				PixelValidation.cpp
 					)
 				
 

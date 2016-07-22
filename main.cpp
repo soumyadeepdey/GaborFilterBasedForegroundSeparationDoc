@@ -7,6 +7,7 @@
 #include "binarization.h"
 #include "RectangleTest.h"
 #include "connectedcomponent.h"
+#include "AlethiaParser/AlethiaParser.h"
 
 RNG rng(12345);
 
@@ -21,10 +22,44 @@ using namespace IITkgp_functions;
 
 int main(int argc, char* argv[])
 {
-  Mat src = imread(argv[1],1);
+  
+  page pg = GetPageGroundtruth(argv[1]);
+  
   char *name;
-  name = input_image_name_cut(argv[1]);
+  name = input_image_name_cut(pg.GetImageName());
   makedir(name);
+  
+  char *opt;
+  opt = (char *) malloc ( 2001 * sizeof(char));
+  if(opt == NULL)
+  {
+    printf("Memory can not be allocated\n");
+    exit(0);
+  }
+  strcpy(opt,name);
+
+  char *tnm;
+  tnm = (char *) malloc ( 2001 * sizeof(char));
+  if(tnm == NULL)
+  {
+    printf("Memory can not be allocated\n");
+    exit(0);
+  }
+  tnm = ".jpg";
+  strcat(opt,tnm);
+  
+  char *tnm1;
+  tnm1 = (char *) malloc ( 2001 * sizeof(char));
+  if(tnm1 == NULL)
+  {
+    printf("Memory can not be allocated\n");
+    exit(0);
+  }
+  strcpy(tnm1,opt);
+  
+  printf("imagename %s\n",tnm1);
+  Mat src = imread(tnm1,1);
+  
   
   Mat blurimage; 
    GaussianBlur(src,blurimage,Size(3,3),0,0);
@@ -85,6 +120,8 @@ int main(int argc, char* argv[])
   
   
   /***************************************************************/
+  
+  //Mat mor_temp = Morphology_Gui(blurimage,0);
   
   Mat erodedimage = Erosion(0,1,blurimage);
   

@@ -14,6 +14,13 @@ if(NOT XercesLibrary)
   message(FATAL_ERROR "Failed to find the Xerces library.")
 endif()
 
+SET(ALETHIA_PARSER_HEADERS
+				AlethiaParser/AlethiaParser.h
+								)
+SET(ALETHIA_PARSER_SOURCE
+				AlethiaParser/AlethiaParser.cpp
+								)
+
 SET(TG_HEADERS 	  
 				StandardHeaders.h
 				StatisticalFunctions.h
@@ -52,7 +59,7 @@ SET(TG_SOURCES
 # Or set it globally for all targets:
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-ADD_EXECUTABLE(gabor ${TG_HEADERS} ${TG_SOURCES} )
+ADD_EXECUTABLE(gabor ${TG_HEADERS} ${TG_SOURCES} ${ALETHIA_PARSER_HEADERS} ${ALETHIA_PARSER_SOURCE})
 TARGET_LINK_LIBRARIES(gabor ${OpenCV_LIBS} ${XercesLibrary})
 set(CMAKE_BUILD_TYPE Debug)
 
