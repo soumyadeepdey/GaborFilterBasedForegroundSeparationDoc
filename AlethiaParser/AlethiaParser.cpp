@@ -14,6 +14,7 @@
 
 #include "AlethiaParser.h"
 
+
 using namespace xercesc;
 using namespace std;
 
@@ -51,6 +52,7 @@ GetConfig::GetConfig()
    TAG_ChartRegion = XMLString::transcode("ChartRegion");
    TAG_SeparatorRegion = XMLString::transcode("SeparatorRegion"); 
    TAG_Coords = XMLString::transcode("Coords");
+   TAG_Point = XMLString::transcode("Point");
    ATTR_id = XMLString::transcode("id");
    ATTR_type = XMLString::transcode("type");
    ATTR_bgColour = XMLString::transcode("bgColour");
@@ -98,6 +100,7 @@ GetConfig::~GetConfig()
       XMLString::release( &TAG_ChartRegion );
       XMLString::release( &TAG_SeparatorRegion );
       XMLString::release( &TAG_Coords );
+      XMLString::release( &TAG_Point );
       XMLString::release( &ATTR_id );
       XMLString::release( &ATTR_type );
       XMLString::release( &ATTR_bgColour );
@@ -197,10 +200,10 @@ page GetConfig::readConfigFile(string& configFile)
 
       // For all nodes, children of "root" in the XML tree.
       
-      printf("number of node = %ld\n",nodeCount);
+      printf("Initial number of node = %ld\n",nodeCount);
 
       
-      
+     
       
       for( XMLSize_t xx = 0; xx < nodeCount; ++xx )
       {
@@ -238,7 +241,7 @@ page GetConfig::readConfigFile(string& configFile)
 		    
 		    DOMNodeList* Pagechildren = currentElement->getChildNodes();
 		    const  XMLSize_t PagenodeCount = Pagechildren->getLength();
-		    printf("number of node = %ld\n",PagenodeCount);
+		    printf("number of Page Children = %ld\n",PagenodeCount);
 		    
 		    for( XMLSize_t yy = 0; yy < PagenodeCount; ++yy )
 		    {
@@ -266,6 +269,7 @@ page GetConfig::readConfigFile(string& configFile)
 			  const XMLCh* xbgc = pagecurrentElement->getAttribute(ATTR_bgColour);
 			  char *t_bgcolor = XMLString::transcode(xbgc);
 			  T.setbgcolor(t_bgcolor);
+			  printf("bgcolor=%s\n",t_bgcolor);
 			  
 			  const XMLCh* xori = pagecurrentElement->getAttribute(ATTR_orientation);
 			  char *t_orientation = XMLString::transcode(xori);
@@ -273,37 +277,48 @@ page GetConfig::readConfigFile(string& configFile)
 			  T.setorientation(orien);
 			  
 			  
-			  DOMNodeList* Nchildren = currentElement->getChildNodes();
-			  const  XMLSize_t NnodeCount = Pagechildren->getLength();
-			  printf("number of node = %ld\n",NnodeCount);
+			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
+			  const  XMLSize_t NnodeCount = Nchildren->getLength();
+			  printf("next number of node = %ld\n",NnodeCount);
+			  
+			  
 			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
 			  {
 			    DOMNode* NcurrentNode = Nchildren->item(zz);
-			    if(NcurrentNode->getNodeType() &&  // true is not NULL
-				NcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
-			    {
-			      DOMElement* NcurrentElement
-			      = dynamic_cast< xercesc::DOMElement* >( NcurrentNode );
-		      
-			      if( XMLString::equals(NcurrentElement->getTagName(), TAG_Coords) )
+			    if( XMLString::equals(NcurrentNode->getNodeName(), TAG_Coords) )
 			      {
-				Point Q;
-				
-				const XMLCh* xcor = NcurrentElement->getAttribute(ATTR_x);
-				char *tempx = XMLString::transcode(xcor);
-				int xposi = atoi(tempx);
-				Q.x=xposi;
-				
-				const XMLCh* ycor = NcurrentElement->getAttribute(ATTR_y);
-				char *tempy = XMLString::transcode(ycor);
-				int yposi = atoi(tempy);
-				Q.y=yposi;
-				
-				T.setCoord(Q);
-				
+				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
+				const  XMLSize_t NNnodeCount = NNchildren->getLength();
+				printf("next for points number of node = %ld\n",NNnodeCount);
+				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
+				{
+				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
+				   if( NNcurrentNode->getNodeType() &&  // true is not NULL
+				      NNcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
+				   {
+				     DOMElement* NNcurrentElement
+					      = dynamic_cast< xercesc::DOMElement* >( NNcurrentNode );
+				      if( XMLString::equals(NNcurrentElement->getTagName(), TAG_Point) )
+				      {
+					Point Q;
+				      
+					const XMLCh* xcor = NNcurrentElement->getAttribute(ATTR_x);
+					char *tempx = XMLString::transcode(xcor);
+					int xposi = atoi(tempx);
+					Q.x=xposi;
+					
+					const XMLCh* ycor = NNcurrentElement->getAttribute(ATTR_y);
+					char *tempy = XMLString::transcode(ycor);
+					int yposi = atoi(tempy);
+					Q.y=yposi;
+					printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					T.setCoord(Q);
+				      }
+				   }
+				}
 			      }
-			    }
 			  }
+			  
 			  
 			  //Attribute Specific to Text Region will go here
 			  
@@ -365,36 +380,46 @@ page GetConfig::readConfigFile(string& configFile)
 			  float orien = atof(t_orientation);
 			  S.setorientation(orien);
 			  
-			  DOMNodeList* Nchildren = currentElement->getChildNodes();
-			  const  XMLSize_t NnodeCount = Pagechildren->getLength();
-			  printf("number of node = %ld\n",NnodeCount);
+			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
+			  const  XMLSize_t NnodeCount = Nchildren->getLength();
+			  printf("next number of node = %ld\n",NnodeCount);
+			  
+			  
 			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
 			  {
 			    DOMNode* NcurrentNode = Nchildren->item(zz);
-			    if(NcurrentNode->getNodeType() &&  // true is not NULL
-				NcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
-			    {
-			      DOMElement* NcurrentElement
-			      = dynamic_cast< xercesc::DOMElement* >( NcurrentNode );
-		      
-			      if( XMLString::equals(NcurrentElement->getTagName(), TAG_Coords) )
+			    if( XMLString::equals(NcurrentNode->getNodeName(), TAG_Coords) )
 			      {
-				Point Q;
-				
-				const XMLCh* xcor = NcurrentElement->getAttribute(ATTR_x);
-				char *tempx = XMLString::transcode(xcor);
-				int xposi = atoi(tempx);
-				Q.x=xposi;
-				
-				const XMLCh* ycor = NcurrentElement->getAttribute(ATTR_y);
-				char *tempy = XMLString::transcode(ycor);
-				int yposi = atoi(tempy);
-				Q.y=yposi;
-				
-				S.setCoord(Q);
-				
+				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
+				const  XMLSize_t NNnodeCount = NNchildren->getLength();
+				printf("next for points number of node = %ld\n",NNnodeCount);
+				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
+				{
+				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
+				   if( NNcurrentNode->getNodeType() &&  // true is not NULL
+				      NNcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
+				   {
+				     DOMElement* NNcurrentElement
+					      = dynamic_cast< xercesc::DOMElement* >( NNcurrentNode );
+				      if( XMLString::equals(NNcurrentElement->getTagName(), TAG_Point) )
+				      {
+					Point Q;
+				      
+					const XMLCh* xcor = NNcurrentElement->getAttribute(ATTR_x);
+					char *tempx = XMLString::transcode(xcor);
+					int xposi = atoi(tempx);
+					Q.x=xposi;
+					
+					const XMLCh* ycor = NNcurrentElement->getAttribute(ATTR_y);
+					char *tempy = XMLString::transcode(ycor);
+					int yposi = atoi(tempy);
+					Q.y=yposi;
+					printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					S.setCoord(Q);
+				      }
+				   }
+				}
 			      }
-			    }
 			  }
 			  
 			  //Attribute Specific to Separator Region will go here
@@ -428,36 +453,46 @@ page GetConfig::readConfigFile(string& configFile)
 			  G.setorientation(orien);
 			  
 			  
-			  DOMNodeList* Nchildren = currentElement->getChildNodes();
-			  const  XMLSize_t NnodeCount = Pagechildren->getLength();
-			  printf("number of node = %ld\n",NnodeCount);
+			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
+			  const  XMLSize_t NnodeCount = Nchildren->getLength();
+			  printf("next number of node = %ld\n",NnodeCount);
+			  
+			  
 			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
 			  {
 			    DOMNode* NcurrentNode = Nchildren->item(zz);
-			    if(NcurrentNode->getNodeType() &&  // true is not NULL
-				NcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
-			    {
-			      DOMElement* NcurrentElement
-			      = dynamic_cast< xercesc::DOMElement* >( NcurrentNode );
-		      
-			      if( XMLString::equals(NcurrentElement->getTagName(), TAG_Coords) )
+			    if( XMLString::equals(NcurrentNode->getNodeName(), TAG_Coords) )
 			      {
-				Point Q;
-				
-				const XMLCh* xcor = NcurrentElement->getAttribute(ATTR_x);
-				char *tempx = XMLString::transcode(xcor);
-				int xposi = atoi(tempx);
-				Q.x=xposi;
-				
-				const XMLCh* ycor = NcurrentElement->getAttribute(ATTR_y);
-				char *tempy = XMLString::transcode(ycor);
-				int yposi = atoi(tempy);
-				Q.y=yposi;
-				
-				G.setCoord(Q);
-				
+				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
+				const  XMLSize_t NNnodeCount = NNchildren->getLength();
+				printf("next for points number of node = %ld\n",NNnodeCount);
+				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
+				{
+				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
+				   if( NNcurrentNode->getNodeType() &&  // true is not NULL
+				      NNcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
+				   {
+				     DOMElement* NNcurrentElement
+					      = dynamic_cast< xercesc::DOMElement* >( NNcurrentNode );
+				      if( XMLString::equals(NNcurrentElement->getTagName(), TAG_Point) )
+				      {
+					Point Q;
+				      
+					const XMLCh* xcor = NNcurrentElement->getAttribute(ATTR_x);
+					char *tempx = XMLString::transcode(xcor);
+					int xposi = atoi(tempx);
+					Q.x=xposi;
+					
+					const XMLCh* ycor = NNcurrentElement->getAttribute(ATTR_y);
+					char *tempy = XMLString::transcode(ycor);
+					int yposi = atoi(tempy);
+					Q.y=yposi;
+					printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					G.setCoord(Q);
+				      }
+				   }
+				}
 			      }
-			    }
 			  }
 			  
 			  //Attribute Specific to Graphic Region will go here
@@ -502,39 +537,49 @@ page GetConfig::readConfigFile(string& configFile)
 			  I.setorientation(orien);
 			  
 			  
-			  DOMNodeList* Nchildren = currentElement->getChildNodes();
-			  const  XMLSize_t NnodeCount = Pagechildren->getLength();
-			  printf("number of node = %ld\n",NnodeCount);
+			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
+			  const  XMLSize_t NnodeCount = Nchildren->getLength();
+			  printf("next number of node = %ld\n",NnodeCount);
+			  
+			  
 			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
 			  {
 			    DOMNode* NcurrentNode = Nchildren->item(zz);
-			    if(NcurrentNode->getNodeType() &&  // true is not NULL
-				NcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
-			    {
-			      DOMElement* NcurrentElement
-			      = dynamic_cast< xercesc::DOMElement* >( NcurrentNode );
-		      
-			      if( XMLString::equals(NcurrentElement->getTagName(), TAG_Coords) )
+			    if( XMLString::equals(NcurrentNode->getNodeName(), TAG_Coords) )
 			      {
-				Point Q;
-				
-				const XMLCh* xcor = NcurrentElement->getAttribute(ATTR_x);
-				char *tempx = XMLString::transcode(xcor);
-				int xposi = atoi(tempx);
-				Q.x=xposi;
-				
-				const XMLCh* ycor = NcurrentElement->getAttribute(ATTR_y);
-				char *tempy = XMLString::transcode(ycor);
-				int yposi = atoi(tempy);
-				Q.y=yposi;
-				
-				I.setCoord(Q);
-				
+				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
+				const  XMLSize_t NNnodeCount = NNchildren->getLength();
+				printf("next for points number of node = %ld\n",NNnodeCount);
+				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
+				{
+				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
+				   if( NNcurrentNode->getNodeType() &&  // true is not NULL
+				      NNcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
+				   {
+				     DOMElement* NNcurrentElement
+					      = dynamic_cast< xercesc::DOMElement* >( NNcurrentNode );
+				      if( XMLString::equals(NNcurrentElement->getTagName(), TAG_Point) )
+				      {
+					Point Q;
+				      
+					const XMLCh* xcor = NNcurrentElement->getAttribute(ATTR_x);
+					char *tempx = XMLString::transcode(xcor);
+					int xposi = atoi(tempx);
+					Q.x=xposi;
+					
+					const XMLCh* ycor = NNcurrentElement->getAttribute(ATTR_y);
+					char *tempy = XMLString::transcode(ycor);
+					int yposi = atoi(tempy);
+					Q.y=yposi;
+					printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					I.setCoord(Q);
+				      }
+				   }
+				}
 			      }
-			    }
 			  }
 			  
-			  //Attribute Specific to Graphic Region will go here
+			  //Attribute Specific to Image Region will go here
 			  
 			   
 			   char* ColorDepth;
@@ -578,36 +623,46 @@ page GetConfig::readConfigFile(string& configFile)
 			  C.setorientation(orien);
 			  
 			  
-			  DOMNodeList* Nchildren = currentElement->getChildNodes();
-			  const  XMLSize_t NnodeCount = Pagechildren->getLength();
-			  printf("number of node = %ld\n",NnodeCount);
+			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
+			  const  XMLSize_t NnodeCount = Nchildren->getLength();
+			  printf("next number of node = %ld\n",NnodeCount);
+			  
+			  
 			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
 			  {
 			    DOMNode* NcurrentNode = Nchildren->item(zz);
-			    if(NcurrentNode->getNodeType() &&  // true is not NULL
-				NcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
-			    {
-			      DOMElement* NcurrentElement
-			      = dynamic_cast< xercesc::DOMElement* >( NcurrentNode );
-		      
-			      if( XMLString::equals(NcurrentElement->getTagName(), TAG_Coords) )
+			    if( XMLString::equals(NcurrentNode->getNodeName(), TAG_Coords) )
 			      {
-				Point Q;
-				
-				const XMLCh* xcor = NcurrentElement->getAttribute(ATTR_x);
-				char *tempx = XMLString::transcode(xcor);
-				int xposi = atoi(tempx);
-				Q.x=xposi;
-				
-				const XMLCh* ycor = NcurrentElement->getAttribute(ATTR_y);
-				char *tempy = XMLString::transcode(ycor);
-				int yposi = atoi(tempy);
-				Q.y=yposi;
-				
-				C.setCoord(Q);
-				
+				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
+				const  XMLSize_t NNnodeCount = NNchildren->getLength();
+				printf("next for points number of node = %ld\n",NNnodeCount);
+				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
+				{
+				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
+				   if( NNcurrentNode->getNodeType() &&  // true is not NULL
+				      NNcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
+				   {
+				     DOMElement* NNcurrentElement
+					      = dynamic_cast< xercesc::DOMElement* >( NNcurrentNode );
+				      if( XMLString::equals(NNcurrentElement->getTagName(), TAG_Point) )
+				      {
+					Point Q;
+				      
+					const XMLCh* xcor = NNcurrentElement->getAttribute(ATTR_x);
+					char *tempx = XMLString::transcode(xcor);
+					int xposi = atoi(tempx);
+					Q.x=xposi;
+					
+					const XMLCh* ycor = NNcurrentElement->getAttribute(ATTR_y);
+					char *tempy = XMLString::transcode(ycor);
+					int yposi = atoi(tempy);
+					Q.y=yposi;
+					printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					C.setCoord(Q);
+				      }
+				   }
+				}
 			      }
-			    }
 			  }
 			  
 			  //Attribute Specific to Graphic Region will go here
@@ -678,7 +733,7 @@ page GetPageGroundtruth(char* name)
 /*
 int main()
 {
-   string configFile="pc-00000205.xml"; // stat file. Get ambigious segfault otherwise.
+   string configFile="pc-00000158.xml"; // stat file. Get ambigious segfault otherwise.
 
    GetConfig appConfig;
 

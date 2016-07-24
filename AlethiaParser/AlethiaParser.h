@@ -19,7 +19,7 @@
 #include <xercesc/util/XMLUni.hpp>
 
 
-#include "../StandardHeaders.h"
+#include "StandardHeaders.h"
 
 #include <string>
 #include <stdexcept>
@@ -41,14 +41,15 @@ enum {
 class Region
 {
 public:
-  Region()
-  {
-    printf("Region Object Created\n");
-  }
-  ~Region()
-  {
-    printf("Region Object Destroyed\n");
-  }
+//   Region()
+//   {
+//     printf("Region Object Created\n");
+//   }
+   ~Region()
+   {
+     //printf("Region Object Destroyed\n");
+     cord.clear();
+   }
   void setCoord(Point p)
     {
       cord.push_back(p);
@@ -70,6 +71,11 @@ public:
       orientation = val;
     }
     
+    char* getid()
+    {
+      return id;
+    }
+    
     vector<Point> GetCoord()
     {
       return cord;
@@ -86,14 +92,14 @@ private:
 class TextRegion: public Region
 {
 public:
-    TextRegion()
-    {
-      printf("Text Region Object Created\n");
-    }
-    ~TextRegion()
-    {
-      printf("Text Region Object Destroyed\n");
-    }
+//     TextRegion()
+//     {
+//       printf("Text Region Object Created\n");
+//     }
+//     ~TextRegion()
+//     {
+//       printf("Text Region Object Destroyed\n");
+//     }
     
     void setReadingOrientation(float val)
     {
@@ -166,14 +172,14 @@ private:
 class ChartRegion: public Region
 {
 public:
-    ChartRegion()
-    {
-      printf("Chart Region Object Created\n");
-    }
-    ~ChartRegion()
-    {
-      printf("Chart Region Object Destroyed\n");
-    }
+//     ChartRegion()
+//     {
+//       printf("Chart Region Object Created\n");
+//     }
+//     ~ChartRegion()
+//     {
+//       printf("Chart Region Object Destroyed\n");
+//     }
     void setembText(bool b)
     {
       embText = b;
@@ -201,14 +207,14 @@ private:
 class ImageRegion: public Region
 {
 public:
-    ImageRegion()
-    {
-      printf("Image Region Object Created\n");
-    }
-    ~ImageRegion()
-    {
-      printf("Image Region Object Destroyed\n");
-    }
+//     ImageRegion()
+//     {
+//       printf("Image Region Object Created\n");
+//     }
+//     ~ImageRegion()
+//     {
+//       printf("Image Region Object Destroyed\n");
+//     }
     void setembText(bool b)
     {
       embText = b;
@@ -235,14 +241,14 @@ private:
 class GraphicRegion: public Region
 {
 public:
-  GraphicRegion()
-    {
-      printf("Graphic Region Object Created\n");
-    }
-  ~GraphicRegion()
-    {
-      printf("Graphic Region Object Destroyed\n");
-    }
+//   GraphicRegion()
+//     {
+//       printf("Graphic Region Object Created\n");
+//     }
+//   ~GraphicRegion()
+//     {
+//       printf("Graphic Region Object Destroyed\n");
+//     }
    void setembText(bool b)
     {
       embText = b;
@@ -272,14 +278,14 @@ class SeparatorRegion: public Region
 {
 public:
   
-  SeparatorRegion()
-    {
-      printf("SeparatorRegion Object Created\n");
-    }
-  ~SeparatorRegion()
-    {
-      printf("SeparatorRegion Object Destroyed\n");
-    }
+//   SeparatorRegion()
+//     {
+//       printf("SeparatorRegion Object Created\n");
+//     }
+//   ~SeparatorRegion()
+//     {
+//       printf("SeparatorRegion Object Destroyed\n");
+//     }
     
     void setcolor(char *c)
     {
@@ -300,10 +306,10 @@ private:
 class page
 {
 public:
-  page()
-  {
-      printf("Page Object Created\n");
-    }
+//   page()
+//   {
+//       printf("Page Object Created\n");
+//     }
   ~page()
   {
     TR.clear();
@@ -311,7 +317,7 @@ public:
     IR.clear();
     CR.clear();
     SR.clear();
-    printf("Page Object Destroyed\n");
+    //printf("Page Object Destroyed\n");
   }
   void SetImageName(char* ch)
   {
@@ -419,7 +425,8 @@ private:
    XMLCh* TAG_ImageRegion;
    XMLCh* TAG_ChartRegion;
    XMLCh* TAG_SeparatorRegion;
-   XMLCh* TAG_Coords;
+   XMLCh* TAG_Coords; 
+   XMLCh* TAG_Point;
    XMLCh* ATTR_id;
    XMLCh* ATTR_type;
    XMLCh* ATTR_bgColour;

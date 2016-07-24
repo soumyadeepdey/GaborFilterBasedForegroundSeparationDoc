@@ -35,6 +35,7 @@ SET(TG_HEADERS
 				RectangleTest.h
 				connectedcomponent.h
 				PixelValidation.h
+				PrepareAlethiaGt.h
 					)  
 
 
@@ -52,6 +53,7 @@ SET(TG_SOURCES
 				RectangleTest.cpp
 				connectedcomponent.cpp
 				PixelValidation.cpp
+				PrepareAlethiaGt.cpp
 					)
 				
 
@@ -59,7 +61,7 @@ SET(TG_SOURCES
 # Or set it globally for all targets:
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-ADD_EXECUTABLE(gabor ${TG_HEADERS} ${TG_SOURCES} )
+ADD_EXECUTABLE(gabor ${TG_HEADERS} ${TG_SOURCES} ${ALETHIA_PARSER_HEADERS} ${ALETHIA_PARSER_SOURCE})
 TARGET_LINK_LIBRARIES(gabor ${OpenCV_LIBS} ${XercesLibrary})
 set(CMAKE_BUILD_TYPE Debug)
 

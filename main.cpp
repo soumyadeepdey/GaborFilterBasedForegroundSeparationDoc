@@ -8,15 +8,12 @@
 #include "RectangleTest.h"
 #include "connectedcomponent.h"
 #include "AlethiaParser/AlethiaParser.h"
+#include "PrepareAlethiaGT.h"
+
 
 RNG rng(12345);
 
 
-typedef struct SegmentationBlocks
-{
-  Rect B;
-  vector<Rect> child;
-}SB;
 
 using namespace IITkgp_functions;
 
@@ -86,18 +83,46 @@ int main(int argc, char* argv[])
   
   /************************Gradient Computation***************************************/
   
+  vector<Mat> RGBImage;
+  vector<Mat> RGBGrad;
+  
+  split(blurimage,RGBImage);
+  
   Mat gray;
   int ddepth = CV_32F;
   int scale = 1;
   int delta = 0;
   Mat grad;
   
-  cvtColor(blurimage,gray,CV_BGR2GRAY);
-  
-  /// Generate grad_x and grad_y
   Mat grad_x, grad_y;
   Mat abs_grad_x, abs_grad_y;
   Mat abs_grad;
+  
+  for(int i=0;i<RGBImage.size();i++)
+  {
+    Sobel( RGBImage[i], grad_x, ddepth, 1, 0, 3, scale, delta, BORDER_DEFAULT );
+    convertScaleAbs( grad_x, abs_grad_x );
+    Sobel( RGBImage[i], grad_y, ddepth, 0, 1, 3, scale, delta, BORDER_DEFAULT );
+    convertScaleAbs( grad_y, abs_grad_y );
+    addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, abs_grad );
+    RGBGrad.push_back(abs_grad);
+    char *tname; 
+	tname=(char *)malloc(2001*sizeof(char));
+	sprintf(tname, "Gradient_%d.png",i);
+	
+	output=(char *)malloc(2001*sizeof(char));
+	output = CreateNameIntoFolder(name,tname);
+	imwrite(output,abs_grad);
+    abs_grad.release();
+    
+  }
+
+  
+  
+  cvtColor(blurimage,gray,CV_BGR2GRAY);
+  
+  /// Generate grad_x and grad_y
+  
 
   /// Gradient X
   //Scharr( src_gray, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
@@ -258,12 +283,26 @@ int main(int argc, char* argv[])
 	 count++;
 	 SB B;
 	 B.B = boundRect[j];
+	 B.Contours = contours_poly[j];
 	 blocks.push_back(B);
+	 B.gtflag=false;
 	 flag[j]=true;
        }
      }
 
      avg_height = avg_height/count;
+     
+     for(int i=0;i<blocks.size();i++)
+     {
+       for(int j=0;j<blocks.size();j++)
+       {
+	 if(i!=j)
+	 {
+	   if(PolygonInsidePolygonTest(blocks[i].Contours,blocks[j].Contours)==2)
+	     blocks.erase(blocks.begin()+j);
+	 }
+       }
+     }
      
      
      Mat temp_img;
@@ -340,8 +379,8 @@ int main(int argc, char* argv[])
 	      float frac1 = (temp_boundRect[m].area()*1.0)/(boundRect[j].area()*1.0);
 	      if(frac1 < 0.7 && l!=m)
 	      {
-		  int val = FindOverlappingRectangles(temp_boundRect[l],temp_boundRect[m]);
-		  //int val = PolygonInsidePolygonTest(temp_contours_poly[l],temp_contours_poly[m]);
+		  //int val = FindOverlappingRectangles(temp_boundRect[l],temp_boundRect[m]);
+		  int val = PolygonInsidePolygonTest(temp_contours_poly[l],temp_contours_poly[m]);
 		  if(val==2)
 		  {
 		   // printf("Working\n");
@@ -374,7 +413,13 @@ int main(int argc, char* argv[])
 	     // R.height = temp_boundRect[l].height;
 	     // R.width = temp_boundRect[l].width;
 	      //blocks[bc].child.push_back(R);
-	      blocks[bc].child.push_back(temp_boundRect[l]);
+	      SB child_B;
+	      child_B.B = temp_boundRect[l];
+	      child_B.Contours = temp_contours[l];
+	      child_B.gtflag = false;
+	      blocks[bc].childs.push_back(child_B);
+	      //blocks[bc].child.push_back(temp_boundRect[l]);
+	      //blocks[bc].ChildContour.push_back(temp_contours[l]);
 	    }
 	    
 	 }
@@ -430,31 +475,26 @@ int main(int argc, char* argv[])
       
      for(int i=0;i<blocks.size();i++)
      {
-       if(!blocks[i].child.empty()) // 
+       SB B = blocks[i];
+       if(!B.childs.empty()) // 
        {
-	 vector<Rect> C = blocks[i].child;
+	 vector<SB> C = B.childs;
 	 for(int j=0;j<C.size();j++)
 	 {
 	   for(int k=0;k<C.size();k++)
 	   {
 	     if(j!=k)
 	     {
-	       int val = FindOverlappingRectangles(C[j],C[k]);
+	       //int val = PolygonInsidePolygonTest(C[j].Contours,C[k].Contours);
+	       int val = FindOverlappingRectangles(C[j].B,C[k].B);
 	       if(val == 2)
 	       {
 		 C.erase(C.begin()+k);
 	       }
 	     }
 	   }
-	   for(int m=0;m<blocks.size();m++)
-	   {
-	     if(m!=i && FindOverlappingRectangles(C[j],blocks[m].B) == 2 && blocks[m].child.empty())
-	     {
-	       blocks.erase(blocks.begin()+m);
-	     }
-	   }
 	 }
-	 blocks[i].child = C;
+	 blocks[i].childs = C;
        }
      }
 
@@ -464,18 +504,21 @@ int main(int argc, char* argv[])
      for(int i=0;i<blocks.size();i++)
      {
        rectangle( cont, blocks[i].B.tl(), blocks[i].B.br(), Scalar(250,10,10), 2, 8, 0 );
-       if(!blocks[i].child.empty())
+       if(!blocks[i].childs.empty())
        {
-	 vector<Rect> C = blocks[i].child;
+	 vector<SB> C = blocks[i].childs;
 	 for(int j=0;j<C.size();j++)
 	 {
-	   rectangle( cont, C[j].tl(), C[j].br(), Scalar(10,10,250), 2, 8, 0 );
+	   rectangle( cont, C[j].B.tl(), C[j].B.br(), Scalar(10,10,250), 2, 8, 0 );
 	 }
        }
      }
      
      output = CreateNameIntoFolder(name,"contour11.png");
       imwrite(output,cont);
+      
+      blocks = PrepareAlethiaGt(pg,blocks);
+      
   
  // Binary.release();
   /*
