@@ -36,6 +36,9 @@ SET(TG_HEADERS
 				connectedcomponent.h
 				PixelValidation.h
 				PrepareAlethiaGT.h
+				SegmentationUnit.h
+				GradientFeature.h
+				FeatureExtraction.h
 					)  
 
 
@@ -54,6 +57,9 @@ SET(TG_SOURCES
 				connectedcomponent.cpp
 				PixelValidation.cpp
 				PrepareAlethiaGT.cpp
+				SegmentationUnit.cpp
+				GradientFeature.cpp
+				FeatureExtraction.cpp
 					)
 				
 

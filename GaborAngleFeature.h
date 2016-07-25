@@ -15,6 +15,7 @@ using namespace IITkgp_functions;
 vector<vector<float> > GetMyGaborFeature(Mat image, char* im_name);
 
 
+vector<float>  GetGaborFeature(Mat image);
 
 
 

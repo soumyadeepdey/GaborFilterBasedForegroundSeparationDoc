@@ -35,7 +35,9 @@ SET(TG_HEADERS
 				RectangleTest.h
 				connectedcomponent.h
 				PixelValidation.h
-				PrepareAlethiaGt.h
+				PrepareAlethiaGT.h
+				SegmentationUnit.h
+				FeatureExtraction.h
 					)  
 
 
@@ -53,7 +55,9 @@ SET(TG_SOURCES
 				RectangleTest.cpp
 				connectedcomponent.cpp
 				PixelValidation.cpp
-				PrepareAlethiaGt.cpp
+				PrepareAlethiaGT.cpp
+				SegmentationUnit.cpp
+				FeatureExtraction.cpp
 					)
 				
 

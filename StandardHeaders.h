@@ -12,10 +12,13 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include<queue>
-#include<list>
-#include<stack>
-#include<search.h>
+#include <iostream>
+#include <iterator>
+#include <algorithm>
+#include <queue>
+#include <list>
+#include <stack>
+#include <search.h>
 #include <time.h>
 
 #include "opencv2/opencv_modules.hpp"
@@ -34,6 +37,7 @@
 
 using namespace cv;
 using namespace std;
+
 
 
 

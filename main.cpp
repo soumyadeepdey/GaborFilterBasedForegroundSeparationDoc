@@ -9,10 +9,10 @@
 #include "connectedcomponent.h"
 #include "AlethiaParser/AlethiaParser.h"
 #include "PrepareAlethiaGT.h"
-
+#include "SegmentationUnit.h"
+#include "FeatureExtraction.h"
 
 RNG rng(12345);
-
 
 
 using namespace IITkgp_functions;
@@ -67,6 +67,7 @@ int main(int argc, char* argv[])
   output = CreateNameIntoFolder(name,"bluredimage.png");
   imwrite(output,blurimage);
   
+  
   /*
   Mat QuantizedImage = ColorQuantize(blurimage,24);
   
@@ -83,10 +84,9 @@ int main(int argc, char* argv[])
   
   /************************Gradient Computation***************************************/
   
-  vector<Mat> RGBImage;
-  vector<Mat> RGBGrad;
   
-  split(blurimage,RGBImage);
+  
+  
   
   Mat gray;
   int ddepth = CV_32F;
@@ -98,6 +98,10 @@ int main(int argc, char* argv[])
   Mat abs_grad_x, abs_grad_y;
   Mat abs_grad;
   
+  /*
+  vector<Mat> RGBImage;
+  vector<Mat> RGBGrad;
+  split(blurimage,RGBImage);
   for(int i=0;i<RGBImage.size();i++)
   {
     Sobel( RGBImage[i], grad_x, ddepth, 1, 0, 3, scale, delta, BORDER_DEFAULT );
@@ -117,7 +121,7 @@ int main(int argc, char* argv[])
     
   }
 
-  
+  */
   
   cvtColor(blurimage,gray,CV_BGR2GRAY);
   
@@ -143,6 +147,22 @@ int main(int argc, char* argv[])
   output = CreateNameIntoFolder(name,"GradientImage.png");
   imwrite(output,abs_grad);
   
+  Mat GradMag = Mat(gray.rows,gray.cols,CV_32FC1);
+  Mat GradDir = Mat(gray.rows,gray.cols,CV_32FC1);
+  
+  for(int i=0;i<gray.rows;i++)
+  {
+    for(int j=0;j<gray.cols;j++)
+    {
+      GradMag.at<float>(i,j) = sqrt((grad_x.at<float>(i,j)*grad_x.at<float>(i,j))+(grad_y.at<float>(i,j)*grad_y.at<float>(i,j)));
+      GradDir.at<float>(i,j) = (atan2(grad_y.at<float>(i,j), grad_x.at<float>(i,j))*180)/PI;
+    }
+  }
+  grad_x.release();
+  grad_y.release();
+  abs_grad.release();
+  abs_grad_x.release();
+  abs_grad_y.release();
   
   /***************************************************************/
   
@@ -284,8 +304,10 @@ int main(int argc, char* argv[])
 	 SB B;
 	 B.B = boundRect[j];
 	 B.Contours = contours_poly[j];
-	 blocks.push_back(B);
 	 B.gtflag=false;
+	 B.Fvecflag = false;
+	 blocks.push_back(B);
+	 
 	 flag[j]=true;
        }
      }
@@ -325,7 +347,7 @@ int main(int argc, char* argv[])
 	      int temp_col = boundRect[j].width;
 	      bool measure_dist = false;
 	      {
-		if(pointPolygonTest(contours_poly[j],Point(n,m),measure_dist) >= 0.0)
+		if(pointPolygonTest(contours_poly[j],Point(n,m),measure_dist) <= 0.0)
 		{
 		  temp_img.at<uchar>(p,q) = Boundary_Binary.at<uchar>(m,n);		  
 		}
@@ -518,6 +540,65 @@ int main(int argc, char* argv[])
       imwrite(output,cont);
       
       blocks = PrepareAlethiaGt(pg,blocks);
+      
+      for(int i=0;i<blocks.size();i++)
+     {
+       SB B = blocks[i];
+       vector<Point> poly;
+       approxPolyDP( Mat(B.Contours), poly, 3, true );
+       Rect R = boundingRect( Mat(poly) );
+       Mat tempimg = Mat(R.height,R.width,blurimage.type(),Scalar(255,255,255));
+       for(int m=0;m<R.height;m++)
+       {
+	 for(int n=0;n<R.width;n++)
+	 {
+	   Point P;P.x=n;P.y=m;
+	   if(pointPolygonTest( poly, P, false )<=0)
+	   {
+	     for(int k=0;k<blurimage.channels();k++)
+	       tempimg.at<Vec3b>(m,n)[k] = blurimage.at<Vec3b>(m,n)[k];
+	   }
+	 }
+       }
+       B.FeatureVec = ExtractFeature(tempimg);
+       B.Fvecflag = true;
+       tempimg.release();
+       poly.clear();
+       
+       if(!B.childs.empty())
+       {
+	 vector<SB> C = B.childs;
+	 for(int j=0;j<C.size();j++)
+	 {
+	    SB B1 = C[j];
+	    approxPolyDP( Mat(B1.Contours), poly, 3, true );
+	    Rect R1 = boundingRect( Mat(poly) );
+	    tempimg = Mat(R1.height,R1.width,blurimage.type(),Scalar(255,255,255));
+	    for(int m=0;m<R1.height;m++)
+	    {
+	      for(int n=0;n<R1.width;n++)
+	      {
+		Point P1;P1.x=n;P1.y=m;
+		if(pointPolygonTest( poly, P1, false )<=0)
+		{
+		  for(int k=0;k<blurimage.channels();k++)
+		    tempimg.at<Vec3b>(m,n)[k] = blurimage.at<Vec3b>(m,n)[k];
+		}
+	      }
+	    }
+	    B1.FeatureVec = ExtractFeature(tempimg);
+	    B1.Fvecflag = true;
+	    tempimg.release();
+	    poly.clear();
+	    C[j]= B1;
+	   
+	 }
+	 B.childs = C;
+	 C.clear();
+       }
+       blocks[i] = B;
+     }
+      
       
   
  // Binary.release();
