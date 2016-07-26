@@ -39,6 +39,9 @@ SET(TG_HEADERS
 				SegmentationUnit.h
 				GradientFeature.h
 				FeatureExtraction.h
+				GeneralFunctions.h
+				MultiClassClassificationMetrics.h
+				classification.h
 					)  
 
 
@@ -60,6 +63,9 @@ SET(TG_SOURCES
 				SegmentationUnit.cpp
 				GradientFeature.cpp
 				FeatureExtraction.cpp
+				GeneralFunctions.cpp
+				MultiClassClassificationMetrics.cpp
+				classification.cpp
 					)
 				
 

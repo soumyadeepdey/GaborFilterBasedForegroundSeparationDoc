@@ -37,7 +37,10 @@ SET(TG_HEADERS
 				PixelValidation.h
 				PrepareAlethiaGT.h
 				SegmentationUnit.h
+				GradientFeature.h
 				FeatureExtraction.h
+				GeneralFunctions.h
+				MultiClassClassificationMetrics.h
 					)  
 
 
@@ -57,7 +60,10 @@ SET(TG_SOURCES
 				PixelValidation.cpp
 				PrepareAlethiaGT.cpp
 				SegmentationUnit.cpp
+				GradientFeature.cpp
 				FeatureExtraction.cpp
+				GeneralFunctions.cpp
+				MultiClassClassificationMetrics.cpp
 					)
 				
 
