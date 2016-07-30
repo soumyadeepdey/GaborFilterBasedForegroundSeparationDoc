@@ -3,6 +3,10 @@
 
 #include "StandardHeaders.h"
 #include "SegmentationUnit.h"
+#include "AlethiaParser/AlethiaParser.h"
+#include "folder.h"
+#include "PrepareAlethiaGT.h"
+#include "FeatureExtraction.h"
 
 
 #ifdef HAVE_OPENCV_OCL
@@ -35,6 +39,6 @@ typedef struct TrainDataClass
 
 
 
-TDC Training(char *TrainFile);
+void Training(char *TrainFile);
 
 #endif

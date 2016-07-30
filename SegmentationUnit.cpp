@@ -5,6 +5,7 @@
 #include "SmoothingGapfilling.h"
 #include "RectangleTest.h"
 #include "connectedcomponent.h"
+#include "FeatureExtraction.h"
 
 using namespace IITkgp_functions;
 
@@ -202,6 +203,64 @@ vector< SB > GetSegmentationUnit(Mat image)
 	 }
 	 blocks[i].childs = C;
        }
+     }
+     
+     for(int i=0;i<blocks.size();i++)
+     {
+       SB B = blocks[i];
+       vector<Point> poly;
+       approxPolyDP( Mat(B.Contours), poly, 3, true );
+       Rect R = boundingRect( Mat(poly) );
+       Mat tempimg = Mat(R.height,R.width,blurimage.type(),Scalar(255,255,255));
+       for(int m=0;m<R.height;m++)
+       {
+	 for(int n=0;n<R.width;n++)
+	 {
+	   Point P;P.x=n;P.y=m;
+	   if(pointPolygonTest( poly, P, false )<=0)
+	   {
+	     for(int k=0;k<blurimage.channels();k++)
+	       tempimg.at<Vec3b>(m,n)[k] = blurimage.at<Vec3b>(m,n)[k];
+	   }
+	 }
+       }
+       B.FeatureVec = ExtractFeature(tempimg);
+       B.Fvecflag = true;
+       tempimg.release();
+       poly.clear();
+       
+       if(!B.childs.empty())
+       {
+	 vector<SB> C = B.childs;
+	 for(int j=0;j<C.size();j++)
+	 {
+	    SB B1 = C[j];
+	    approxPolyDP( Mat(B1.Contours), poly, 3, true );
+	    Rect R1 = boundingRect( Mat(poly) );
+	    tempimg = Mat(R1.height,R1.width,blurimage.type(),Scalar(255,255,255));
+	    for(int m=0;m<R1.height;m++)
+	    {
+	      for(int n=0;n<R1.width;n++)
+	      {
+		Point P1;P1.x=n;P1.y=m;
+		if(pointPolygonTest( poly, P1, false )<=0)
+		{
+		  for(int k=0;k<blurimage.channels();k++)
+		    tempimg.at<Vec3b>(m,n)[k] = blurimage.at<Vec3b>(m,n)[k];
+		}
+	      }
+	    }
+	    B1.FeatureVec = ExtractFeature(tempimg);
+	    B1.Fvecflag = true;
+	    tempimg.release();
+	    poly.clear();
+	    C[j]= B1;
+	   
+	 }
+	 B.childs = C;
+	 C.clear();
+       }
+       blocks[i] = B;
      }
 
      
