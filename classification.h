@@ -7,6 +7,7 @@
 #include "folder.h"
 #include "PrepareAlethiaGT.h"
 #include "FeatureExtraction.h"
+#include "MultiClassClassificationMetrics.h"
 
 
 #ifdef HAVE_OPENCV_OCL
@@ -18,10 +19,10 @@
 
 
 
-#define _NBC_ 0 // normal Bayessian classifier
+#define _NBC_ 1 // normal Bayessian classifier
 #define _KNN_ 1 // k nearest neighbors classifier
 #define _SVM_ 1 // support vectors machine
-#define _DT_  0 // decision tree
+#define _DT_  1 // decision tree
 #define _BT_  0 // ADA Boost
 #define _GBT_ 0 // gradient boosted trees
 #define _RF_  1 // random forest
@@ -38,6 +39,7 @@ typedef struct TrainDataClass
 }TDC;
 
 
+void classify(char *TestFILE, char *classifiername);
 
 void Training(char *TrainFile);
 

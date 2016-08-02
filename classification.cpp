@@ -2,11 +2,142 @@
 
 using namespace IITkgp_functions;
 
+
+void classify(char *TestFILE, char *classifiername)
+{
+  vector<int> classnumber;
+      classnumber.push_back(0); classnumber.push_back(1); 
+      classnumber.push_back(2); classnumber.push_back(3); 
+      classnumber.push_back(4);
+      
+      
+      vector<ConfusionMatrix> CM_ALL(classnumber.size(),ConfusionMatrix(classnumber.size()));
+  
+  
+      
+  FILE *f;
+  f = fopen(TestFILE,"r");
+  while(!feof(f))
+  {
+    char filename[2000];
+      fscanf(f,"%s",&filename);
+      printf("%s\n",filename);
+      page pg = GetPageGroundtruth(filename);
+  
+      char *name;
+      name = input_image_name_cut(pg.GetImageName());
+      //makedir(name);
+      
+      char *opt;
+      opt = (char *) malloc ( 2001 * sizeof(char));
+      if(opt == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(opt,name);
+
+      char *tnm;
+      tnm = (char *) malloc ( 2001 * sizeof(char));
+      if(tnm == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      tnm = ".jpg";
+      strcat(opt,tnm);
+      
+      char *tnm1;
+      tnm1 = (char *) malloc ( 2001 * sizeof(char));
+      if(tnm1 == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(tnm1,opt);
+      
+      printf("imagename %s\n",tnm1);
+      
+      Mat image = imread(tnm1,1);
+      
+      vector<SB> blocks = GetSegmentationUnit(image);
+      
+      blocks = PrepareAlethiaGt(pg,blocks);
+      
+      Classification(blocks,classifiername);
+      
+      Mat Gtlabels = Mat(blocks.size(),1,CV_8UC1);
+      Mat PredictedLabels = Mat(blocks.size(),1,CV_8UC1);
+      
+      for(int i=0;i<blocks.size();i++)
+      {
+	SB B = blocks[i];
+	Gtlabels.at<uchar>(i,0) = B.GtClass;
+	PredictedLabels.at<uchar>(i,0) = B.PredictedClass;
+      }
+      
+      vector<ConfusionMatrix> CM = GetConfusionMatrix(Gtlabels,PredictedLabels,classnumber);
+      char *tempname;
+	 opt = (char *)malloc(2000*sizeof(char));
+	 tempname = (char *)malloc(2000*sizeof(char));
+	 
+	 tempname = "image_Classification_Result.xls";
+	 
+	opt = CreateNameIntoFolder(classifiername,tempname);
+	 
+	 
+	 
+	 FILE *res;
+	 
+	 res = fopen(opt,"a+");
+	 
+	 
+	 fprintf(res,"%s\t",name);
+	 for(int j=0;j<CM.size();j++)
+	 {
+	   ConfusionMatrix cm_j = CM[j];
+	   fprintf(res,"%s\t%d\t%d\t%d\t%d\t%d\t",classifiername,classnumber[j],cm_j.tp,cm_j.fp,cm_j.tn,cm_j.fn);
+	   
+	   CM_ALL[j].tp = CM_ALL[j].tp + cm_j.tp;
+	   CM_ALL[j].fp = CM_ALL[j].fp + cm_j.fp;
+	   CM_ALL[j].tn = CM_ALL[j].tn + cm_j.tn;
+	   CM_ALL[j].fn = CM_ALL[j].fn + cm_j.fn;
+	   
+	 }
+	 fprintf(res,"\n");
+	 fclose(res);
+
+	 CM.clear();
+  }
+  
+  
+ printf("ALL Input Image classification Completed\n");
+ 
+  char *tempname,*name;
+  name = (char *)malloc(2000*sizeof(char));
+  tempname = (char *)malloc(2000*sizeof(char));	 
+  tempname = "Overall_Classification_Result.xls";
+  name = CreateNameIntoFolder(classifiername,tempname);
+  
+  FILE *res;
+  res = fopen(name,"a+");
+
+    MultiClassPerformanceMetrics M(CM_ALL);
+  
+    fprintf(res,"%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",classifiername,M.GetAverageAccuracy(),M.GetErrorRate(),M.GetPrecesionMu(),M.GetRecallMu(),M.GetFScoreMu(1),M.GetPrecesionM(),M.GetRecallM(),M.GetFScoreM(1));
+ 
+    M.~MultiClassPerformanceMetrics();
+
+  
+  fclose(res);
+
+  
+}
+
 void Training(char* TrainFile)
 {
   vector<vector<float> > TrainData;
   vector<int> TrainClass;
-  vector<int> ClassNumber;
   vector<int> NumberPerCluster;
   
   int classnumber = 0;
@@ -23,7 +154,7 @@ void Training(char* TrainFile)
   
       char *name;
       name = input_image_name_cut(pg.GetImageName());
-      makedir(name);
+      //makedir(name);
       
       char *opt;
       opt = (char *) malloc ( 2001 * sizeof(char));
@@ -92,11 +223,9 @@ void Training(char* TrainFile)
     TDC Data;
     trainSamples.copyTo(Data.TrainData);
     trainClasses.copyTo(Data.TrainClass);
-    Data.ClassNumber = ClassNumber;
     
     trainSamples.release();
     trainClasses.release();
-    ClassNumber.clear();
     
 
 #if _KNN_
@@ -122,43 +251,7 @@ void Training(char* TrainFile)
     
 #endif
     
-#if _EM_
-    
-    vector<cv::EM> em_models(5);
-      
-      Mat trainSamples, trainClasses;
-      trainSamples = Data.TrainData;
-      trainClasses = Data.TrainClass;
-      
-      CV_Assert((int)trainClasses.total() == trainSamples.rows);
-      CV_Assert((int)trainClasses.type() == CV_32SC1);
-      
-     // vector<int> ResponseEM;
 
-      for(size_t modelIndex = 0; modelIndex < em_models.size(); modelIndex++)
-      {
-	//printf("Em Training %d\n",modelIndex);
-	  const int componentCount = 3;
-	  em_models[modelIndex] = EM(componentCount, cv::EM::COV_MAT_DIAGONAL);
-
-	  Mat modelSamples;
-	  for(int sampleIndex = 0; sampleIndex < trainSamples.rows; sampleIndex++)
-	  {
-	      if(trainClasses.at<int>(sampleIndex) == (int)modelIndex)
-		  modelSamples.push_back(trainSamples.row(sampleIndex));
-	  }
-
-	  // learn models
-	  if(!modelSamples.empty())
-	      em_models[modelIndex].train(modelSamples);
-	  EM Mod_i = em_models[modelIndex];
-      }
-      
-      
-	
-    
-#endif
-    
 #if _SVM_
     
     
@@ -227,9 +320,6 @@ void Training(char* TrainFile)
     rftrees.save("RF_classifier.yml");
     
 #endif
-    
-  
-    //return(Data);
     
   
 }
@@ -401,29 +491,25 @@ void Classification(vector<SB> &blocks, char *ClassifierName)
   {
     classify_NBC(blocks);
   }
-  
-  if(ClassifierName == "KNN")
+  else if(ClassifierName == "KNN")
   {
     classify_KNN(blocks);
   }
-  
-//   if(ClassifierName == "EM")
-//   {
-//     segmentation_withEM(PB,Data);
-//   }
-  
-  if(ClassifierName == "DT")
+  else if(ClassifierName == "DT")
   {
     classify_DT(blocks);
   }
-  
-  if(ClassifierName == "RF")
+  else if(ClassifierName == "RF")
   {
     classify_RF(blocks);
   }
-  
-  if(ClassifierName == "SVM")
+  else if(ClassifierName == "SVM")
   {
     classify_SVM(blocks);
+  }
+  else
+  {
+    printf("given Classsifier '%s' is not supported\nSupported classifiers are 'NBC' 'KNN' 'DT' 'RF' and 'SVM'\n");
+    exit(0);
   }
 }
