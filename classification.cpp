@@ -450,7 +450,7 @@ void classify_DT(vector<SB> &blocks)
       Mat(B.FeatureVec).copyTo(TestData);
       //printf("Rows = %d Cols = %d channel = %d\n",TestData.rows,TestData.cols,TestData.channels());
       transpose(TestData,TestData);
-      int response = (int)dtree.predict( TestData );
+      int response = (int)dtree.predict( TestData )->value;
       B.PredictedClass = response;
       blocks[i] = B;
     }
