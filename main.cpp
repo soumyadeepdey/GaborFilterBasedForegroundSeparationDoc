@@ -37,16 +37,6 @@ int main(int argc, char* argv[])
  for(int i=0;i<ClassifierName.size();i++)
  {
     makedir(ClassifierName[i]);
-    char *tempname,*name;
-    name = (char *)malloc(2000*sizeof(char));
-    tempname = (char *)malloc(2000*sizeof(char));	 
-    tempname = "Overall_Classification_Result.xls";
-    name = CreateNameIntoFolder(ClassifierName[i],tempname);
-    
-    FILE *res;
-    res = fopen(name,"w");
-    fclose(res);
-    
     classify(argv[2],ClassifierName[i]);
  }
   

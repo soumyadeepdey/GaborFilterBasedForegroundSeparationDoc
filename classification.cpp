@@ -117,10 +117,10 @@ void classify(char *TestFILE, char *classifiername)
   name = (char *)malloc(2000*sizeof(char));
   tempname = (char *)malloc(2000*sizeof(char));	 
   tempname = "Overall_Classification_Result.xls";
-  name = CreateNameIntoFolder(classifiername,tempname);
+ // name = CreateNameIntoFolder(classifiername,tempname);
   
   FILE *res;
-  res = fopen(name,"a+");
+  res = fopen(tempname,"a+");
 
     MultiClassPerformanceMetrics M(CM_ALL);
   

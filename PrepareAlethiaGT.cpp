@@ -27,33 +27,37 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 	    if(poly.empty())
 	    {
 	      printf("Something wrong in %s\n",T.getid());
-	      exit(0);
-	    }
-	    Point pp = poly[0];
-	    poly.push_back(pp);
-	    int val;
-	    if(B.childs.empty())
-	    {
-	      val = PolygonInsidePolygonTest(poly, B.Contours);
-	      if(val == 2 || val == 3)
-	      {
-		B.GtClass = 0;
-		B.gtflag = true;
-	      }
+	      //TR.erase(TR.begin()+j);
+	      //exit(0);
 	    }
 	    else
-	    {	   
-	      for(int k=0;k<B.childs.size();k++)
+	    {
+	      Point pp = poly[0];
+	      poly.push_back(pp);
+	      int val;
+	      if(B.childs.empty())
 	      {
-		  val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
-		  if(val == 2 || val == 3)
-		  {
-		    B.childs[k].GtClass = 0;
-		    B.childs[k].gtflag = true;
-		  }	      
+		val = PolygonInsidePolygonTest(poly, B.Contours);
+		if(val == 2 || val == 3)
+		{
+		  B.GtClass = 0;
+		  B.gtflag = true;
+		}
 	      }
-	      B.GtClass = B.childs[0].GtClass;
-	      B.gtflag = true;
+	      else
+	      {	   
+		for(int k=0;k<B.childs.size();k++)
+		{
+		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
+		    if(val == 2 || val == 3)
+		    {
+		      B.childs[k].GtClass = 0;
+		      B.childs[k].gtflag = true;
+		    }	      
+		}
+		B.GtClass = B.childs[0].GtClass;
+		B.gtflag = true;
+	      }
 	    }
 	  }
 	}
