@@ -254,7 +254,11 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
       }
    }
    
-   
+   for(int i=0;i<blocks.size();i++)
+   {
+     if(blocks[i].gtflag == false)
+       blocks.erase(blocks.begin()+i);
+   }
    // Complete
    
    return blocks;
