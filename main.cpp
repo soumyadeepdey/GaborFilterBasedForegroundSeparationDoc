@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
   if(argc!=3)
   {printf("Wrong input style\n Correct style: ./gabor <traindata.txt> <testdata.txt>"); return -1; }
   
-  Training(argv[1]);
+  TDC Tdata = Training(argv[1]);
   
   vector<char*> ClassifierName;
  ClassifierName.push_back("NBC");
@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
  for(int i=0;i<ClassifierName.size();i++)
  {
     makedir(ClassifierName[i]);
+    printf("ClassifierName = %s\n",ClassifierName[i]);
 //     char *tempname, *name;
 //     tempname = (char *)malloc(2000*sizeof(char));	 
 //     tempname = "Overall_Classification_Result.xls";
@@ -44,7 +45,7 @@ int main(int argc, char* argv[])
 //     FILE *res;
 //     res = fopen(name,"a+");
 //     fclose(res);
-    classify(argv[2],ClassifierName[i]);
+    classify(argv[2],ClassifierName[i],Tdata);
  }
   
   //system("rm *.yml");

@@ -248,14 +248,14 @@ int FindPosition(vector<T> x, T val)
 {
   for(int i=0;i<x.size();i++)
   {
-    printf("posi %d val %d\n",i,x[i]);
+   // printf("posi %d val %d\n",i,x[i]);
     if(x[i]==val)
     {
       return(i);
       break;
     }
   }
-  printf("There is Some problem\n");
+  printf("There is Some problem for val %d\n",val);
   exit(0);
 }
   
@@ -276,10 +276,15 @@ vector<ConfusionMatrix> GetConfusionMatrix(Mat Groundtruthlabel, Mat ClassifiedL
       for(int i=0;i<Groundtruthlabel.rows;i++)
       {
 	int GtClass =(int) Groundtruthlabel.at<uchar>(i,0);
-	printf("GtClass  = %d\n",GtClass);
-	if(GtClass != 0)
+	if(GtClass>4)
 	{
-	 printf("If Gt not 0\n");
+	  printf("problem GtClass  = %d\n",GtClass);
+	  exit(0);
+	}
+	//printf("GtClass  = %d\n",GtClass);
+	if(GtClass > 0)
+	{
+	// printf("If Gt not 0\n");
 	  int response = ClassifiedLabel.at<uchar>(i,0);
 	  printf("response %d\n",response);
 	  int posi_res = FindPosition<int>(ClassNumber,response);

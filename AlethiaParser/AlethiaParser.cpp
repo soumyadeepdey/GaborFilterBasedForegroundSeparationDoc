@@ -200,7 +200,7 @@ page GetConfig::readConfigFile(string& configFile)
 
       // For all nodes, children of "root" in the XML tree.
       
-      printf("Initial number of node = %ld\n",nodeCount);
+    //  printf("Initial number of node = %ld\n",nodeCount);
 
       
      
@@ -241,7 +241,7 @@ page GetConfig::readConfigFile(string& configFile)
 		    
 		    DOMNodeList* Pagechildren = currentElement->getChildNodes();
 		    const  XMLSize_t PagenodeCount = Pagechildren->getLength();
-		    printf("number of Page Children = %ld\n",PagenodeCount);
+		   // printf("number of Page Children = %ld\n",PagenodeCount);
 		    
 		    for( XMLSize_t yy = 0; yy < PagenodeCount; ++yy )
 		    {
@@ -260,7 +260,7 @@ page GetConfig::readConfigFile(string& configFile)
 			  const XMLCh* xid = pagecurrentElement->getAttribute(ATTR_id);
 			  char *tid = XMLString::transcode(xid);
 			  T.setid(tid);
-			  printf("id=%s\n",tid);
+			 // printf("id=%s\n",tid);
 			  
 			  const XMLCh* xtype = pagecurrentElement->getAttribute(ATTR_type);
 			  char *ttype = XMLString::transcode(xtype);
@@ -269,7 +269,7 @@ page GetConfig::readConfigFile(string& configFile)
 			  const XMLCh* xbgc = pagecurrentElement->getAttribute(ATTR_bgColour);
 			  char *t_bgcolor = XMLString::transcode(xbgc);
 			  T.setbgcolor(t_bgcolor);
-			  printf("bgcolor=%s\n",t_bgcolor);
+			 // printf("bgcolor=%s\n",t_bgcolor);
 			  
 			  const XMLCh* xori = pagecurrentElement->getAttribute(ATTR_orientation);
 			  char *t_orientation = XMLString::transcode(xori);
@@ -279,7 +279,7 @@ page GetConfig::readConfigFile(string& configFile)
 			  
 			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
 			  const  XMLSize_t NnodeCount = Nchildren->getLength();
-			  printf("next number of node = %ld\n",NnodeCount);
+			 // printf("next number of node = %ld\n",NnodeCount);
 			  
 			  
 			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
@@ -289,7 +289,7 @@ page GetConfig::readConfigFile(string& configFile)
 			      {
 				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
 				const  XMLSize_t NNnodeCount = NNchildren->getLength();
-				printf("next for points number of node = %ld\n",NNnodeCount);
+				//printf("next for points number of node = %ld\n",NNnodeCount);
 				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
 				{
 				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
@@ -311,7 +311,7 @@ page GetConfig::readConfigFile(string& configFile)
 					char *tempy = XMLString::transcode(ycor);
 					int yposi = atoi(tempy);
 					Q.y=yposi;
-					printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					//printf("COORD x=%d\ty=%d\n",xposi,yposi);
 					T.setCoord(Q);
 				      }
 				   }
@@ -382,7 +382,7 @@ page GetConfig::readConfigFile(string& configFile)
 			  
 			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
 			  const  XMLSize_t NnodeCount = Nchildren->getLength();
-			  printf("next number of node = %ld\n",NnodeCount);
+			  //printf("next number of node = %ld\n",NnodeCount);
 			  
 			  
 			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
@@ -392,7 +392,7 @@ page GetConfig::readConfigFile(string& configFile)
 			      {
 				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
 				const  XMLSize_t NNnodeCount = NNchildren->getLength();
-				printf("next for points number of node = %ld\n",NNnodeCount);
+				//printf("next for points number of node = %ld\n",NNnodeCount);
 				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
 				{
 				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
@@ -414,7 +414,7 @@ page GetConfig::readConfigFile(string& configFile)
 					char *tempy = XMLString::transcode(ycor);
 					int yposi = atoi(tempy);
 					Q.y=yposi;
-					printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					//printf("COORD x=%d\ty=%d\n",xposi,yposi);
 					S.setCoord(Q);
 				      }
 				   }
@@ -455,7 +455,7 @@ page GetConfig::readConfigFile(string& configFile)
 			  
 			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
 			  const  XMLSize_t NnodeCount = Nchildren->getLength();
-			  printf("next number of node = %ld\n",NnodeCount);
+			 // printf("next number of node = %ld\n",NnodeCount);
 			  
 			  
 			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
@@ -465,7 +465,7 @@ page GetConfig::readConfigFile(string& configFile)
 			      {
 				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
 				const  XMLSize_t NNnodeCount = NNchildren->getLength();
-				printf("next for points number of node = %ld\n",NNnodeCount);
+				//printf("next for points number of node = %ld\n",NNnodeCount);
 				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
 				{
 				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
@@ -487,7 +487,7 @@ page GetConfig::readConfigFile(string& configFile)
 					char *tempy = XMLString::transcode(ycor);
 					int yposi = atoi(tempy);
 					Q.y=yposi;
-					printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					//printf("COORD x=%d\ty=%d\n",xposi,yposi);
 					G.setCoord(Q);
 				      }
 				   }
@@ -539,7 +539,7 @@ page GetConfig::readConfigFile(string& configFile)
 			  
 			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
 			  const  XMLSize_t NnodeCount = Nchildren->getLength();
-			  printf("next number of node = %ld\n",NnodeCount);
+			 // printf("next number of node = %ld\n",NnodeCount);
 			  
 			  
 			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
@@ -549,7 +549,7 @@ page GetConfig::readConfigFile(string& configFile)
 			      {
 				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
 				const  XMLSize_t NNnodeCount = NNchildren->getLength();
-				printf("next for points number of node = %ld\n",NNnodeCount);
+				//printf("next for points number of node = %ld\n",NNnodeCount);
 				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
 				{
 				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
@@ -571,7 +571,7 @@ page GetConfig::readConfigFile(string& configFile)
 					char *tempy = XMLString::transcode(ycor);
 					int yposi = atoi(tempy);
 					Q.y=yposi;
-					printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					//printf("COORD x=%d\ty=%d\n",xposi,yposi);
 					I.setCoord(Q);
 				      }
 				   }
@@ -625,7 +625,7 @@ page GetConfig::readConfigFile(string& configFile)
 			  
 			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
 			  const  XMLSize_t NnodeCount = Nchildren->getLength();
-			  printf("next number of node = %ld\n",NnodeCount);
+			 // printf("next number of node = %ld\n",NnodeCount);
 			  
 			  
 			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
@@ -635,7 +635,7 @@ page GetConfig::readConfigFile(string& configFile)
 			      {
 				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
 				const  XMLSize_t NNnodeCount = NNchildren->getLength();
-				printf("next for points number of node = %ld\n",NNnodeCount);
+				//printf("next for points number of node = %ld\n",NNnodeCount);
 				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
 				{
 				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
@@ -657,7 +657,7 @@ page GetConfig::readConfigFile(string& configFile)
 					char *tempy = XMLString::transcode(ycor);
 					int yposi = atoi(tempy);
 					Q.y=yposi;
-					printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					//printf("COORD x=%d\ty=%d\n",xposi,yposi);
 					C.setCoord(Q);
 				      }
 				   }

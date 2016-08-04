@@ -3,16 +3,18 @@
 using namespace IITkgp_functions;
 
 
-void classify(char *TestFILE, char *classifiername)
+void classify(char *TestFILE, char *classifiername, TDC Data)
 {
   vector<int> classnumber;
       classnumber.push_back(0); classnumber.push_back(1); 
       classnumber.push_back(2); classnumber.push_back(3); 
       classnumber.push_back(4);
       
+      Data.ClassNumber = classnumber;
       
       vector<ConfusionMatrix> CM_ALL(classnumber.size(),ConfusionMatrix(classnumber.size()));
   
+  printf("Classifiername = %s\n",classifiername);
   
       
   FILE *f;
@@ -64,7 +66,7 @@ void classify(char *TestFILE, char *classifiername)
       
       blocks = PrepareAlethiaGt(pg,blocks);
       
-      Classification(blocks,classifiername);
+      Classification(blocks,Data,classifiername);
       
       Mat Gtlabels = Mat(blocks.size(),1,CV_8UC1);
       Mat PredictedLabels = Mat(blocks.size(),1,CV_8UC1);
@@ -72,8 +74,13 @@ void classify(char *TestFILE, char *classifiername)
       for(int i=0;i<blocks.size();i++)
       {
 	SB B = blocks[i];
-	Gtlabels.at<uchar>(i,0) = B.GtClass;
-	PredictedLabels.at<uchar>(i,0) = B.PredictedClass;
+	Gtlabels.at<int>(i,0) = B.GtClass;
+	if(B.GtClass>4)
+	{
+	  printf("B.GtClass = %d\n",B.GtClass);
+	  exit(0);
+	}
+	PredictedLabels.at<int>(i,0) = B.PredictedClass;
       }
       
       vector<ConfusionMatrix> CM = GetConfusionMatrix(Gtlabels,PredictedLabels,classnumber);
@@ -126,7 +133,7 @@ void classify(char *TestFILE, char *classifiername)
   
     fprintf(res,"%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",classifiername,M.GetAverageAccuracy(),M.GetErrorRate(),M.GetPrecesionMu(),M.GetRecallMu(),M.GetFScoreMu(1),M.GetPrecesionM(),M.GetRecallM(),M.GetFScoreM(1));
  
-    M.~MultiClassPerformanceMetrics();
+    //M.~MultiClassPerformanceMetrics();
 
   
   fclose(res);
@@ -134,13 +141,15 @@ void classify(char *TestFILE, char *classifiername)
   
 }
 
-void Training(char* TrainFile)
+TDC Training(char* TrainFile)
 {
   vector<vector<float> > TrainData;
   vector<int> TrainClass;
   vector<int> NumberPerCluster;
   
   int classnumber = 0;
+  
+  makedir("TrainClassifiers");
   
   FILE *f;
   f = fopen(TrainFile,"r");
@@ -190,11 +199,20 @@ void Training(char* TrainFile)
       
       vector<SB> blocks = GetSegmentationUnit(image);
       
+      printf("Initial blocks size %d\n",blocks.size());
+      
       blocks = PrepareAlethiaGt(pg,blocks);
+      
+      printf("GT block size %d\n",blocks.size());
       
       for(int i=0;i<blocks.size();i++)
       {
 	SB B = blocks[i];
+	if(B.GtClass>4)
+	{
+	  printf("Error .... value of gt is %d\n",B.GtClass);
+	  exit(0);
+	}
 	if(B.Fvecflag && B.gtflag)
 	{
 	  TrainData.push_back(B.FeatureVec);
@@ -204,19 +222,33 @@ void Training(char* TrainFile)
       
   }
   
-  Mat trainSamples, trainClasses;
+  printf("TrainClass size %d\n",TrainClass.size());
+  Mat trainSamples = Mat(TrainData.size(),TrainData[0].size(),CV_32FC1);
   
-    Mat( TrainData ).copyTo( trainSamples );
+  for(int i=0;i<TrainData.size();i++)
+  {
+    for(int j=0;i<TrainData[i].size();i++)
+    {
+      trainSamples.at<float>(i,j) = TrainData[i][j];
+    }
+  }
+  
+  Mat trainClasses;
+  
+  
+   // Mat( TrainData ).copyTo( trainSamples );
     Mat( TrainClass ).copyTo( trainClasses );
     
     TrainData.clear();
     TrainClass.clear();
     
     printf("Sample Ori row=%d,col=%d,channels=%d\n",trainSamples.rows,trainSamples.cols,trainSamples.channels());
+    printf("Sample Ori row=%d,col=%d,channels=%d\n",trainClasses.rows,trainClasses.cols,trainClasses.channels());
+    //exit(0);
     // reshape trainData and change its type
-    trainSamples = trainSamples.reshape( 1, trainSamples.rows );
+    //trainSamples = trainSamples.reshape( 1, trainSamples.rows );
     
-    trainSamples.convertTo( trainSamples, CV_32FC1 );
+    //trainSamples.convertTo( trainSamples, CV_32FC1 );
     
     printf("Sample later row=%d,col=%d,channels=%d\n",trainSamples.rows,trainSamples.cols,trainSamples.channels());
   
@@ -228,7 +260,18 @@ void Training(char* TrainFile)
     trainClasses.release();
     
 
+
+    return Data;
+
+  
+}
+
+
 #if _KNN_
+
+void classify_KNN(vector<SB> &blocks, TDC Data)
+{
+  
     
     int K = 10;
     #if defined HAVE_OPENCV_OCL && _OCL_KNN_
@@ -240,104 +283,8 @@ void Training(char* TrainFile)
       CvKNearest knnClassifier( Data.TrainData, Data.TrainClass, Mat(), false, K );
     #endif
       
-      knnClassifier.save("KNN_classifier.yml");
-    
-#endif
-    
-#if _NBC_
-    
-    CvNormalBayesClassifier normalBayesClassifier( Data.TrainData, Data.TrainClass );
-    normalBayesClassifier.save("normalBayesClassifier.yml");
-    
-#endif
-    
-
-#if _SVM_
-    
-    
-    CvSVMParams svm_params;
-            svm_params.svm_type = CvSVM::C_SVC;
-            svm_params.kernel_type = CvSVM::POLY; //CvSVM::LINEAR;
-            svm_params.degree = 0.5;
-            svm_params.gamma = 1;
-            svm_params.coef0 = 1;
-            svm_params.C = 6;
-            svm_params.nu = 0.5;
-            svm_params.p = 0;
-            svm_params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 1000, 0.01);
-	    
-         // learn classifier
-#if defined HAVE_OPENCV_OCL && _OCL_SVM_
-    cv::ocl::CvSVM_OCL svmClassifier(trainSamples, trainClasses, Mat(), Mat(), svm_params);
-#else
-    CvSVM svmClassifier( Data.TrainData, Data.TrainClass, Mat(), Mat(), svm_params );
-#endif
-    
-    svmClassifier.save("SVM_Classifier.yml");
-    
-#endif
-    
-#if _DT_
-    
-    CvDTree  dtree;
-
-    Mat var_types( 1, Data.TrainData.cols + 1, CV_8UC1, Scalar(CV_VAR_ORDERED) );
-    var_types.at<uchar>( Data.TrainData.cols ) = CV_VAR_CATEGORICAL;
-
-    CvDTreeParams dt_params;
-    dt_params.max_depth = 8;
-    dt_params.min_sample_count = 2;
-    dt_params.use_surrogates = false;
-    dt_params.cv_folds = 0; // the number of cross-validation folds
-    dt_params.use_1se_rule = false;
-    dt_params.truncate_pruned_tree = false;
-
-    dtree.train( Data.TrainData, CV_ROW_SAMPLE, Data.TrainClass,
-                 Mat(), Mat(), var_types, Mat(), dt_params );
-    
-    dtree.save("DT_classifier.yml");
-    
-#endif
-    
-#if _RF_
-    
-    CvRTrees  rftrees;
-    CvRTParams  rf_params( 8, // max_depth,
-                        2, // min_sample_count,
-                        0.f, // regression_accuracy,
-                        false, // use_surrogates,
-                        16, // max_categories,
-                        0, // priors,
-                        false, // calc_var_importance,
-                        1, // nactive_vars,
-                        5, // max_num_of_trees_in_the_forest,
-                        0, // forest_accuracy,
-                        CV_TERMCRIT_ITER // termcrit_type
-                       );
-
-    rftrees.train( Data.TrainData, CV_ROW_SAMPLE, Data.TrainClass, Mat(), Mat(), Mat(), Mat(), rf_params );
-    
-    rftrees.save("RF_classifier.yml");
-    
-#endif
-    
-  
-}
 
 
-#if _KNN_
-
-void classify_KNN(vector<SB> &blocks)
-{
-  #if defined HAVE_OPENCV_OCL && _OCL_KNN_
-      cv::ocl::KNearestNeighbour knnClassifier;
-      Mat temp, result;
-      knnClassifier.load("KNN_classifier.yml");
-      cv::ocl::oclMat testSample_ocl, reslut_ocl;
-    #else
-      CvKNearest knnClassifier;
-      knnClassifier.load("KNN_classifier.yml");
-    #endif
       
       for(int i=0;i<blocks.size();i++)
     {
@@ -376,18 +323,26 @@ void classify_KNN(vector<SB> &blocks)
 
 #if _SVM_
 
-void classify_SVM(vector<SB> &blocks)
+void classify_SVM(vector<SB> &blocks, TDC Data)
 {
-  
-
-
+  CvSVMParams svm_params;
+            svm_params.svm_type = CvSVM::C_SVC;
+            svm_params.kernel_type = CvSVM::POLY; //CvSVM::LINEAR;
+            svm_params.degree = 0.5;
+            svm_params.gamma = 1;
+            svm_params.coef0 = 1;
+            svm_params.C = 6;
+            svm_params.nu = 0.5;
+            svm_params.p = 0;
+            svm_params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 1000, 0.01);
+	    
+         // learn classifier
 #if defined HAVE_OPENCV_OCL && _OCL_SVM_
-    cv::ocl::CvSVM_OCL svmClassifier;
+    cv::ocl::CvSVM_OCL svmClassifier(trainSamples, trainClasses, Mat(), Mat(), svm_params);
 #else
-    CvSVM svmClassifier;
-#endif 
+    CvSVM svmClassifier( Data.TrainData, Data.TrainClass, Mat(), Mat(), svm_params );
+#endif
     
-    svmClassifier.load("SVM_Classifier.yml");
     
     for(int i=0;i<blocks.size();i++)
     {
@@ -410,10 +365,23 @@ void classify_SVM(vector<SB> &blocks)
 
 #if _RF_
 
-void classify_RF(vector<SB> &blocks)
+void classify_RF(vector<SB> &blocks, TDC Data)
 {
-  CvRTrees  rtrees;
-  rtrees.load("RF_classifier.yml");
+  CvRTrees  rftrees;
+    CvRTParams  rf_params( 8, // max_depth,
+                        2, // min_sample_count,
+                        0.f, // regression_accuracy,
+                        false, // use_surrogates,
+                        16, // max_categories,
+                        0, // priors,
+                        false, // calc_var_importance,
+                        1, // nactive_vars,
+                        5, // max_num_of_trees_in_the_forest,
+                        0, // forest_accuracy,
+                        CV_TERMCRIT_ITER // termcrit_type
+                       );
+
+    rftrees.train( Data.TrainData, CV_ROW_SAMPLE, Data.TrainClass, Mat(), Mat(), Mat(), Mat(), rf_params );
   
   for(int i=0;i<blocks.size();i++)
     {
@@ -424,7 +392,7 @@ void classify_RF(vector<SB> &blocks)
       Mat(B.FeatureVec).copyTo(TestData);
       //printf("Rows = %d Cols = %d channel = %d\n",TestData.rows,TestData.cols,TestData.channels());
       transpose(TestData,TestData);
-      int response = (int)rtrees.predict( TestData );
+      int response = (int)rftrees.predict( TestData );
       B.PredictedClass = response;
       blocks[i] = B;
     }
@@ -436,10 +404,24 @@ void classify_RF(vector<SB> &blocks)
 
 #if _DT_
 
-void classify_DT(vector<SB> &blocks)
+void classify_DT(vector<SB> &blocks, TDC Data)
 {
   CvDTree  dtree;
-  dtree.load("DT_classifier.yml");
+
+    Mat var_types( 1, Data.TrainData.cols + 1, CV_8UC1, Scalar(CV_VAR_ORDERED) );
+    var_types.at<uchar>( Data.TrainData.cols ) = CV_VAR_CATEGORICAL;
+
+    CvDTreeParams dt_params;
+    dt_params.max_depth = 8;
+    dt_params.min_sample_count = 2;
+    dt_params.use_surrogates = false;
+    dt_params.cv_folds = 0; // the number of cross-validation folds
+    dt_params.use_1se_rule = false;
+    dt_params.truncate_pruned_tree = false;
+
+    dtree.train( Data.TrainData, CV_ROW_SAMPLE, Data.TrainClass,
+                 Mat(), Mat(), var_types, Mat(), dt_params );
+    
   
   for(int i=0;i<blocks.size();i++)
     {
@@ -461,10 +443,9 @@ void classify_DT(vector<SB> &blocks)
 
 #if _NBC_
 
-void classify_NBC(vector<SB> &blocks)
+void classify_NBC(vector<SB> &blocks, TDC Data)
 {
-  CvNormalBayesClassifier normalBayesClassifier;
-  normalBayesClassifier.load("normalBayesClassifier.yml");
+   CvNormalBayesClassifier normalBayesClassifier( Data.TrainData, Data.TrainClass );
   
   for(int i=0;i<blocks.size();i++)
     {
@@ -485,31 +466,32 @@ void classify_NBC(vector<SB> &blocks)
 #endif
 
 
-void Classification(vector<SB> &blocks, char *ClassifierName)
+void Classification(vector<SB> &blocks, TDC Data, char *ClassifierName)
 {
-  if(ClassifierName == "NBC")
+  printf("classifiername =%s\n",ClassifierName);
+  if(strcmp(ClassifierName,"NBC")==0)
   {
-    classify_NBC(blocks);
+    classify_NBC(blocks,Data);
   }
-  else if(ClassifierName == "KNN")
+  else if(strcmp(ClassifierName,"KNN")==0)
   {
-    classify_KNN(blocks);
+    classify_KNN(blocks,Data);
   }
-  else if(ClassifierName == "DT")
+  else if(strcmp(ClassifierName,"DT")==0)
   {
-    classify_DT(blocks);
+    classify_DT(blocks,Data);
   }
-  else if(ClassifierName == "RF")
+  else if(strcmp(ClassifierName,"RF")==0)
   {
-    classify_RF(blocks);
+    classify_RF(blocks,Data);
   }
-  else if(ClassifierName == "SVM")
+  else if(strcmp(ClassifierName,"SVM")==0)
   {
-    classify_SVM(blocks);
+    classify_SVM(blocks,Data);
   }
   else
   {
-    printf("given Classsifier '%s' is not supported\nSupported classifiers are 'NBC' 'KNN' 'DT' 'RF' and 'SVM'\n");
+    printf("given Classsifier '%s' is not supported\nSupported classifiers are 'NBC' 'KNN' 'DT' 'RF' and 'SVM'\n",ClassifierName);
     exit(0);
   }
 }

@@ -11,8 +11,8 @@
 
 
 #ifdef HAVE_OPENCV_OCL
-#define _OCL_KNN_ 1 // select whether using ocl::KNN method or not, default is using
-#define _OCL_SVM_ 1 // select whether using ocl::svm method or not, default is using
+#define _OCL_KNN_ 0 // select whether using ocl::KNN method or not, default is using
+#define _OCL_SVM_ 0 // select whether using ocl::svm method or not, default is using
 #include "opencv2/ocl/ocl.hpp"
 #endif
 
@@ -39,20 +39,20 @@ typedef struct TrainDataClass
 }TDC;
 
 
-void classify(char *TestFILE, char *classifiername);
+void classify(char *TestFILE, char *classifiername, TDC Data);
 
-void Training(char *TrainFile);
+TDC Training(char *TrainFile);
 
-void classify_KNN(vector<SB> &blocks);
+void classify_KNN(vector<SB> &blocks, TDC Data);
 
-void classify_NBC(vector<SB> &blocks);
+void classify_NBC(vector<SB> &blocks, TDC Data);
 
-void classify_DT(vector<SB> &blocks);
+void classify_DT(vector<SB> &blocks, TDC Data);
 
-void classify_RF(vector<SB> &blocks);
+void classify_RF(vector<SB> &blocks, TDC Data);
 
-void classify_SVM(vector<SB> &blocks);
+void classify_SVM(vector<SB> &blocks, TDC Data);
 
-void Classification(vector<SB> &blocks, char *ClassifierName);
+void Classification(vector<SB> &blocks, TDC Data, char *ClassifierName);
 
 #endif

@@ -77,13 +77,19 @@ vector< SB > GetSegmentationUnit(Mat image)
      
      for(int i=0;i<blocks.size();i++)
      {
-       for(int j=0;j<blocks.size();j++)
+       for(int j=0;j<blocks.size();)
        {
 	 if(i!=j)
 	 {
 	   if(PolygonInsidePolygonTest(blocks[i].Contours,blocks[j].Contours)==2)
+	   {
 	     blocks.erase(blocks.begin()+j);
+	   }
+	   else
+	     j=j+1;
 	 }
+	 else
+	   j=j+1;
        }
      }
      
@@ -188,7 +194,7 @@ vector< SB > GetSegmentationUnit(Mat image)
 	 vector<SB> C = B.childs;
 	 for(int j=0;j<C.size();j++)
 	 {
-	   for(int k=0;k<C.size();k++)
+	   for(int k=0;k<C.size();)
 	   {
 	     if(j!=k)
 	     {
@@ -198,7 +204,11 @@ vector< SB > GetSegmentationUnit(Mat image)
 	       {
 		 C.erase(C.begin()+k);
 	       }
+	       else
+		 k = k + 1;
 	     }
+	     else
+	       k = k + 1;
 	   }
 	 }
 	 blocks[i].childs = C;
