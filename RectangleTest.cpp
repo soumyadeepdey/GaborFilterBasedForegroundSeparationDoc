@@ -214,8 +214,8 @@ int IITkgp_functions::PolygonInsidePolygonTest(vector<Point> Poly1, vector<Point
     sum = sum + dist;
   }
   if(sum == Poly2.size())
-    return 1;
-  if(sum == Poly2.size()*-1)
     return 2;
+  if(sum == Poly2.size()*-1)
+    return 1;
 }
 

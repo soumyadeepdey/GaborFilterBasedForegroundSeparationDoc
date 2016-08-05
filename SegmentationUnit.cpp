@@ -227,7 +227,7 @@ vector< SB > GetSegmentationUnit(Mat image)
 	 for(int n=0;n<R.width;n++)
 	 {
 	   Point P;P.x=n;P.y=m;
-	   if(pointPolygonTest( poly, P, false )<=0)
+	   if(pointPolygonTest( poly, P, false )>=0)
 	   {
 	     for(int k=0;k<blurimage.channels();k++)
 	       tempimg.at<Vec3b>(m,n)[k] = blurimage.at<Vec3b>(m,n)[k];
@@ -253,7 +253,7 @@ vector< SB > GetSegmentationUnit(Mat image)
 	      for(int n=0;n<R1.width;n++)
 	      {
 		Point P1;P1.x=n;P1.y=m;
-		if(pointPolygonTest( poly, P1, false )<=0)
+		if(pointPolygonTest( poly, P1, false )>=0)
 		{
 		  for(int k=0;k<blurimage.channels();k++)
 		    tempimg.at<Vec3b>(m,n)[k] = blurimage.at<Vec3b>(m,n)[k];

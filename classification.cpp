@@ -80,6 +80,11 @@ void classify(char *TestFILE, char *classifiername, TDC Data)
 	  printf("B.GtClass = %d\n",B.GtClass);
 	  exit(0);
 	}
+	if(B.PredictedClass>4)
+	{
+	   printf(" Error B.predictedclass = %d\n",B.PredictedClass);
+	  exit(0);
+	}
 	PredictedLabels.at<int>(i,0) = B.PredictedClass;
       }
       
@@ -147,9 +152,9 @@ TDC Training(char* TrainFile)
   vector<int> TrainClass;
   vector<int> NumberPerCluster;
   
-  int classnumber = 0;
+  //int classnumber = 0;
   
-  makedir("TrainClassifiers");
+  //makedir("TrainClassifiers");
   
   FILE *f;
   f = fopen(TrainFile,"r");
@@ -260,6 +265,15 @@ TDC Training(char* TrainFile)
     trainClasses.release();
     
 
+    for(int i=0;i<Data.TrainClass.rows;i++)
+    {
+    //  printf("class of %d is %d\n",i,Data.TrainClass.at<int>(i,0));
+      if(Data.TrainClass.at<int>(i,0)>4)
+      {
+	printf("Problem in Training Class\n");
+	exit(0);
+      }
+    }
 
     return Data;
 
@@ -290,11 +304,9 @@ void classify_KNN(vector<SB> &blocks, TDC Data)
     {
       SB B = blocks[i];
       B.FeatureVec;
-      Mat TestData;
-      //Mat(elem).copyTo(TestData);
-      Mat(B.FeatureVec).copyTo(TestData);
-      //printf("Rows = %d Cols = %d channel = %d\n",TestData.rows,TestData.cols,TestData.channels());
-      transpose(TestData,TestData);
+      Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
+      for(int j=0;j<B.FeatureVec.size();j++)
+	TestData.at<float>(j)= B.FeatureVec[j];
       int response;
       
       #if defined HAVE_OPENCV_OCL && _OCL_KNN_
@@ -348,11 +360,9 @@ void classify_SVM(vector<SB> &blocks, TDC Data)
     {
       SB B = blocks[i];
       B.FeatureVec;
-      Mat TestData;
-      //Mat(elem).copyTo(TestData);
-      Mat(B.FeatureVec).copyTo(TestData);
-      //printf("Rows = %d Cols = %d channel = %d\n",TestData.rows,TestData.cols,TestData.channels());
-      transpose(TestData,TestData);
+      Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
+      for(int j=0;j<B.FeatureVec.size();j++)
+	TestData.at<float>(j)= B.FeatureVec[j];
       int response = (int)svmClassifier.predict( TestData );
       B.PredictedClass = response;
       blocks[i] = B;
@@ -387,11 +397,9 @@ void classify_RF(vector<SB> &blocks, TDC Data)
     {
       SB B = blocks[i];
       B.FeatureVec;
-      Mat TestData;
-      //Mat(elem).copyTo(TestData);
-      Mat(B.FeatureVec).copyTo(TestData);
-      //printf("Rows = %d Cols = %d channel = %d\n",TestData.rows,TestData.cols,TestData.channels());
-      transpose(TestData,TestData);
+      Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
+      for(int j=0;j<B.FeatureVec.size();j++)
+	TestData.at<float>(j)= B.FeatureVec[j];
       int response = (int)rftrees.predict( TestData );
       B.PredictedClass = response;
       blocks[i] = B;
@@ -427,11 +435,9 @@ void classify_DT(vector<SB> &blocks, TDC Data)
     {
       SB B = blocks[i];
       B.FeatureVec;
-      Mat TestData;
-      //Mat(elem).copyTo(TestData);
-      Mat(B.FeatureVec).copyTo(TestData);
-      //printf("Rows = %d Cols = %d channel = %d\n",TestData.rows,TestData.cols,TestData.channels());
-      transpose(TestData,TestData);
+      Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
+      for(int j=0;j<B.FeatureVec.size();j++)
+	TestData.at<float>(j)= B.FeatureVec[j];
       int response = (int)dtree.predict( TestData )->value;
       B.PredictedClass = response;
       blocks[i] = B;
@@ -445,18 +451,29 @@ void classify_DT(vector<SB> &blocks, TDC Data)
 
 void classify_NBC(vector<SB> &blocks, TDC Data)
 {
+  printf("nRows = %d nCols = %d nchannel = %d\n",Data.TrainData.rows,Data.TrainData.cols,Data.TrainData.channels());
+  printf("nRows = %d nCols = %d nchannel = %d\n",Data.TrainClass.rows,Data.TrainClass.cols,Data.TrainClass.channels());
+  for(int i=0;i<Data.TrainClass.rows;i++)
+    {
+      printf("class of %d is %d\n",i,Data.TrainClass.at<int>(i,0));
+      if(Data.TrainClass.at<int>(i,0)>4)
+      {
+	printf("Problem in Training Class\n");
+	exit(0);
+      }
+    }
    CvNormalBayesClassifier normalBayesClassifier( Data.TrainData, Data.TrainClass );
   
   for(int i=0;i<blocks.size();i++)
     {
       SB B = blocks[i];
       B.FeatureVec;
-      Mat TestData;
-      //Mat(elem).copyTo(TestData);
-      Mat(B.FeatureVec).copyTo(TestData);
-      //printf("Rows = %d Cols = %d channel = %d\n",TestData.rows,TestData.cols,TestData.channels());
-      transpose(TestData,TestData);
+      Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
+      for(int j=0;j<B.FeatureVec.size();j++)
+	TestData.at<float>(j)= B.FeatureVec[j];
+      
       int response = (int)normalBayesClassifier.predict( TestData );
+      printf("response is %d\n",response);
       B.PredictedClass = response;
       blocks[i] = B;
     }
