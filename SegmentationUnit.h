@@ -14,6 +14,8 @@ typedef struct SegmentationBlocks
   int PredictedClass;
   bool gtflag;
   bool Fvecflag;
+  char *bgcolor;
+  char *type;
 }SB;
 
 

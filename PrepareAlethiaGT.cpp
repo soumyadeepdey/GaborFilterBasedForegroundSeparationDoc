@@ -46,6 +46,8 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		{
 		  B.GtClass = 0;
 		  B.gtflag = true;
+		  B.bgcolor = T.GetbgColor();
+		  B.type = T.GetType();
 		}
 	      }
 	      else
@@ -57,8 +59,12 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		    {
 		      B.childs[k].GtClass = 0;
 		      B.childs[k].gtflag = true;
+		      B.childs[k].bgcolor = T.GetbgColor();
+		      B.childs[k].type = T.GetType();
 		      B.GtClass = B.childs[k].GtClass;
 		      B.gtflag = true;
+		      B.bgcolor = T.GetbgColor();
+		      B.type = T.GetType();
 		    }
 		    
 		}

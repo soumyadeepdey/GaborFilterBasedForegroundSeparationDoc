@@ -81,6 +81,21 @@ public:
       return cord;
     }
     
+    char* GetbgColor()
+    {
+      return bgcolor;
+    }
+    
+    char* GetType()
+    {
+      return type;
+    }
+    
+    float GetOrientation()
+    {
+      return orientation;
+    }
+    
 private:
   char* id;
   vector<Point> cord;

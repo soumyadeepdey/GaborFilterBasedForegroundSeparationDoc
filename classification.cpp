@@ -146,6 +146,20 @@ void classify(char *TestFILE, char *classifiername, TDC Data)
   
 }
 
+
+int findtypepresence(vector<char*> types, char* type)
+{
+  int i;
+  for( i=0;i<types.size();i++)
+  {
+    if(strcmp(types[i],type)==0)
+    {
+      return i;
+    }
+  }
+  return i;
+}
+
 TDC Training(char* TrainFile)
 {
   vector<vector<float> > TrainData;
@@ -209,19 +223,113 @@ TDC Training(char* TrainFile)
       blocks = PrepareAlethiaGt(pg,blocks);
       
       printf("GT block size %d\n",blocks.size());
-      
+      vector<char*> type;
+      vector<int> cnttype;
       for(int i=0;i<blocks.size();i++)
       {
 	SB B = blocks[i];
-	if(B.GtClass>4)
+	if(B.childs.empty())
 	{
-	  printf("Error .... value of gt is %d\n",B.GtClass);
-	  exit(0);
+	  if(B.GtClass>4)
+	  {
+	    printf("Error .... value of gt is %d\n",B.GtClass);
+	    exit(0);
+	  }
+	  if(B.Fvecflag && B.gtflag)
+	  {
+	    if(B.GtClass == 0)
+	    {
+	      if(strcmp(B.bgcolor,"White")==0)
+	      {
+		if(type.empty())
+		{
+		  type.push_back(B.type);
+		  cnttype.push_back(0);
+		  TrainData.push_back(B.FeatureVec);
+		  TrainClass.push_back(B.GtClass);
+		}
+		else
+		{
+		  int po = findtypepresence(type,B.type);
+		  if(po==type.size())
+		  {
+		    type.push_back(B.type);
+		    cnttype.push_back(0);
+		    TrainData.push_back(B.FeatureVec);
+		    TrainClass.push_back(B.GtClass);
+		  }
+		  else
+		  {
+		    if(cnttype[po]<4)
+		    {
+		      TrainData.push_back(B.FeatureVec);
+		      TrainClass.push_back(B.GtClass);
+		      cnttype[po] = cnttype[po] + 1;
+		    }
+		  }
+		}
+	      }
+	      
+	    }
+	    else
+	    {
+	      TrainData.push_back(B.FeatureVec);
+	      TrainClass.push_back(B.GtClass);
+	    }
+	  }
 	}
-	if(B.Fvecflag && B.gtflag)
+	else
 	{
-	  TrainData.push_back(B.FeatureVec);
-	  TrainClass.push_back(B.GtClass);
+	  for(int k=0;k<B.childs.size();k++)
+	  {
+	    SB B_C = B.childs[k];
+	    if(B_C.GtClass>4)
+	    {
+	      printf("Error .... value of gt is %d\n",B_C.GtClass);
+	      exit(0);
+	    }
+	    if(B_C.Fvecflag && B_C.gtflag)
+	    {
+	      if(B_C.GtClass == 0)
+	      {
+		if(strcmp(B_C.bgcolor,"White")==0)
+		{
+		  if(type.empty())
+		  {
+		    type.push_back(B_C.type);
+		    cnttype.push_back(0);
+		    TrainData.push_back(B_C.FeatureVec);
+		    TrainClass.push_back(B_C.GtClass);
+		  }
+		  else
+		  {
+		    int po = findtypepresence(type,B_C.type);
+		    if(po==type.size())
+		    {
+		      type.push_back(B_C.type);
+		      cnttype.push_back(0);
+		      TrainData.push_back(B_C.FeatureVec);
+		      TrainClass.push_back(B_C.GtClass);
+		    }
+		    else
+		    {
+		      if(cnttype[po]<4)
+		      {
+			TrainData.push_back(B_C.FeatureVec);
+			TrainClass.push_back(B_C.GtClass);
+			cnttype[po] = cnttype[po] + 1;
+		      }
+		    }
+		  }
+		}		
+	      }
+	      else
+	      {
+		TrainData.push_back(B_C.FeatureVec);
+		TrainClass.push_back(B_C.GtClass);
+	      }
+	    }
+	  }
 	}
       }
       
@@ -298,21 +406,18 @@ void classify_KNN(vector<SB> &blocks, TDC Data)
     #endif
       
 
-
-      
-      for(int i=0;i<blocks.size();i++)
+    
+    for(int i=0;i<blocks.size();i++)
     {
       SB B = blocks[i];
-      B.FeatureVec;
-      Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
-      for(int j=0;j<B.FeatureVec.size();j++)
-	TestData.at<float>(j)= B.FeatureVec[j];
-      int response;
-      
-      #if defined HAVE_OPENCV_OCL && _OCL_KNN_
-	  
-	    testSample_ocl.upload(TestData);
-	    int K = knnClassifier.get_max_k();
+      if(B.childs.empty())
+      {
+	B.FeatureVec;
+	Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
+	for(int j=0;j<B.FeatureVec.size();j++)
+	  TestData.at<float>(j)= B.FeatureVec[j];
+	int response;
+	#if defined HAVE_OPENCV_OCL && _OCL_KNN_
 	    knnClassifier.find_nearest(testSample_ocl, K, reslut_ocl);
 
 	    reslut_ocl.download(result);
@@ -320,13 +425,60 @@ void classify_KNN(vector<SB> &blocks, TDC Data)
 	  
 	  #else
 	    
-	     int K = knnClassifier.get_max_k();
+	     
 	     response = (int)knnClassifier.find_nearest( TestData, K );
 	    
 	  #endif
+	//printf("response is %d\n",response);
+	B.PredictedClass = response;
+	blocks[i] = B;
+      }
+      else
+      {
+	vector<int> p_C(5,0);
+	for(int k=0;k<B.childs.size();k++)
+	{
+	  SB B_C = B.childs[k];
+	  B_C.FeatureVec;
+	  Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
+	  for(int j=0;j<B_C.FeatureVec.size();j++)
+	    TestData.at<float>(j)= B_C.FeatureVec[j];
+	  
+	  int response;
+	#if defined HAVE_OPENCV_OCL && _OCL_KNN_
+	    knnClassifier.find_nearest(testSample_ocl, K, reslut_ocl);
+
+	    reslut_ocl.download(result);
+	    response = saturate_cast<int>(result.at<float>(0));
+	  
+	  #else
+	    
+	     
+	     response = (int)knnClassifier.find_nearest( TestData, K );
+	    
+	  #endif
+	  if(response>4 || response<0)
+	  {
+	    printf("Error in classifier\nand response is outragious %d\n",response);
+	    exit(0);
+	  }
+	  //printf("response is %d\n",response);
+	  B_C.PredictedClass = response;
+	  B.childs[k] = B_C;
+	  p_C[response]++;
+	}
+	int maxv = p_C[0];
+	for(int k=0;k<p_C.size();k++)
+	{
+	  if(maxv>=p_C[k])
+	  {
+	    maxv=p_C[k];
+	    B.PredictedClass = k;
+	  }
+	}
+	blocks[i] = B;
+      }
       
-      B.PredictedClass = response;
-      blocks[i] = B;
     }
 }
 
@@ -359,13 +511,52 @@ void classify_SVM(vector<SB> &blocks, TDC Data)
     for(int i=0;i<blocks.size();i++)
     {
       SB B = blocks[i];
-      B.FeatureVec;
-      Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
-      for(int j=0;j<B.FeatureVec.size();j++)
-	TestData.at<float>(j)= B.FeatureVec[j];
-      int response = (int)svmClassifier.predict( TestData );
-      B.PredictedClass = response;
-      blocks[i] = B;
+      if(B.childs.empty())
+      {
+	B.FeatureVec;
+	Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
+	for(int j=0;j<B.FeatureVec.size();j++)
+	  TestData.at<float>(j)= B.FeatureVec[j];
+	
+	int response = (int)svmClassifier.predict( TestData );
+	//printf("response is %d\n",response);
+	B.PredictedClass = response;
+	blocks[i] = B;
+      }
+      else
+      {
+	vector<int> p_C(5,0);
+	for(int k=0;k<B.childs.size();k++)
+	{
+	  SB B_C = B.childs[k];
+	  B_C.FeatureVec;
+	  Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
+	  for(int j=0;j<B_C.FeatureVec.size();j++)
+	    TestData.at<float>(j)= B_C.FeatureVec[j];
+	  
+	  int response = (int)svmClassifier.predict( TestData );
+	  if(response>4 || response<0)
+	  {
+	    printf("Error in classifier\nand response is outragious %d\n",response);
+	    exit(0);
+	  }
+	  //printf("response is %d\n",response);
+	  B_C.PredictedClass = response;
+	  B.childs[k] = B_C;
+	  p_C[response]++;
+	}
+	int maxv = p_C[0];
+	for(int k=0;k<p_C.size();k++)
+	{
+	  if(maxv>=p_C[k])
+	  {
+	    maxv=p_C[k];
+	    B.PredictedClass = k;
+	  }
+	}
+	blocks[i] = B;
+      }
+      
     }
   
 }
@@ -396,13 +587,52 @@ void classify_RF(vector<SB> &blocks, TDC Data)
   for(int i=0;i<blocks.size();i++)
     {
       SB B = blocks[i];
-      B.FeatureVec;
-      Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
-      for(int j=0;j<B.FeatureVec.size();j++)
-	TestData.at<float>(j)= B.FeatureVec[j];
-      int response = (int)rftrees.predict( TestData );
-      B.PredictedClass = response;
-      blocks[i] = B;
+      if(B.childs.empty())
+      {
+	B.FeatureVec;
+	Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
+	for(int j=0;j<B.FeatureVec.size();j++)
+	  TestData.at<float>(j)= B.FeatureVec[j];
+	
+	int response = (int)rftrees.predict( TestData );
+	//printf("response is %d\n",response);
+	B.PredictedClass = response;
+	blocks[i] = B;
+      }
+      else
+      {
+	vector<int> p_C(5,0);
+	for(int k=0;k<B.childs.size();k++)
+	{
+	  SB B_C = B.childs[k];
+	  B_C.FeatureVec;
+	  Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
+	  for(int j=0;j<B_C.FeatureVec.size();j++)
+	    TestData.at<float>(j)= B_C.FeatureVec[j];
+	  
+	  int response = (int)rftrees.predict( TestData );
+	  if(response>4 || response<0)
+	  {
+	    printf("Error in classifier\nand response is outragious %d\n",response);
+	    exit(0);
+	  }
+	  //printf("response is %d\n",response);
+	  B_C.PredictedClass = response;
+	  B.childs[k] = B_C;
+	  p_C[response]++;
+	}
+	int maxv = p_C[0];
+	for(int k=0;k<p_C.size();k++)
+	{
+	  if(maxv>=p_C[k])
+	  {
+	    maxv=p_C[k];
+	    B.PredictedClass = k;
+	  }
+	}
+	blocks[i] = B;
+      }
+      
     }
   
 }
@@ -434,13 +664,52 @@ void classify_DT(vector<SB> &blocks, TDC Data)
   for(int i=0;i<blocks.size();i++)
     {
       SB B = blocks[i];
-      B.FeatureVec;
-      Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
-      for(int j=0;j<B.FeatureVec.size();j++)
-	TestData.at<float>(j)= B.FeatureVec[j];
-      int response = (int)dtree.predict( TestData )->value;
-      B.PredictedClass = response;
-      blocks[i] = B;
+      if(B.childs.empty())
+      {
+	B.FeatureVec;
+	Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
+	for(int j=0;j<B.FeatureVec.size();j++)
+	  TestData.at<float>(j)= B.FeatureVec[j];
+	
+	int response = (int)dtree.predict( TestData )->value;
+	//printf("response is %d\n",response);
+	B.PredictedClass = response;
+	blocks[i] = B;
+      }
+      else
+      {
+	vector<int> p_C(5,0);
+	for(int k=0;k<B.childs.size();k++)
+	{
+	  SB B_C = B.childs[k];
+	  B_C.FeatureVec;
+	  Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
+	  for(int j=0;j<B_C.FeatureVec.size();j++)
+	    TestData.at<float>(j)= B_C.FeatureVec[j];
+	  
+	  int response = (int)dtree.predict( TestData )->value;
+	  if(response>4 || response<0)
+	  {
+	    printf("Error in classifier\nand response is outragious %d\n",response);
+	    exit(0);
+	  }
+	  //printf("response is %d\n",response);
+	  B_C.PredictedClass = response;
+	  B.childs[k] = B_C;
+	  p_C[response]++;
+	}
+	int maxv = p_C[0];
+	for(int k=0;k<p_C.size();k++)
+	{
+	  if(maxv>=p_C[k])
+	  {
+	    maxv=p_C[k];
+	    B.PredictedClass = k;
+	  }
+	}
+	blocks[i] = B;
+      }
+      
     }
   
 }
@@ -453,29 +722,58 @@ void classify_NBC(vector<SB> &blocks, TDC Data)
 {
   printf("nRows = %d nCols = %d nchannel = %d\n",Data.TrainData.rows,Data.TrainData.cols,Data.TrainData.channels());
   printf("nRows = %d nCols = %d nchannel = %d\n",Data.TrainClass.rows,Data.TrainClass.cols,Data.TrainClass.channels());
-  for(int i=0;i<Data.TrainClass.rows;i++)
-    {
-      printf("class of %d is %d\n",i,Data.TrainClass.at<int>(i,0));
-      if(Data.TrainClass.at<int>(i,0)>4)
-      {
-	printf("Problem in Training Class\n");
-	exit(0);
-      }
-    }
+  
    CvNormalBayesClassifier normalBayesClassifier( Data.TrainData, Data.TrainClass );
   
   for(int i=0;i<blocks.size();i++)
     {
       SB B = blocks[i];
-      B.FeatureVec;
-      Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
-      for(int j=0;j<B.FeatureVec.size();j++)
-	TestData.at<float>(j)= B.FeatureVec[j];
+      if(B.childs.empty())
+      {
+	B.FeatureVec;
+	Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
+	for(int j=0;j<B.FeatureVec.size();j++)
+	  TestData.at<float>(j)= B.FeatureVec[j];
+	
+	int response = (int)normalBayesClassifier.predict( TestData );
+	//printf("response is %d\n",response);
+	B.PredictedClass = response;
+	blocks[i] = B;
+      }
+      else
+      {
+	vector<int> p_C(5,0);
+	for(int k=0;k<B.childs.size();k++)
+	{
+	  SB B_C = B.childs[k];
+	  B_C.FeatureVec;
+	  Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
+	  for(int j=0;j<B_C.FeatureVec.size();j++)
+	    TestData.at<float>(j)= B_C.FeatureVec[j];
+	  
+	  int response = (int)normalBayesClassifier.predict( TestData );
+	  if(response>4 || response<0)
+	  {
+	    printf("Error in classifier\nand response is outragious %d\n",response);
+	    exit(0);
+	  }
+	  //printf("response is %d\n",response);
+	  B_C.PredictedClass = response;
+	  B.childs[k] = B_C;
+	  p_C[response]++;
+	}
+	int maxv = p_C[0];
+	for(int k=0;k<p_C.size();k++)
+	{
+	  if(maxv>=p_C[k])
+	  {
+	    maxv=p_C[k];
+	    B.PredictedClass = k;
+	  }
+	}
+	blocks[i] = B;
+      }
       
-      int response = (int)normalBayesClassifier.predict( TestData );
-      printf("response is %d\n",response);
-      B.PredictedClass = response;
-      blocks[i] = B;
     }
 }
 
