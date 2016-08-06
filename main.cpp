@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
   TDC Tdata = Training(argv[1]);
   
   vector<char*> ClassifierName;
- ClassifierName.push_back("NBC");
+ //ClassifierName.push_back("NBC");
  ClassifierName.push_back("KNN");
  ClassifierName.push_back("SVM");
  ClassifierName.push_back("DT");

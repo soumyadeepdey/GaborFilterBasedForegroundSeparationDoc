@@ -230,13 +230,14 @@ TDC Training(char* TrainFile)
 	SB B = blocks[i];
 	if(B.childs.empty())
 	{
-	  if(B.GtClass>4)
-	  {
-	    printf("Error .... value of gt is %d\n",B.GtClass);
-	    exit(0);
-	  }
+	  
 	  if(B.Fvecflag && B.gtflag)
 	  {
+	    if(B.GtClass>4)
+	    {
+	      printf("Error .... value of gt is %d\n",B.GtClass);
+	      exit(0);
+	    }
 	    if(B.GtClass == 0)
 	    {
 	      if(strcmp(B.bgcolor,"White")==0)
@@ -283,13 +284,14 @@ TDC Training(char* TrainFile)
 	  for(int k=0;k<B.childs.size();k++)
 	  {
 	    SB B_C = B.childs[k];
-	    if(B_C.GtClass>4)
-	    {
-	      printf("Error .... value of gt is %d\n",B_C.GtClass);
-	      exit(0);
-	    }
+	    
 	    if(B_C.Fvecflag && B_C.gtflag)
 	    {
+	      if(B_C.GtClass>4)
+	      {
+		printf("Error .... value of gt is %d\n",B_C.GtClass);
+		exit(0);
+	      }
 	      if(B_C.GtClass == 0)
 	      {
 		if(strcmp(B_C.bgcolor,"White")==0)
