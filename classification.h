@@ -39,20 +39,20 @@ typedef struct TrainDataClass
 }TDC;
 
 
-void classify(char *TestFILE, char *classifiername, TDC Data);
+void classify(char *TestFILE, char *classifiername, TDC &Data);
 
 TDC Training(char *TrainFile);
 
-void classify_KNN(vector<SB> &blocks, TDC Data);
+void classify_KNN(vector<SB> &blocks, TDC &Data);
 
-void classify_NBC(vector<SB> &blocks, TDC Data);
+void classify_NBC(vector<SB> &blocks, TDC &Data);
 
-void classify_DT(vector<SB> &blocks, TDC Data);
+void classify_DT(vector<SB> &blocks, TDC &Data);
 
-void classify_RF(vector<SB> &blocks, TDC Data);
+void classify_RF(vector<SB> &blocks, TDC &Data);
 
-void classify_SVM(vector<SB> &blocks, TDC Data);
+void classify_SVM(vector<SB> &blocks, TDC &Data);
 
-void Classification(vector<SB> &blocks, TDC Data, char *ClassifierName);
+void Classification(vector<SB> &blocks, TDC &Data, char *ClassifierName);
 
 #endif

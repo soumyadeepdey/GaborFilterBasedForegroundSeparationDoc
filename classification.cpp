@@ -3,7 +3,7 @@
 using namespace IITkgp_functions;
 
 
-void classify(char *TestFILE, char *classifiername, TDC Data)
+void classify(char *TestFILE, char *classifiername, TDC &Data)
 {
   vector<int> classnumber;
       classnumber.push_back(0); classnumber.push_back(1); 
@@ -87,6 +87,7 @@ void classify(char *TestFILE, char *classifiername, TDC Data)
 	}
 	PredictedLabels.at<int>(i,0) = B.PredictedClass;
       }
+      blocks.clear();
       
       vector<ConfusionMatrix> CM = GetConfusionMatrix(Gtlabels,PredictedLabels,classnumber);
       char *tempname;
@@ -335,6 +336,8 @@ TDC Training(char* TrainFile)
 	}
       }
       
+      blocks.clear();
+      
   }
   
   printf("TrainClass size %d\n",TrainClass.size());
@@ -393,7 +396,7 @@ TDC Training(char* TrainFile)
 
 #if _KNN_
 
-void classify_KNN(vector<SB> &blocks, TDC Data)
+void classify_KNN(vector<SB> &blocks, TDC &Data)
 {
   
     
@@ -489,7 +492,7 @@ void classify_KNN(vector<SB> &blocks, TDC Data)
 
 #if _SVM_
 
-void classify_SVM(vector<SB> &blocks, TDC Data)
+void classify_SVM(vector<SB> &blocks, TDC &Data)
 {
   CvSVMParams svm_params;
             svm_params.svm_type = CvSVM::C_SVC;
@@ -568,7 +571,7 @@ void classify_SVM(vector<SB> &blocks, TDC Data)
 
 #if _RF_
 
-void classify_RF(vector<SB> &blocks, TDC Data)
+void classify_RF(vector<SB> &blocks, TDC &Data)
 {
   CvRTrees  rftrees;
     CvRTParams  rf_params( 8, // max_depth,
@@ -644,7 +647,7 @@ void classify_RF(vector<SB> &blocks, TDC Data)
 
 #if _DT_
 
-void classify_DT(vector<SB> &blocks, TDC Data)
+void classify_DT(vector<SB> &blocks, TDC &Data)
 {
   CvDTree  dtree;
 
@@ -720,7 +723,7 @@ void classify_DT(vector<SB> &blocks, TDC Data)
 
 #if _NBC_
 
-void classify_NBC(vector<SB> &blocks, TDC Data)
+void classify_NBC(vector<SB> &blocks, TDC &Data)
 {
   printf("nRows = %d nCols = %d nchannel = %d\n",Data.TrainData.rows,Data.TrainData.cols,Data.TrainData.channels());
   printf("nRows = %d nCols = %d nchannel = %d\n",Data.TrainClass.rows,Data.TrainClass.cols,Data.TrainClass.channels());
@@ -783,7 +786,7 @@ void classify_NBC(vector<SB> &blocks, TDC Data)
 #endif
 
 
-void Classification(vector<SB> &blocks, TDC Data, char *ClassifierName)
+void Classification(vector<SB> &blocks, TDC &Data, char *ClassifierName)
 {
   printf("classifiername =%s\n",ClassifierName);
   if(strcmp(ClassifierName,"NBC")==0)
