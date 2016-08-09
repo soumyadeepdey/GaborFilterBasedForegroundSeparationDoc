@@ -105,8 +105,12 @@ double IITkgp_functions::FindMean(Mat data)
   sum = 0.0;
   int data_size;
   data_size = data.rows*data.cols;
-  for(int i=0;i<data_size;i++)
-    sum = sum + (data.at<double>(0,i));
+  for(int i=0;i<data.rows;i++)
+  {
+    for(int j=0;j<data.cols;j++)
+      sum = sum + data.at<double>(i,j);
+  }
+  
   mean = sum/data_size;
   
   return(mean);
@@ -130,10 +134,13 @@ double IITkgp_functions::FindVar(Mat data)
   double sum=0.0;
   int data_size;
   data_size = data.rows*data.cols;
-  for(int i=0;i<data_size;i++)
+  for(int i=0;i<data.rows;i++)
   {
-    temp = data.at<double>(0,i) - mean;
-    sum = sum + (temp * temp);
+    for(int j=0;j<data.cols;j++)
+    {
+      temp = data.at<double>(i,j) - mean;
+      sum = sum + (temp * temp);
+    }
   }
   var = sum/data_size;
   
@@ -183,10 +190,13 @@ double IITkgp_functions::FindSkew(Mat data)
   data_size = data.rows*data.cols;
   mean = FindMean(data);
   
-  for(int i=0;i<data_size;i++)
+  for(int i=0;i<data.rows;i++)
   {
-    temp = data.at<double>(0,i) - mean;
-    sum = sum + (temp * temp * temp);
+    for(int j=0;j<data.cols;j++)
+    {
+      temp = data.at<double>(0,i) - mean;
+      sum = sum + (temp * temp * temp);
+    }
   }
   sum = sum / data_size;
   
@@ -310,10 +320,13 @@ double IITkgp_functions::FindVarMode(Mat data)
   double sum=0.0;
   int data_size;
   data_size = data.rows*data.cols;
-  for(int i=0;i<data_size;i++)
+  for(int i=0;i<data.rows;i++)
   {
-    temp = data.at<double>(0,i) - mode;
-    sum = sum + (temp * temp);
+    for(int j=0;j<data.cols;j++)
+    {
+      temp = data.at<double>(0,i) - mode;
+      sum = sum + (temp * temp);
+    }
   }
   var = sum/data_size;
   

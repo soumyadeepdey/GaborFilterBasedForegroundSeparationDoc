@@ -1,8 +1,9 @@
 #include "FeatureExtraction.h"
 
-
 vector< float > ExtractFeature(Mat image)
 {
+  
+  
   vector<float> Feature;
   
   //Extract Gradient Feature
@@ -19,7 +20,11 @@ vector< float > ExtractFeature(Mat image)
   //copy<float>(GaborF.begin(),GaborF.end(),inserter(Feature,Feature.end())); // Append Gabor feature into Feature vector
   GaborF.clear();
   
+  printf("All Features\n");
   
+  for(int i=0;i<Feature.size();i++)
+    printf("%f\t",Feature[i]);
+  printf("\n\n");
   
   return Feature;
 }

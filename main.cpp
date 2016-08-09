@@ -26,12 +26,24 @@ int main(int argc, char* argv[])
   
   TDC Tdata = Training(argv[1]);
   
+  for(int i=0;i<Tdata.TrainData.rows;i++)
+  {
+    for(int j=0;j<Tdata.TrainData.cols;j++)
+    {
+      printf("%f\t",Tdata.TrainData.at<float>(i,j));
+    }
+    printf("\n\n");
+  }
+  
+  //exit(0);
+  
   vector<char*> ClassifierName;
- //ClassifierName.push_back("NBC");
- ClassifierName.push_back("KNN");
- ClassifierName.push_back("SVM");
- ClassifierName.push_back("DT");
+ 
  ClassifierName.push_back("RF");
+ ClassifierName.push_back("SVM");
+ ClassifierName.push_back("KNN");
+ ClassifierName.push_back("DT");
+ ClassifierName.push_back("NBC");
  
   
  for(int i=0;i<ClassifierName.size();i++)

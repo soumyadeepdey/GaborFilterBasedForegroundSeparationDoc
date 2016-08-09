@@ -20,10 +20,15 @@ vector< SB > GetSegmentationUnit(Mat image)
     
     Mat boundaryimage; 
     subtract(dilatedimage,erodedimage,boundaryimage);
-    
+   
     Mat invimg = FindImageInverse(boundaryimage);
    
     Mat Boundary_Binary = binarization(invimg,1);
+    
+   // imwrite("Boundary_Binary.png",Boundary_Binary);
+    
+    Mat BB_B = boundaryextraction(Boundary_Binary);
+   // imwrite("Boundary_Binary_bound.png",BB_B);
   
     Mat Binary = binarization(image,1);
     
@@ -52,6 +57,9 @@ vector< SB > GetSegmentationUnit(Mat image)
 	
     vector<SB> blocks;
     
+    Mat Draw = Mat(blurimage.rows,blurimage.cols,CV_8UC3,Scalar(255,255,255));
+    // blurimage.copyTo(Draw);
+    
     int avg_height = 0;
      int count = 0;
      vector<bool> flag(contours.size(),false);
@@ -59,8 +67,8 @@ vector< SB > GetSegmentationUnit(Mat image)
      {
        if(hierarchy[j][3] == -1 && boundRect[j].height > 6 &&  boundRect[j].width > 10)
        {
-	 //rectangle( cont, boundRect[j].tl(), boundRect[j].br(), Scalar(100,100,10), 2, 8, 0 );
-	 //drawContours(cont, contours, j, Scalar(0, 0, 250), CV_FILLED);
+	 //rectangle( Draw, boundRect[j].tl(), boundRect[j].br(), Scalar(100,100,10), 2, 8, 0 );
+	// drawContours(Draw, contours, j, Scalar(0, 0, 250), CV_FILLED);
 	 avg_height = avg_height +  boundRect[j].height;
 	 count++;
 	 SB B;
@@ -93,187 +101,306 @@ vector< SB > GetSegmentationUnit(Mat image)
        }
      }
      
-     int p,q;
-     int bc = 0;
-     for( int j = 0; j < contours.size(); j++ )
-     {
-       if(hierarchy[j][3] == -1 && boundRect[j].height > 3*avg_height && boundRect[j].width > 3*avg_height && flag[j])
-       {
-	 
-	 Mat temp_img = Mat(boundRect[j].height,boundRect[j].width,CV_8UC1,Scalar(255));
-	 p = 0;
-	 for(int m=boundRect[j].y;m<boundRect[j].y+boundRect[j].height;m++)
-	 {
-	    q = 0;
-	    for(int n=boundRect[j].x;n<boundRect[j].x+boundRect[j].width;n++)
-	    {
-	      int temp_col = boundRect[j].width;
-	      bool measure_dist = false;
-	      {
-		if(pointPolygonTest(contours_poly[j],Point(n,m),measure_dist) >= 0.0)
-		{
-		  temp_img.at<uchar>(p,q) = Boundary_Binary.at<uchar>(m,n);		  
-		}
-	      }
-	      q++;
-	    }
-	    p++;
-	 }
-	 
-	
-	 nocc *component = FindConnectedComponent(temp_img,temp_img);
-	 vector<vector<Point> > temp_contours = Convert_nocc2pointvector(component);
-	 vector<vector<Point> > temp_contours_poly( temp_contours.size() );
-	 vector<Rect> temp_boundRect( temp_contours.size() );
-	 for( int l = 0; l < temp_contours.size(); l++ )
-	 {
-	   for(int m=0;m< temp_contours[l].size();m++)
-	   {
-	     temp_contours[l][m].x = temp_contours[l][m].x + boundRect[j].x;
-	     temp_contours[l][m].y = temp_contours[l][m].y + boundRect[j].y;
-	   }
-	 }
-	 for( int l = 0; l < temp_contours.size(); l++ )
-	 { 
-	    approxPolyDP( Mat(temp_contours[l]), temp_contours_poly[l], 3, true );
-	    temp_boundRect[l] = boundingRect( Mat(temp_contours_poly[l]) );
-	 }
-	 vector<Vec4i> temp_hierarchy(temp_contours.size());
-	 for( int l = 0; l < temp_contours.size(); l++ )
-	 {
-	   temp_hierarchy[l][0] = -1;
-	   temp_hierarchy[l][1] = -1;
-	   temp_hierarchy[l][2] = -1;
-	   temp_hierarchy[l][3] = -1;
-	 }
-	 for( int l = 0; l < temp_contours.size(); l++ )
-	 {
-	   float frac = (temp_boundRect[l].area()*1.0)/(boundRect[j].area()*1.0);
-	   if(frac < 0.7)
-	   {
-	    for(int m=0;m< temp_contours.size();m++)
-	    {
-	      float frac1 = (temp_boundRect[m].area()*1.0)/(boundRect[j].area()*1.0);
-	      if(frac1 < 0.7 && l!=m)
-	      {
-		  int val = PolygonInsidePolygonTest(temp_contours_poly[l],temp_contours_poly[m]);
-		  if(val==2)
-		  {
-		    temp_hierarchy[m][3] = l;
-		    if(temp_hierarchy[l][2]!=-1)
-		      temp_hierarchy[l][2] = m;
-		  }		
-	      }
-	    }
-	  }
-	 }
-	 for( int l = 0; l < temp_contours.size(); l++ )
-	 {
-	    float frac = (temp_boundRect[l].area()*1.0)/(boundRect[j].area()*1.0);
-	    if(temp_hierarchy[l][3] == -1 && frac < 0.7)
-	    {
-	      
-	      SB child_B;
-	      child_B.B = temp_boundRect[l];
-	      child_B.Contours = temp_contours[l];
-	      child_B.gtflag = false;
-	      child_B.Fvecflag = false;
-	      blocks[bc].childs.push_back(child_B);
-	    }	    
-	 }	  
-	 temp_img.release();
-	 bc++;
-       }
-     }
-     
-    for(int i=0;i<blocks.size();i++)
-     {
-       SB B = blocks[i];
-       if(!B.childs.empty()) // 
-       {
-	 vector<SB> C = B.childs;
-	 for(int j=0;j<C.size();j++)
-	 {
-	   for(int k=0;k<C.size();)
-	   {
-	     if(j!=k)
-	     {
-	       //int val = PolygonInsidePolygonTest(C[j].Contours,C[k].Contours);
-	       int val = FindOverlappingRectangles(C[j].B,C[k].B);
-	       if(val == 2)
-	       {
-		 C.erase(C.begin()+k);
-	       }
-	       else
-		 k = k + 1;
-	     }
-	     else
-	       k = k + 1;
-	   }
-	 }
-	 blocks[i].childs = C;
-       }
-     }
-     
+     /*
      for(int i=0;i<blocks.size();i++)
      {
        SB B = blocks[i];
        vector<Point> poly;
-       approxPolyDP( Mat(B.Contours), poly, 3, true );
-       Rect R = boundingRect( Mat(poly) );
-       Mat tempimg = Mat(R.height,R.width,blurimage.type(),Scalar(255,255,255));
-       for(int m=0;m<R.height;m++)
-       {
-	 for(int n=0;n<R.width;n++)
-	 {
-	   Point P;P.x=n;P.y=m;
-	   if(pointPolygonTest( poly, P, false )>=0)
-	   {
-	     for(int k=0;k<blurimage.channels();k++)
-	       tempimg.at<Vec3b>(m,n)[k] = blurimage.at<Vec3b>(m,n)[k];
-	   }
-	 }
-       }
-       B.FeatureVec = ExtractFeature(tempimg);
-       B.Fvecflag = true;
-       tempimg.release();
-       poly.clear();
-       
-       if(!B.childs.empty())
-       {
-	 vector<SB> C = B.childs;
-	 for(int j=0;j<C.size();j++)
-	 {
-	    SB B1 = C[j];
-	    approxPolyDP( Mat(B1.Contours), poly, 3, true );
-	    Rect R1 = boundingRect( Mat(poly) );
-	    tempimg = Mat(R1.height,R1.width,blurimage.type(),Scalar(255,255,255));
-	    for(int m=0;m<R1.height;m++)
+	  approxPolyDP( Mat(B.Contours), poly, 3, true );
+	  Rect R = boundingRect( Mat(poly) );
+       rectangle( Draw, R.tl(), R.br(), Scalar(100,100,10), 2, 8, 0 );
+     }
+     */
+     
+     for(int i=0;i<blocks.size();i++)
+     {
+	SB B = blocks[i];
+	vector<Point> poly;
+	approxPolyDP( Mat(B.Contours), poly, 3, true );
+	Rect R = boundingRect( Mat(poly) );
+	if(R.height>3*avg_height && R.width > 3*avg_height)
+	{
+	    Mat temp_img = Mat(R.height,R.width,CV_8UC1,Scalar(255));
+	    int p = 0;
+	    for(int m=R.y;m<R.y+R.height;m++)
 	    {
-	      for(int n=0;n<R1.width;n++)
-	      {
-		Point P1;P1.x=n;P1.y=m;
-		if(pointPolygonTest( poly, P1, false )>=0)
+		int q = 0;
+		for(int n=R.x;n<R.x+R.width;n++)
 		{
-		  for(int k=0;k<blurimage.channels();k++)
-		    tempimg.at<Vec3b>(m,n)[k] = blurimage.at<Vec3b>(m,n)[k];
+		  bool measure_dist = false;
+		  {
+		    
+		    if(pointPolygonTest(poly,Point(n,m),measure_dist) >= 0.0)
+		    {
+		      //temp_img.at<uchar>(p,q) = Boundary_Binary.at<uchar>(m,n);	
+		      temp_img.at<uchar>(p,q) = BB_B.at<uchar>(m,n);	
+		    }
+		  }
+		  q++;
+		}
+		p++;
+	    }
+	    nocc *component = FindConnectedComponent(temp_img,temp_img);
+	    vector<vector<Point> > temp_contours = Convert_nocc2pointvector(component);
+	    vector<vector<Point> > temp_contours_poly( temp_contours.size() );
+	    vector<Rect> temp_boundRect( temp_contours.size() );
+	    for( int l = 0; l < temp_contours.size(); l++ )
+	    {
+	      for(int m=0;m< temp_contours[l].size();m++)
+	      {
+		temp_contours[l][m].x = temp_contours[l][m].x + R.x;
+		temp_contours[l][m].y = temp_contours[l][m].y + R.y;
+	      }
+	    }
+	    for( int l = 0; l < temp_contours.size(); l++ )
+	    { 
+		approxPolyDP( Mat(temp_contours[l]), temp_contours_poly[l], 3, true );
+		temp_boundRect[l] = boundingRect( Mat(temp_contours_poly[l]) );
+	    }
+	    vector<Vec4i> temp_hierarchy(temp_contours.size());
+	    for( int l = 0; l < temp_contours.size(); l++ )
+	    {
+	      temp_hierarchy[l][0] = -1;
+	      temp_hierarchy[l][1] = -1;
+	      temp_hierarchy[l][2] = -1;
+	      temp_hierarchy[l][3] = -1;
+	    }
+	    for( int l = 0; l < temp_contours.size(); l++ )
+	    {
+	      float frac = (temp_boundRect[l].area()*1.0)/(R.area()*1.0);
+	      if(frac < 0.7)
+	      {
+		for(int m=0;m< temp_contours.size();m++)
+		{
+		  float frac1 = (temp_boundRect[m].area()*1.0)/(R.area()*1.0);
+		  if(frac1 < 0.7 && l!=m)
+		  {
+		      int val = PolygonInsidePolygonTest(temp_contours_poly[l],temp_contours_poly[m]);
+		      if(val==2)
+		      {
+			temp_hierarchy[m][3] = l;
+			if(temp_hierarchy[l][2]!=-1)
+			  temp_hierarchy[l][2] = m;
+		      }		
+		  }
 		}
 	      }
 	    }
-	    B1.FeatureVec = ExtractFeature(tempimg);
-	    B1.Fvecflag = true;
+	    for( int l = 0; l < temp_contours.size(); l++ )
+	    {
+		float frac = (temp_boundRect[l].area()*1.0)/(R.area()*1.0);
+		if(temp_hierarchy[l][3] == -1 && frac < 0.7)
+		{
+		  
+		  SB child_B;
+		  child_B.B = temp_boundRect[l];
+		  child_B.Contours = temp_contours[l];
+		  child_B.gtflag = false;
+		  child_B.Fvecflag = false;
+		  blocks[i].childs.push_back(child_B);
+		}	    
+	    }
+	    
+	    temp_img.release();
+	}
+	
+     }
+     
+    
+    int cnt; 
+    for(int i=0;i<blocks.size();i++)
+     {
+	SB B = blocks[i];
+	vector<Point> poly;
+	approxPolyDP( Mat(B.Contours), poly, 3, true );
+	Rect R = boundingRect( Mat(poly) );
+	if(B.childs.empty())
+	{
+	    //printf("I am in no child\n");
+	    
+	    Mat tempimg = Mat(R.height,R.width,CV_8UC3,Scalar(255,255,255));
+	    int p = 0;
+	    cnt = 0;
+	    for(int m=R.y;m<R.y+R.height;m++)
+	    {
+	        int q = 0; 
+		for(int n=R.x;n<R.x+R.width;n++)
+		{
+		  bool measure_dist = false;
+		    if(pointPolygonTest(poly,Point(n,m),measure_dist) >= 0.0)
+		    {
+		      cnt++;
+		      Draw.at<Vec3b>(m,n)[0] = 255;Draw.at<Vec3b>(m,n)[1] = 0;Draw.at<Vec3b>(m,n)[2] = 0;
+		      for(int k=0;k<blurimage.channels();k++)
+			tempimg.at<Vec3b>(p,q)[k] = blurimage.at<Vec3b>(m,n)[k];
+		    }
+		    q++;
+		}
+		p++;
+	    }
+	    if(cnt>5)
+	    {
+	      B.FeatureVec = ExtractFeature(tempimg);
+	      B.Fvecflag = true;
+	      for(int k=0;k<B.FeatureVec.size();k++)
+		printf("%f\t",B.FeatureVec[k]);
+	      printf("\n\n");
+	    }
 	    tempimg.release();
-	    poly.clear();
-	    C[j]= B1;
+	    blocks[i] = B;
+	}
+	else
+	{
+	    //printf("I am in child\n");
+	      Mat tempimg = Mat(R.height,R.width,CV_8UC3,Scalar(255,255,255));
+	      int p = 0;
+	      cnt = 0;
+	      for(int m=R.y;m<R.y+R.height;m++)
+	      {
+		int q = 0;
+		for(int n=R.x;n<R.x+R.width;n++)
+		{
+		  int temp_col = R.width;
+		  bool measure_dist = false;
+		    if(pointPolygonTest(poly,Point(n,m),measure_dist) >= 0.0)
+		    {
+		      cnt++;
+		      Draw.at<Vec3b>(m,n)[0] = 0;Draw.at<Vec3b>(m,n)[1] = 255;Draw.at<Vec3b>(m,n)[2] = 0;
+		      for(int k=0;k<blurimage.channels();k++)
+			tempimg.at<Vec3b>(p,q)[k] = blurimage.at<Vec3b>(m,n)[k];
+		    }
+		    q++;
+		}
+		p++;
+	      }
+	      if(cnt > 5)
+	      {
+		B.FeatureVec = ExtractFeature(tempimg);
+		B.Fvecflag = true;
+		for(int k=0;k<B.FeatureVec.size();k++)
+		  printf("%f\t",B.FeatureVec[k]);
+		printf("\n\n");
+	      }
+	     tempimg.release();
+	     blocks[i] = B;
+	    
+	    vector<SB> C = B.childs;
+	    
+	    printf("Initial Child Size %d\n",C.size());
+	    
+	    for(int j=0;j<C.size();j++)
+	    {
+	      for(int k=0;k<C.size();)
+	      {
+		if(j!=k)
+		{
+		  int val = PolygonInsidePolygonTest(C[j].Contours,C[k].Contours);
+		  //if(val==2||val==3)
+		  //int val = FindOverlappingRectangles(C[j].B,C[k].B);
+		  if(val == 2 || val == 3)
+		  {
+		    C.erase(C.begin()+k);
+		  }
+		  else
+		    k = k + 1;
+		}
+		else
+		  k = k + 1;
+	      }
+	    }
+	    blocks[i].childs = C;
+	    
 	   
-	 }
-	 B.childs = C;
-	 C.clear();
+	    printf("Later Child Size %d\n",C.size());
+	    for(int j=0;j<C.size();)
+	    {
+		SB B_C = C[j];
+		vector<Point> poly_c;
+		approxPolyDP( Mat(B_C.Contours), poly_c, 3, true );
+		Rect R_C = boundingRect( Mat(poly_c) );
+		Mat tempimg_C = Mat(R_C.height,R_C.width,CV_8UC3,Scalar(255,255,255));
+		int p_c = 0;
+		cnt = 0;
+		for(int m=R_C.y;m<R_C.y+R_C.height;m++)
+		{
+		  int q_c = 0;
+		  for(int n=R_C.x;n<R_C.x+R_C.width;n++)
+		  {
+		    cnt++;
+		    Draw.at<Vec3b>(m,n)[0] = 0;Draw.at<Vec3b>(m,n)[1] = 0;Draw.at<Vec3b>(m,n)[2] = 255;
+		    for(int k=0;k<blurimage.channels();k++)
+		      tempimg_C.at<Vec3b>(p_c,q_c)[k] = blurimage.at<Vec3b>(m,n)[k];
+		    q_c++;
+		  }
+		  p_c++;
+		}
+		if(cnt > 5)
+		{
+		  B_C.FeatureVec = ExtractFeature(tempimg_C);
+		  B_C.Fvecflag = true;
+		  for(int k=0;k<B.FeatureVec.size();k++)
+		    printf("%f\t",B.FeatureVec[k]);
+		  printf("\n\n");
+		  C[j] = B_C;
+		  j++;
+		}
+		else
+		{
+		  C.erase(C.begin()+j);
+		}
+		
+		tempimg_C.release();
+	      }
+	      
+	      blocks[i].childs = C;
+	    
+	}
+	
+       
+     }
+     
+     
+    
+     imwrite("SEGUNIT.png",Draw);
+     
+     for(int i=0;i<blocks.size();i++)
+     {
+       SB B = blocks[i];
+       if(B.Fvecflag)
+       {
+	  i++;
        }
-       blocks[i] = B;
+       else
+	  blocks.erase(blocks.begin()+i);
      }
 
-     
+     //exit(0);
+     printf("Printing Features from Blocks\n");
+     for(int i=0;i<blocks.size();i++)
+     {
+       SB B = blocks[i];
+       if(B.childs.empty())
+       {
+	  for(int k=0;k<B.FeatureVec.size();k++)
+	      printf("%f\t",B.FeatureVec[k]);
+	    printf("\n\n");
+       }
+       else
+       {
+	 for(int k=0;k<B.FeatureVec.size();k++)
+	      printf("%f\t",B.FeatureVec[k]);
+	    printf("\n\n");
+	 
+	 for(int j=0;j<B.childs.size();j++)
+	 {
+	   SB B_C = B.childs[j];
+	   for(int k=0;k<B_C.FeatureVec.size();k++)
+	      printf("%f\t",B_C.FeatureVec[k]);
+	    printf("\n\n");
+	 }
+       }
+     }
+     //exit(0);
      return blocks;
     
 }

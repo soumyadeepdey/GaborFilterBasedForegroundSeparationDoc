@@ -4,8 +4,11 @@
 
 vector<float> GetGradientFeature(Mat image)
 {
+  printf("\n\n");
+  
   Mat gray;
   int ddepth = CV_32F;
+  //int ddepth = CV_8U;
   int scale = 1;
   int delta = 0;
   Mat grad;
@@ -18,7 +21,7 @@ vector<float> GetGradientFeature(Mat image)
     cvtColor(image,gray,CV_BGR2GRAY);
   else
     image.copyTo(gray);
-  
+  image.release();
   
   /// Generate grad_x and grad_y
   
@@ -34,7 +37,7 @@ vector<float> GetGradientFeature(Mat image)
   convertScaleAbs( grad_y, abs_grad_y );
 
   /// Total Gradient (approximate)
-  addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, abs_grad );
+  //addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, abs_grad );
   //addWeighted( grad_x, 0.5, grad_y, 0.5, 0, grad );
   //convertScaleAbs( grad, abs_grad );
   
@@ -46,8 +49,12 @@ vector<float> GetGradientFeature(Mat image)
   {
     for(int j=0;j<gray.cols;j++)
     {
-      GradMag.at<float>(i,j) = sqrt((grad_x.at<float>(i,j)*grad_x.at<float>(i,j))+(grad_y.at<float>(i,j)*grad_y.at<float>(i,j)));
+      GradMag.at<float>(i,j) =(float) sqrt((grad_x.at<float>(i,j)*grad_x.at<float>(i,j))+(grad_y.at<float>(i,j)*grad_y.at<float>(i,j)));
       GradDir.at<float>(i,j) = (atan2(grad_y.at<float>(i,j), grad_x.at<float>(i,j))*180)/PI;
+      //GradMag.at<float>(i,j) =(float) sqrt((abs_grad_x.at<uchar>(i,j)*abs_grad_x.at<uchar>(i,j))+(abs_grad_y.at<uchar>(i,j)*abs_grad_y.at<uchar>(i,j)));
+      //GradDir.at<float>(i,j) = (atan2(abs_grad_y.at<uchar>(i,j), abs_grad_x.at<uchar>(i,j))*180*1.0)/PI;
+      if(GradDir.at<float>(i,j) < 0)
+	  GradDir.at<float>(i,j) = 180 - GradDir.at<float>(i,j);
     }
   }
   grad_x.release();
@@ -58,12 +65,19 @@ vector<float> GetGradientFeature(Mat image)
   
   vector<float> GradientFeature;
   
+  printf("Mag %lf\t%lf\t\tDir %lf\t%lf\n",FindMean(GradMag),FindStdDev(GradMag),FindMean(GradDir),FindStdDev(GradDir));
+  printf("Mag %f\t%f\t\tDir %f\t%f\n",(float) FindMean(GradMag),(float) FindStdDev(GradMag),(float) FindMean(GradDir),(float) FindStdDev(GradDir));
+  
   GradientFeature.push_back((float) FindMean(GradMag));
-  GradientFeature.push_back((float) FindStdDev(GradMag));
+  GradientFeature.push_back((float) FindStdDev(GradMag)); 
   GradMag.release();
   GradientFeature.push_back((float) FindMean(GradDir));
   GradientFeature.push_back((float) FindStdDev(GradDir));
   GradDir.release();
+  
+  printf("GradientFeature\n");
+  printf("Mag %f\t%f\t\tDir %f\t%f\n",GradientFeature[0],GradientFeature[1],GradientFeature[2],GradientFeature[3]);
+  
   
   return GradientFeature;
 }
