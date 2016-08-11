@@ -1,0 +1,14 @@
+alglibinternal.h
+alglibmisc.h
+ap.h
+dataanalysis.h
+diffequations.h
+fasttransforms.h
+integration.h
+interpolation.h
+linalg.h
+optimization.h
+solvers.h
+specialfunctions.h
+statistics.h
+stdafx.h
