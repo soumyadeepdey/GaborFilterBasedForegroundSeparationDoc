@@ -68,37 +68,45 @@ void classify(char *TestFILE, char *classifiername, TDC &Data)
       
       Classification(blocks,Data,classifiername);
       
+      vector<SB> SU;
       vector<int> gtcls;
       vector<int> pcls;
-      
-      //Mat Gtlabels = Mat(blocks.size(),1,CV_8UC1);
-      //Mat PredictedLabels = Mat(blocks.size(),1,CV_8UC1);
+      int su_cnt = 0;
       
       for(int i=0;i<blocks.size();i++)
       {
 	SB B = blocks[i];
+	
 	if(B.childs.empty())
 	{
 	  if(B.Fvecflag && B.gtflag)
 	  {
+	    B.blockid = su_cnt;
+	    SU.push_back(B);
+	    su_cnt++;
 	    gtcls.push_back(B.GtClass);
 	    pcls.push_back(B.PredictedClass);
 	  }
 	}
 	else
 	{
-	  for(int j=0;j<B.childs.size();j++)
+	  for(int k=0;k<B.childs.size();k++)
 	  {
-	    SB B_C = B.childs[j];
-	    if(B_C.Fvecflag && B_C.gtflag)
-	    {
+	    
+	    SB B_C = B.childs[k];
+	    if(B_C.Fvecflag && B_C.gtflag);
+	    { 
+	      B_C.blockid = su_cnt;
+	      SU.push_back(B_C);
+	      su_cnt++;
 	      gtcls.push_back(B_C.GtClass);
 	      pcls.push_back(B_C.PredictedClass);
 	    }
 	  }
 	}
-	
       }
+      
+      
       blocks.clear();
       
       Mat Gtlabels = Mat(gtcls.size(),1,CV_8UC1);

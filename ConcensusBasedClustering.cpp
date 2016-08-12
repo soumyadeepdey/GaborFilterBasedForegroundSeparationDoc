@@ -46,7 +46,9 @@ vector<vector<bool> > FindAdjacencyMatrix(vector<vector<T> > &Relation, T connec
 template <typename T>
 vector<vector<bool> > FindAdjacencyMatrixNdata(vector<vector<vector<T> > > Relation, vector<T> Threshold)
 {
-  vector<vector<bool> > AdjMat(Relation[0].size,(Relation[0].size(),true));
+  vector<bool> adj(Relation[0].size(),true);
+  vector<vector<bool> > AdjMat(Relation[0].size(),adj);
+  adj.clear();
 
     for(int i=0;i<Relation[0].size();i++)
     {
@@ -285,9 +287,9 @@ void FindCommonNodes(vector<vector<int> > &K, vector<vector<int> > D, vector<vec
     for(int l=0;l<N[z].size();l++)
     {
       D[t] = N[z][l];
-      vector<int> k = D[t][0];
-      for(int i=1;i<D[t].size();i++)
-      k = FindIntersection<int>(k,D[t][i]);
+      vector<int> k = D[0];
+      for(int i=1;i<D.size();i++)
+	k = FindIntersection<int>(k,D[i]);
       if(k.empty())
 	k.clear();
       else
@@ -300,37 +302,9 @@ void FindCommonNodes(vector<vector<int> > &K, vector<vector<int> > D, vector<vec
 }
 
 
-vector<vector<int> > ClusteringCCN(vector< SB > blocks, vector< double > Threshold)
+vector<vector<SB> > ClusteringCCN(vector< SB > SU, vector< double > Threshold)
 {
-  vector<SB> SU;
-  int FvecSize;
-    for(int i=0;i<blocks.size();i++)
-    {
-      SB B = blocks[i];
-      
-      if(B.childs.empty())
-      {
-	if(B.Fvecflag && B.gtflag)
-	{
-	  SU.push_back(B);
-	  FvecSize = B.FeatureVec.size();
-	}
-      }
-      else
-      {
-	for(int k=0;k<B.childs.size();k++)
-	{
-	  
-	  SB B_C = B.childs[k];
-	  if(B_C.Fvecflag && B_C.gtflag);
-	  { 
-	    SU.push_back(B_C);
-	  }
-	}
-      }
-    }
-    
-    blocks.clear();
+   int FvecSize = SU[0].FeatureVec.size();
     
     vector<vector<vector<double> > > StudentTDistval;
     
@@ -417,40 +391,26 @@ vector<vector<int> > ClusteringCCN(vector< SB > blocks, vector< double > Thresho
     
     FindCommonNodes(K,D,CC,z,t);
     
-    return K;
+    vector<vector<SB> > clusters;
+    
+    for(int i=0;i<K.size();i++)
+    {
+      vector<SB> temp;
+      for(int j=0;j<K[i].size();j++)
+      {
+	temp.push_back(SU[K[i][j]]);
+      }
+      clusters.push_back(temp);
+      temp.clear();
+    }
+    K.clear();
+    
+    return clusters;
 }
 
-vector<vector<int> > ClusteringCE(vector< SB > blocks, vector< double > Threshold)
+vector<vector<SB> > ClusteringCE(vector< SB > SU, vector< double > Threshold)
 {
-   vector<SB> SU;
-  inr FvecSize;
-    for(int i=0;i<blocks.size();i++)
-    {
-      SB B = blocks[i];
-      
-      if(B.childs.empty())
-      {
-	if(B.Fvecflag && B.gtflag)
-	{
-	  SU.push_back(B);
-	  FvecSize = B.FeatureVec.size();
-	}
-      }
-      else
-      {
-	for(int k=0;k<B.childs.size();k++)
-	{
-	  
-	  SB B_C = B.childs[k];
-	  if(B_C.Fvecflag && B_C.gtflag);
-	  { 
-	    SU.push_back(B_C);
-	  }
-	}
-      }
-    }
-    
-    blocks.clear();
+   int FvecSize = SU[0].FeatureVec.size();
     
     vector<vector<vector<double> > > StudentTDistval;
     
@@ -516,8 +476,24 @@ vector<vector<int> > ClusteringCE(vector< SB > blocks, vector< double > Threshol
     vector<int> CE_labels(StudentTDistval[0].size());
     DFSCC(AdjMat, CE_CC, CE_labels);
     
+    CE_labels.clear();
+    StudentTDistval.clear();
     
-    return CE_CC;
+    vector<vector<SB> > clusters;
     
+    
+    for(int i=0;i<CE_CC.size();i++)
+    {
+      vector<SB> temp;
+      for(int j=0;j<CE_CC[i].size();j++)
+      {
+	temp.push_back(SU[CE_CC[i][j]]);
+      }
+      clusters.push_back(temp);
+      temp.clear();
+    }
+    CE_CC.clear();
+    
+    return clusters;
     
 }

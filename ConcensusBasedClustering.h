@@ -1,3 +1,6 @@
+#ifndef ConcensusBasedClustering_H
+#define ConcensusBasedClustering_H
+
 #include "StandardHeaders.h"
 #include "SegmentationUnit.h"
 
@@ -9,13 +12,6 @@
 
 using namespace alglib;
 
-
-
-typedef struct ClusterInformation
-{
-  vector<vector<int> > clusters;
-  vector<int> clusternum;
-}clusinfo;
 
 
 
@@ -69,7 +65,11 @@ int DegreeofFreedom_UnequalVariance(int sample1_size, int sample2_size, double s
 
 int DegreeofFreedom_EqualVariance(int sample1_size, int sample2_size);
 
+void FindCommonNodes(vector<vector<int> > &K, vector<vector<int> > D, vector<vector<vector<int> > > N, int z, int t);
 
-vector<vector<int> >  ClusteringCCN(vector<SB> blocks, vector<double> Threshold);
+vector<vector<SB> > ClusteringCCN(vector< SB > SU, vector< double > Threshold);
     
-vector<vector<int> >  ClusteringCE(vector<SB> blocks, vector<double> Threshold);
+vector<vector<SB> >  ClusteringCE(vector<SB> SU, vector<double> Threshold);
+
+
+#endif

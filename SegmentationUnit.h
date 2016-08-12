@@ -10,8 +10,11 @@ typedef struct SegmentationBlocks
   vector<Point> Contours;
   vector<SegmentationBlocks> childs;
   vector<float> FeatureVec;
+  int blockid;
   int GtClass;
   int PredictedClass;
+  int clusternumber;
+  bool clusterflag;
   bool gtflag;
   bool Fvecflag;
   char *bgcolor;

@@ -21,6 +21,43 @@ SET(ALETHIA_PARSER_SOURCE
 				AlethiaParser/AlethiaParser.cpp
 								)
 
+SET(Alglib_Source	
+			alglib/ap.cpp 
+			alglib/alglibinternal.cpp 
+			alglib/alglibmisc.cpp 
+			alglib/linalg.cpp 
+			alglib/specialfunctions.cpp 
+			alglib/statistics.cpp
+#			alglib/alglibmisc.cpp
+#			alglib/ap.cpp
+#			alglib/dataanalysis.cpp
+#			alglib/diffequations.cpp
+#			alglib/fasttransforms.cpp
+#			alglib/integration.cpp
+#			alglib/interpolation.cpp
+#			alglib/linalg.cpp
+#			alglib/optimization.cpp
+#			alglib/solvers.cpp
+#			alglib/specialfunctions.cpp
+#			alglib/statistics.cpp
+						  )
+			
+# SET(Alglib_Headers 	
+# 			alglib/alglibinternal.h
+# 			alglib/alglibmisc.h
+# 			alglib/ap.h
+# 			alglib/dataanalysis.h
+# 			alglib/diffequations.h
+# 			alglib/fasttransforms.h
+# 			alglib/integration.h
+# 			alglib/interpolation.h
+# 			alglib/linalg.h
+# 			alglib/optimization.h
+# 			alglib/solvers.h
+# 			alglib/specialfunctions.h
+# 			alglib/statistics.h
+# 			alglib/stdafx.h)
+
 SET(TG_HEADERS 	  
 				StandardHeaders.h
 				StatisticalFunctions.h
@@ -41,6 +78,8 @@ SET(TG_HEADERS
 				FeatureExtraction.h
 				GeneralFunctions.h
 				MultiClassClassificationMetrics.h
+				classification.h
+				ConcensusBasedClustering.h
 					)  
 
 
@@ -64,6 +103,8 @@ SET(TG_SOURCES
 				FeatureExtraction.cpp
 				GeneralFunctions.cpp
 				MultiClassClassificationMetrics.cpp
+				classification.cpp
+				ConcensusBasedClustering.cpp
 					)
 				
 
@@ -71,7 +112,7 @@ SET(TG_SOURCES
 # Or set it globally for all targets:
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-ADD_EXECUTABLE(gabor ${TG_HEADERS} ${TG_SOURCES} ${ALETHIA_PARSER_HEADERS} ${ALETHIA_PARSER_SOURCE})
+ADD_EXECUTABLE(gabor ${TG_HEADERS} ${TG_SOURCES} ${ALETHIA_PARSER_HEADERS} ${ALETHIA_PARSER_SOURCE} ${Alglib_Source})
 TARGET_LINK_LIBRARIES(gabor ${OpenCV_LIBS} ${XercesLibrary})
 set(CMAKE_BUILD_TYPE Debug)
 

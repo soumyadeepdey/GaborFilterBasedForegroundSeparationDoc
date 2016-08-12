@@ -79,6 +79,8 @@ SET(TG_HEADERS
 				GeneralFunctions.h
 				MultiClassClassificationMetrics.h
 				classification.h
+				ConcensusBasedClustering.h
+				ClusteringClassification.h
 					)  
 
 
@@ -103,6 +105,8 @@ SET(TG_SOURCES
 				GeneralFunctions.cpp
 				MultiClassClassificationMetrics.cpp
 				classification.cpp
+				ConcensusBasedClustering.cpp
+				ClusteringClassification.cpp
 					)
 				
 
