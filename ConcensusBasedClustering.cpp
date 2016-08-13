@@ -277,6 +277,7 @@ void FindCommonNodes(vector<vector<int> > &K, vector<vector<int> > D, vector<vec
     int h = 0;
     while(h < N[z].size())
     {
+      //printf("working for feature %d\n",z);
       D[t] = N[z][h];
       FindCommonNodes(K,D,N,z+1,t+1);
       h = h + 1;
@@ -284,6 +285,7 @@ void FindCommonNodes(vector<vector<int> > &K, vector<vector<int> > D, vector<vec
   }
   else
   {
+   // printf("working for feature %d\n",z);
     for(int l=0;l<N[z].size();l++)
     {
       D[t] = N[z][l];
@@ -305,11 +307,16 @@ void FindCommonNodes(vector<vector<int> > &K, vector<vector<int> > D, vector<vec
 vector<vector<SB> > ClusteringCCN(vector< SB > SU, vector< double > Threshold)
 {
    int FvecSize = SU[0].FeatureVec.size();
+   printf("Size of feature vec is %d\n",FvecSize);
     
     vector<vector<vector<double> > > StudentTDistval;
     
-    for(int k=0;k<FvecSize;k+2)
+    int cnt =0;
+    
+    for(int k=0;k<FvecSize;k=k+2)
     {
+	printf("Working for feature %d\n",cnt);
+	cnt++;
 	vector<vector<double> > Fstdistval;
 	for(int i=0;i<SU.size();i++)
 	{
@@ -384,6 +391,8 @@ vector<vector<SB> > ClusteringCCN(vector< SB > SU, vector< double > Threshold)
       labels.clear();
     }
 
+    
+    printf("Doing the main clustering part\n");
     vector<vector<int> > K;
     vector<vector<int> > D(FvecSize/2);
     int z = 0;
@@ -414,7 +423,7 @@ vector<vector<SB> > ClusteringCE(vector< SB > SU, vector< double > Threshold)
     
     vector<vector<vector<double> > > StudentTDistval;
     
-    for(int k=0;k<FvecSize;k+2)
+    for(int k=0;k<FvecSize;k=k+2)
     {
 	vector<vector<double> > Fstdistval;
 	for(int i=0;i<SU.size();i++)

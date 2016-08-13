@@ -12,6 +12,7 @@
 #include "SegmentationUnit.h"
 #include "FeatureExtraction.h"
 #include "classification.h"
+#include "ClusteringClassification.h"
 
 RNG rng(12345);
 
@@ -39,25 +40,25 @@ int main(int argc, char* argv[])
   
   vector<char*> ClassifierName;
  
- ClassifierName.push_back("RF");
- ClassifierName.push_back("SVM");
- ClassifierName.push_back("KNN");
- ClassifierName.push_back("DT");
- ClassifierName.push_back("NBC");
+    ClassifierName.push_back("RF");
+    ClassifierName.push_back("SVM");
+    ClassifierName.push_back("KNN");
+    ClassifierName.push_back("DT");
+    
+  vector<char *> ClusteringName;
+  
+  ClusteringName.push_back("CCCN");
+  //ClusteringName.push_back("CCE");
  
   
- for(int i=0;i<ClassifierName.size();i++)
+ for(int j=0;j<ClusteringName.size();j++)
  {
-    makedir(ClassifierName[i]);
-    printf("ClassifierName = %s\n",ClassifierName[i]);
-//     char *tempname, *name;
-//     tempname = (char *)malloc(2000*sizeof(char));	 
-//     tempname = "Overall_Classification_Result.xls";
-//     name = CreateNameIntoFolder(ClassifierName[i],tempname);
-//     FILE *res;
-//     res = fopen(name,"a+");
-//     fclose(res);
-    classify(argv[2],ClassifierName[i],Tdata);
+  for(int i=0;i<ClassifierName.size();i++)
+  {
+      makedir(ClassifierName[i]);
+      printf("ClassifierName = %s\n",ClassifierName[i]);
+      classify(argv[2],ClassifierName[i], ClusteringName[j], Tdata);
+  }
  }
   
   //system("rm *.yml");

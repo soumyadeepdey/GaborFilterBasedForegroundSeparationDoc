@@ -9,7 +9,7 @@ vector< float > ExtractFeature(Mat image)
   //Extract Gradient Feature
   vector<float> GradF = GetGradientFeature(image);
   for(int i=0;i<GradF.size();i++)
-    Feature.push_back(GradF[i]);
+  //  Feature.push_back(GradF[i]);
   //copy<float>(GradF.begin(),GradF.end(),inserter(Feature,Feature.end())); // Append Gradient feature into Feature vector
   GradF.clear();
   

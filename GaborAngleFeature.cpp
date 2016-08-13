@@ -43,6 +43,15 @@ vector<vector<float> >  GetMyGaborFeature(Mat image, char *im_name)
   th_sig.push_back(0.3);
   th_sig.push_back(0.5);
   
+  
+  vector<double> theta;
+  theta.push_back(30.0);
+  theta.push_back(45.0);
+  theta.push_back(60.0);
+  theta.push_back(90.0);
+  theta.push_back(120.0);
+  theta.push_back(135.0);
+  
   Mat Wtgabor;
   
   for(int sg=0;sg<th_sig.size();sg++)
@@ -51,10 +60,11 @@ vector<vector<float> >  GetMyGaborFeature(Mat image, char *im_name)
     for(int gam=0;gam<th_gm.size();gam++)
     {
       gm = th_gm[gam];
-      for(int th_i=30;th_i<=150;)
+      //for(int th_i=30;th_i<=150;)
+      for(int th_i=0;th_i<theta.size();th_i++)
       {
-	th = th_i*1.0;
-	
+	//th = th_i*1.0;
+	th = theta[th_i];
       
 	Gaborkernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm);
 	
@@ -105,7 +115,7 @@ vector<vector<float> >  GetMyGaborFeature(Mat image, char *im_name)
 	//
 	test.release();
 	
-	th_i = th_i + 15;
+	//th_i = th_i + 15;
       }
     }
   }
@@ -160,6 +170,14 @@ vector<float>  GetGaborFeature(Mat image)
  // th_sig.push_back(2.5);
   th_sig.push_back(0.3);
   th_sig.push_back(0.5);
+  
+  vector<double> theta;
+  theta.push_back(30.0);
+  theta.push_back(45.0);
+  theta.push_back(60.0);
+  theta.push_back(90.0);
+  theta.push_back(120.0);
+  theta.push_back(135.0);
 
   printf("Gabor Feature\n");
   
@@ -169,16 +187,19 @@ vector<float>  GetGaborFeature(Mat image)
     for(int gam=0;gam<th_gm.size();gam++)
     {
       gm = th_gm[gam];
-      for(int th_i=30;th_i<=150;)
+      //for(int th_i=30;th_i<=150;)
+      //{
+	//th = th_i*1.0;
+      //th_i = th_i + 15;
+      for(int th_i=0;th_i<theta.size();th_i++)
       {
-	th = th_i*1.0;
+	th = theta[th_i];
+	int type = CV_32F;
 	
-       //int type = CV_32F;
+	Gaborkernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.5*PI,type);
 	
-	Gaborkernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.5*PI,5);
-	
-	SymGKernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.0,5);
-	AntSymGKernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.5*PI,5);
+	SymGKernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.0,type);
+	AntSymGKernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.5*PI,type);
 	
 	Mat gray;
 	cvtColor(image,gray,CV_BGR2GRAY);
@@ -240,7 +261,7 @@ vector<float>  GetGaborFeature(Mat image)
 	
 	
 	
-	th_i = th_i + 15;
+	
       }
     }
   }

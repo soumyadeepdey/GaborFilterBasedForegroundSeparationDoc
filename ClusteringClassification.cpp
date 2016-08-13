@@ -59,15 +59,10 @@ void LabelSegmentationUnitofEachCluster(vector< SB > K, vector<SB> &blocks, vect
   
 }
 
-void ClusteringClassification(vector<SB> &blocks, vector<vector<SB> > &clusters, vector<double> alpha, char *clusteringname)
+void ClusteringClassification(vector<SB> &blocks, vector<vector<SB> > &clusters, vector<double> alpha)
 {
   for(int i=0;i<clusters.size();i++)
-  {
-    if(strcmp(clusteringname,"CCCN")==0)
-      CCCN_flag = true;
-    if(strcmp(clusteringname,"CCE")==0)
-      CCE_flag = true;
-    
+  {    
     LabelSegmentationUnitofEachCluster(clusters[i],blocks,alpha);
   }
 }

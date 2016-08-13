@@ -1,9 +1,12 @@
 #include "classification.h"
 
+bool CCCN_flag;
+bool CCE_flag;
+
 using namespace IITkgp_functions;
 
 
-void classify(char *TestFILE, char *classifiername, TDC &Data)
+void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &Data)
 {
   vector<int> classnumber;
       classnumber.push_back(0); classnumber.push_back(1); 
@@ -16,6 +19,15 @@ void classify(char *TestFILE, char *classifiername, TDC &Data)
   
   printf("Classifiername = %s\n",classifiername);
   
+  if(strcmp(ClusteringName,"CCCN")==0)
+    CCCN_flag = true;
+  else
+    CCCN_flag = false;
+  
+  if(strcmp(ClusteringName,"CCE")==0)
+    CCE_flag = true;
+  else
+    CCE_flag = false;
       
   FILE *f;
   f = fopen(TestFILE,"r");
@@ -69,8 +81,7 @@ void classify(char *TestFILE, char *classifiername, TDC &Data)
       Classification(blocks,Data,classifiername);
       
       vector<SB> SU;
-      vector<int> gtcls;
-      vector<int> pcls;
+      
       int su_cnt = 0;
       
       for(int i=0;i<blocks.size();i++)
@@ -84,8 +95,6 @@ void classify(char *TestFILE, char *classifiername, TDC &Data)
 	    B.blockid = su_cnt;
 	    SU.push_back(B);
 	    su_cnt++;
-	    gtcls.push_back(B.GtClass);
-	    pcls.push_back(B.PredictedClass);
 	  }
 	}
 	else
@@ -99,8 +108,6 @@ void classify(char *TestFILE, char *classifiername, TDC &Data)
 	      B_C.blockid = su_cnt;
 	      SU.push_back(B_C);
 	      su_cnt++;
-	      gtcls.push_back(B_C.GtClass);
-	      pcls.push_back(B_C.PredictedClass);
 	    }
 	  }
 	}
@@ -108,6 +115,36 @@ void classify(char *TestFILE, char *classifiername, TDC &Data)
       
       
       blocks.clear();
+      
+      vector<vector<SB> > Clusters;
+      vector<double> alpha(classnumber.size(),0.5);
+      
+      if(CCCN_flag)
+      {
+	printf("CCCN Clustering\n");
+	Clusters = ClusteringCCN(SU,alpha);
+	printf("Number of Clusters obetained by  CCCN is %d\n",Clusters.size());
+      }
+      if(CCE_flag)
+      {
+	printf("CCE Clustering\n");
+	Clusters = ClusteringCE(SU,alpha);
+	printf("Number of Clusters obetained by  CCE is %d\n",Clusters.size());
+      }
+      
+      ClusteringClassification(SU,Clusters,alpha);
+      
+      
+      vector<int> gtcls;
+      vector<int> pcls;
+      
+      for(int i=0;i<SU.size();i++)
+      {
+	SB B = SU[i];
+	gtcls.push_back(B.GtClass);
+	pcls.push_back(B.PredictedClass);
+      }
+      SU.clear();
       
       Mat Gtlabels = Mat(gtcls.size(),1,CV_8UC1);
       Mat PredictedLabels = Mat(gtcls.size(),1,CV_8UC1);

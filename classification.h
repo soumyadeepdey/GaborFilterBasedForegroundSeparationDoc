@@ -8,6 +8,8 @@
 #include "PrepareAlethiaGT.h"
 #include "FeatureExtraction.h"
 #include "MultiClassClassificationMetrics.h"
+#include "ConcensusBasedClustering.h"
+#include "ClusteringClassification.h"
 
 
 #ifdef HAVE_OPENCV_OCL
@@ -39,7 +41,7 @@ typedef struct TrainDataClass
 }TDC;
 
 
-void classify(char *TestFILE, char *classifiername, TDC &Data);
+void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &Data);
 
 TDC Training(char *TrainFile);
 

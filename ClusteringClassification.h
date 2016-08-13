@@ -6,8 +6,8 @@
 #include "ConcensusBasedClustering.h"
 #include "SegmentationUnit.h"
 
-bool CCCN_flag;
-bool CCE_flag;
+extern bool CCCN_flag;
+extern bool CCE_flag;
 
 void LabelSegmentationUnitofEachCluster(vector<SB> K, vector<SB> &blocks, vector<double> alpha);
 
