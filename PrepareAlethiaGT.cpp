@@ -13,6 +13,20 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
    for(int i=0;i<blocks.size();i++)
       {
 	blocks[i].gtflag = false;
+	SB B = blocks[i];
+	if(B.childs.empty())
+	{
+	  B.gtflag = false;
+	}
+	else
+	{
+	  B.gtflag = false;
+	  for(int j=0;j<B.childs.size();j++)
+	  {
+	    B.childs[j].gtflag = false;
+	  }
+	}
+	blocks[i] = B;
       }
    
    // text Block
@@ -22,7 +36,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
       {
 	SB B = blocks[i];
 	//vector<int> count(B.ChildContour.size(),0);
-	if(!B.gtflag)
+	if(B.Fvecflag && !B.gtflag)
 	{
 	  for(int j=0;j<TR.size();j++)
 	  {
@@ -55,7 +69,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		for(int k=0;k<B.childs.size();k++)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
-		    if(val == 2 || val == 3)
+		    if((val == 2 || val == 3) && B.childs[k].Fvecflag && !B.childs[k].gtflag)
 		    {
 		      B.childs[k].GtClass = 0;
 		      B.childs[k].gtflag = true;
@@ -85,7 +99,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
       {
 	SB B = blocks[i];
 	//vector<int> count(B.ChildContour.size(),0);
-	if(!B.gtflag)
+	if(B.Fvecflag  && !B.gtflag)
 	{
 	  for(int j=0;j<CR.size();j++)
 	  {
@@ -116,7 +130,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		for(int k=0;k<B.childs.size();k++)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
-		    if(val == 2 || val == 3)
+		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
 		    {
 		      B.childs[k].GtClass = 1;
 		      B.childs[k].gtflag = true;
@@ -142,7 +156,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
       {
 	SB B = blocks[i];
 	//vector<int> count(B.ChildContour.size(),0);
-	if(!B.gtflag)
+	if(B.Fvecflag  && !B.gtflag)
 	{
 	  for(int j=0;j<GR.size();j++)
 	  {
@@ -173,7 +187,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		for(int k=0;k<B.childs.size();k++)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
-		    if(val == 2 || val == 3)
+		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
 		    {
 		      B.childs[k].GtClass = 2;
 		      B.childs[k].gtflag = true;
@@ -201,7 +215,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
       {
 	SB B = blocks[i];
 	//vector<int> count(B.ChildContour.size(),0);
-	if(!B.gtflag)
+	if(B.Fvecflag  && !B.gtflag)
 	{
 	  for(int j=0;j<IR.size();j++)
 	  {
@@ -232,7 +246,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		for(int k=0;k<B.childs.size();k++)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
-		    if(val == 2 || val == 3)
+		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
 		    {
 		      B.childs[k].GtClass = 3;
 		      B.childs[k].gtflag = true;
@@ -259,7 +273,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
       {
 	SB B = blocks[i];
 	//vector<int> count(B.ChildContour.size(),0);
-	if(!B.gtflag)
+	if(B.Fvecflag  && !B.gtflag)
 	{
 	  for(int j=0;j<SR.size();j++)
 	  {
@@ -290,7 +304,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		for(int k=0;k<B.childs.size();k++)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
-		    if(val == 2 || val == 3)
+		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
 		    {
 		      B.childs[k].GtClass = 4;
 		      B.childs[k].gtflag = true;
@@ -309,12 +323,29 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
    
     for(int i=0;i<blocks.size();)
     {
-      if(!blocks[i].gtflag)
+      if(blocks[i].childs.empty())
       {
-        blocks.erase(blocks.begin()+i);	
+	if(blocks[i].gtflag)
+	{
+	  i = i + 1;
+	}
+	else	
+	  blocks.erase(blocks.begin()+i);	
       }
       else
-	i = i + 1;
+      {
+	for(int k=0;k<blocks[i].childs.size();)
+	{
+	  if(blocks[i].childs[k].gtflag)
+	    k = k + 1;
+	  else
+	    blocks[i].childs.erase(blocks[i].childs.begin()+k);
+	}
+	if(blocks[i].childs.empty())
+	  blocks.erase(blocks.begin()+i);
+	else
+	  i = i + 1;	
+      }
     }
    // Complete
    

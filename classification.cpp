@@ -78,13 +78,16 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
       
       blocks = PrepareAlethiaGt(pg,blocks);
       
-      Classification(blocks,Data,classifiername);
+      
       
       vector<SB> SU;
       
       int su_cnt = 0;
       
-      for(int i=0;i<blocks.size();i++)
+     
+      Classification(blocks,Data,classifiername);
+      
+       for(int i=0;i<blocks.size();i++)
       {
 	SB B = blocks[i];
 	
@@ -113,8 +116,8 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
 	}
       }
       
-      
       blocks.clear();
+      
       
       vector<vector<SB> > Clusters;
       vector<double> alpha(classnumber.size(),0.5);
@@ -132,7 +135,7 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
 	printf("Number of Clusters obetained by  CCE is %d\n",Clusters.size());
       }
       
-      ClusteringClassification(SU,Clusters,alpha);
+     // ClusteringClassification(SU,Clusters,alpha);
       
       
       vector<int> gtcls;
@@ -141,6 +144,7 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
       for(int i=0;i<SU.size();i++)
       {
 	SB B = SU[i];
+	printf("Block id =%d\t gt= %d\t predict = %d\n",B.blockid,B.GtClass,B.PredictedClass);
 	gtcls.push_back(B.GtClass);
 	pcls.push_back(B.PredictedClass);
       }
@@ -435,13 +439,19 @@ TDC Training(char* TrainFile)
   
   printf("TrainClass size %d\n",TrainClass.size());
   Mat trainSamples = Mat(TrainData.size(),TrainData[0].size(),CV_32FC1);
+  //Mat trainSamples = Mat(TrainData.size(),TrainData[0].size()/2,CV_32FC1);
+  
   
   for(int i=0;i<TrainData.size();i++)
   {
-    for(int j=0;j<TrainData[i].size();j++)
+    int k = 0; 
+    for(int j=0;j<TrainData[i].size();)
     {
-      trainSamples.at<float>(i,j) = TrainData[i][j];
-      printf("%f\t",trainSamples.at<float>(i,j));
+      trainSamples.at<float>(i,k) = TrainData[i][j];
+      printf("%f\t",trainSamples.at<float>(i,k));
+      k++;
+      j++;
+      //j=j+2;
     }
     printf("\n\n");
   }
@@ -512,12 +522,17 @@ void classify_KNN(vector<SB> &blocks, TDC &Data)
 	{
 	  B.FeatureVec;
 	  Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
-	  printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
-	    for(int j=0;j<B.FeatureVec.size();j++)
+	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
+	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	    int p = 0;
+	    for(int j=0;j<B.FeatureVec.size();)
 	    {
-	      TestData.at<float>(0,j)= B.FeatureVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	      TestData.at<float>(0,p)= B.FeatureVec[j];
+	      printf("%f\t",TestData.at<float>(0,p));
+	      p++;
+	      j++;
+	      //j=j+2;
 	    }
 	    printf("\n");
 	  int response;
@@ -554,12 +569,17 @@ void classify_KNN(vector<SB> &blocks, TDC &Data)
 	  { 
 	    B_C.FeatureVec;
 	    Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
+	    //Mat TestData = Mat(1,B_C.FeatureVec.size()/2,CV_32FC1);
 	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
 	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
-	    for(int j=0;j<B_C.FeatureVec.size();j++)
+	    int p = 0;
+	    for(int j=0;j<B_C.FeatureVec.size();)
 	    {
-	      TestData.at<float>(0,j)= B_C.FeatureVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	      TestData.at<float>(0,p)= B_C.FeatureVec[j];
+	      printf("%f\t",TestData.at<float>(0,p));
+	      p++;
+	      j++;
+	      //j=j+2;
 	    }
 	    printf("\n");
 	    int response;
@@ -638,12 +658,17 @@ void classify_SVM(vector<SB> &blocks, TDC &Data)
 	{
 	  B.FeatureVec;
 	  Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
-	  printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
-	    for(int j=0;j<B.FeatureVec.size();j++)
+	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
+	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	    int p = 0;
+	    for(int j=0;j<B.FeatureVec.size();)
 	    {
-	      TestData.at<float>(0,j)= B.FeatureVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	      TestData.at<float>(0,p)= B.FeatureVec[j];
+	      printf("%f\t",TestData.at<float>(0,p));
+	      p++;
+	      j++;
+	      //j=j+2;
 	    }
 	    printf("\n");
 	  int response = (int)svmClassifier.predict( TestData );
@@ -668,12 +693,17 @@ void classify_SVM(vector<SB> &blocks, TDC &Data)
 	  { 
 	    B_C.FeatureVec;
 	    Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
+	    //Mat TestData = Mat(1,B_C.FeatureVec.size()/2,CV_32FC1);
 	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
 	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
-	    for(int j=0;j<B_C.FeatureVec.size();j++)
+	    int p = 0;
+	    for(int j=0;j<B_C.FeatureVec.size();)
 	    {
-	      TestData.at<float>(0,j)= B_C.FeatureVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	      TestData.at<float>(0,p)= B_C.FeatureVec[j];
+	      printf("%f\t",TestData.at<float>(0,p));
+	      p++;
+	      j++;
+	      //j=j+2;
 	    }
 	    printf("\n");
 	    
@@ -746,13 +776,18 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
 	if(B.Fvecflag)
 	{
 	  B.FeatureVec;
-	  Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
-	  printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
-	    for(int j=0;j<B.FeatureVec.size();j++)
+	 Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
+	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
+	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	    int p = 0;
+	    for(int j=0;j<B.FeatureVec.size();)
 	    {
-	      TestData.at<float>(0,j)= B.FeatureVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	      TestData.at<float>(0,p)= B.FeatureVec[j];
+	      printf("%f\t",TestData.at<float>(0,p));
+	      p++;
+	      j++;
+	      //j=j+2;
 	    }
 	    printf("\n");
 	  int response = (int)rftrees.predict( TestData );
@@ -777,12 +812,17 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
 	  { 
 	    B_C.FeatureVec;
 	    Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
+	    //Mat TestData = Mat(1,B_C.FeatureVec.size()/2,CV_32FC1);
 	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
 	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
-	    for(int j=0;j<B_C.FeatureVec.size();j++)
+	    int p = 0;
+	    for(int j=0;j<B_C.FeatureVec.size();)
 	    {
-	      TestData.at<float>(0,j)= B_C.FeatureVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	      TestData.at<float>(0,p)= B_C.FeatureVec[j];
+	      printf("%f\t",TestData.at<float>(0,p));
+	      p++;
+	      j++;
+	      //j=j+2;
 	    }
 	    printf("\n");
 	    
@@ -846,12 +886,17 @@ void classify_DT(vector<SB> &blocks, TDC &Data)
 	{
 	  B.FeatureVec;
 	  Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
-	  printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
-	    for(int j=0;j<B.FeatureVec.size();j++)
+	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
+	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	    int p = 0;
+	    for(int j=0;j<B.FeatureVec.size();)
 	    {
-	      TestData.at<float>(0,j)= B.FeatureVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	      TestData.at<float>(0,p)= B.FeatureVec[j];
+	      printf("%f\t",TestData.at<float>(0,p));
+	      p++;
+	      j++;
+	      //j=j+2;
 	    }
 	    printf("\n");
 	  int response = (int)dtree.predict( TestData )->value;
@@ -876,12 +921,17 @@ void classify_DT(vector<SB> &blocks, TDC &Data)
 	  { 
 	    B_C.FeatureVec;
 	    Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
+	    //Mat TestData = Mat(1,B_C.FeatureVec.size()/2,CV_32FC1);
 	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
 	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
-	    for(int j=0;j<B_C.FeatureVec.size();j++)
+	    int p = 0;
+	    for(int j=0;j<B_C.FeatureVec.size();)
 	    {
-	      TestData.at<float>(0,j)= B_C.FeatureVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	      TestData.at<float>(0,p)= B_C.FeatureVec[j];
+	      printf("%f\t",TestData.at<float>(0,p));
+	      p++;
+	      j++;
+	      //j=j+2;
 	    }
 	    printf("\n");
 	    
@@ -933,12 +983,17 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 	{
 	  B.FeatureVec;
 	  Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
-	  printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
-	    for(int j=0;j<B.FeatureVec.size();j++)
+	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
+	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	    int p = 0;
+	    for(int j=0;j<B.FeatureVec.size();)
 	    {
-	      TestData.at<float>(0,j)= B.FeatureVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	      TestData.at<float>(0,p)= B.FeatureVec[j];
+	      printf("%f\t",TestData.at<float>(0,p));
+	      p++;
+	      j++;
+	      //j=j+2;
 	    }
 	    printf("\n");
 	  int response = (int)normalBayesClassifier.predict( TestData );
@@ -963,12 +1018,17 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 	  { 
 	    B_C.FeatureVec;
 	    Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
+	    //Mat TestData = Mat(1,B_C.FeatureVec.size()/2,CV_32FC1);
 	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
 	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
-	    for(int j=0;j<B_C.FeatureVec.size();j++)
+	    int p = 0;
+	    for(int j=0;j<B_C.FeatureVec.size();)
 	    {
-	      TestData.at<float>(0,j)= B_C.FeatureVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	      TestData.at<float>(0,p)= B_C.FeatureVec[j];
+	      printf("%f\t",TestData.at<float>(0,p));
+	      p++;
+	      j++;
+	      //j=j+2;
 	    }
 	    printf("\n");
 	    

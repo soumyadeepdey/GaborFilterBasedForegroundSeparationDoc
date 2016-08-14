@@ -41,7 +41,7 @@ vector<vector<float> >  GetMyGaborFeature(Mat image, char *im_name)
  // th_sig.push_back(2.0);
  // th_sig.push_back(2.5);
   th_sig.push_back(0.3);
-  th_sig.push_back(0.5);
+  //th_sig.push_back(0.5);
   
   
   vector<double> theta;
@@ -49,8 +49,8 @@ vector<vector<float> >  GetMyGaborFeature(Mat image, char *im_name)
   theta.push_back(45.0);
   theta.push_back(60.0);
   theta.push_back(90.0);
-  theta.push_back(120.0);
-  theta.push_back(135.0);
+  //theta.push_back(120.0);
+  //theta.push_back(135.0);
   
   Mat Wtgabor;
   
@@ -157,7 +157,7 @@ vector<float>  GetGaborFeature(Mat image)
   vector<double> th_gm;
   th_gm.push_back(0.02);
   //th_gm.push_back(0.025);
-  th_gm.push_back(0.03);
+ // th_gm.push_back(0.03);
  // th_gm.push_back(0.05);
  // th_gm.push_back(0.1);
  // th_gm.push_back(0.2);
@@ -169,15 +169,15 @@ vector<float>  GetGaborFeature(Mat image)
  // th_sig.push_back(2.0);
  // th_sig.push_back(2.5);
   th_sig.push_back(0.3);
-  th_sig.push_back(0.5);
+  //th_sig.push_back(0.5);
   
   vector<double> theta;
   theta.push_back(30.0);
   theta.push_back(45.0);
   theta.push_back(60.0);
   theta.push_back(90.0);
-  theta.push_back(120.0);
-  theta.push_back(135.0);
+ // theta.push_back(120.0);
+ // theta.push_back(135.0);
 
   printf("Gabor Feature\n");
   
@@ -235,7 +235,7 @@ vector<float>  GetGaborFeature(Mat image)
 	//printf("Mean Energy = %lf\t",FindMean(GaborDest));
 	//printf("StdDev Energy = %lf\n",FindStdDev(GaborDest));
 	GaborFeature.push_back((float) FindMean(GaborEnergy));
-	GaborFeature.push_back((float) FindMean(GaborEnergy));
+	GaborFeature.push_back((float) FindStdDev(GaborEnergy));
 	
 	//exit(0);
 	

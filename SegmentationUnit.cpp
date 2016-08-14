@@ -363,15 +363,33 @@ vector< SB > GetSegmentationUnit(Mat image)
     
      imwrite("SEGUNIT.png",Draw);
      
-     for(int i=0;i<blocks.size();i++)
+     for(int i=0;i<blocks.size();)
      {
        SB B = blocks[i];
-       if(B.Fvecflag)
+       if(B.childs.empty())
        {
-	  i++;
+	 if(B.Fvecflag)
+	   i++;
+	 else
+	   blocks.erase(blocks.begin()+i);
        }
        else
-	  blocks.erase(blocks.begin()+i);
+       {
+	 for(int j=0;j<B.childs.size();)
+	 {
+	   if(B.childs[j].Fvecflag)
+	     j++;
+	   else
+	     B.childs.erase(B.childs.begin()+j);
+	 }
+	 if(B.childs.empty())
+	   blocks.erase(blocks.begin()+i);
+	 else
+	 {
+	   blocks[i] = B;
+	   i++;
+	 }
+       }
      }
 
      //exit(0);
