@@ -24,4 +24,6 @@ typedef struct SegmentationBlocks
 
 vector<SB> GetSegmentationUnit(Mat image);
 
+vector<SB> GetProcessingBlocks(Mat image);
+
 #endif

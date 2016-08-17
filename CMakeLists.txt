@@ -76,6 +76,8 @@ SET(TG_HEADERS
 				SegmentationUnit.h
 				GradientFeature.h
 				FeatureExtraction.h
+				StrokeWidth.h
+				ScalarColorFeature.h
 				GeneralFunctions.h
 				MultiClassClassificationMetrics.h
 				classification.h
@@ -102,6 +104,8 @@ SET(TG_SOURCES
 				SegmentationUnit.cpp
 				GradientFeature.cpp
 				FeatureExtraction.cpp
+				StrokeWidth.cpp
+				ScalarColorFeature.cpp
 				GeneralFunctions.cpp
 				MultiClassClassificationMetrics.cpp
 				classification.cpp

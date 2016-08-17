@@ -74,7 +74,9 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
       
       Mat image = imread(tnm1,1);
       
-      vector<SB> blocks = GetSegmentationUnit(image);
+      //vector<SB> blocks = GetSegmentationUnit(image);
+      
+      vector<SB> blocks = GetProcessingBlocks(image);
       
       blocks = PrepareAlethiaGt(pg,blocks);
       
@@ -299,7 +301,9 @@ TDC Training(char* TrainFile)
       
       Mat image = imread(tnm1,1);
       
-      vector<SB> blocks = GetSegmentationUnit(image);
+      //vector<SB> blocks = GetSegmentationUnit(image);
+      
+      vector<SB> blocks = GetProcessingBlocks(image);
       
       printf("Initial blocks size %d\n",blocks.size());
       

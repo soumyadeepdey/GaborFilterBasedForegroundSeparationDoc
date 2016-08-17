@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
     ClassifierName.push_back("SVM");
     ClassifierName.push_back("KNN");
     ClassifierName.push_back("DT");
+    ClassifierName.push_back("NBC");
     
   vector<char *> ClusteringName;
   

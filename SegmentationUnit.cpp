@@ -6,9 +6,267 @@
 #include "RectangleTest.h"
 #include "connectedcomponent.h"
 #include "FeatureExtraction.h"
+#include "ScalarColorFeature.h"
 
 using namespace IITkgp_functions;
 
+vector<SB> GetProcessingBlocks(Mat image)
+{
+  Mat blurimage; 
+    GaussianBlur(image,blurimage,Size(3,3),0,0);
+    
+    Mat erodedimage = Erosion(0,1,blurimage); 
+    Mat dilatedimage = Dilation(0,1,blurimage);
+    
+    Mat boundaryimage; 
+    subtract(dilatedimage,erodedimage,boundaryimage);
+   
+    Mat invimg = FindImageInverse(boundaryimage);
+   
+    Mat Boundary_Binary = binarization(invimg,1);
+    
+   // imwrite("Boundary_Binary.png",Boundary_Binary);
+    
+    Mat BB_B = boundaryextraction(Boundary_Binary);
+   // imwrite("Boundary_Binary_bound.png",BB_B);
+  
+    Mat Binary = binarization(image,1);
+    
+    Mat Hgap = horizontal_gapfilling(Binary,8);
+    Mat Vgap = vertical_gapfilling(Hgap,5);
+    
+    Hgap.release();
+  
+    Mat temp;
+    Vgap.copyTo(temp);
+    temp = FindImageInverse(temp);
+    
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+    
+    findContours( temp, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+    vector<Rect> boundRect( contours.size() );
+    
+    for( int j = 0; j < contours.size(); j++ )
+    { 
+      boundRect[j] = boundingRect( Mat(contours[j]) );
+    }
+    
+    vector<SB> blocks;
+     int avg_height = 0;
+     int count = 0;
+     
+     for( int j = 0; j < contours.size(); j++ )
+     {
+       if(hierarchy[j][3] == -1 && boundRect[j].height > 6 &&  boundRect[j].width > 10)
+       {
+	 avg_height = avg_height +  boundRect[j].height;
+	 count++;
+	 SB B;
+	 B.B = boundRect[j];
+	 B.Contours = contours[j];
+	 B.gtflag=false;
+	 B.Fvecflag = false;	    
+	 blocks.push_back(B);
+       }
+     }
+     
+     boundRect.clear();
+     contours.clear();
+     hierarchy.clear();
+
+     avg_height = avg_height/count;
+     
+     avg_height = avg_height/count;
+     
+     for(int i=0;i<blocks.size();i++)
+     {
+       for(int j=0;j<blocks.size();)
+       {
+	 if(i!=j)
+	 {
+	   if(PolygonInsidePolygonTest(blocks[i].Contours,blocks[j].Contours)==2)
+	   {
+	     blocks.erase(blocks.begin()+j);
+	   }
+	   else
+	     j=j+1;
+	 }
+	 else
+	   j=j+1;
+       }
+     }
+     
+     for(int i=0;i<blocks.size();i++)
+     {
+	SB B = blocks[i];
+	Rect R = B.B;
+	 Mat temp_clrimg = Mat(R.height,R.width,CV_8UC3,Scalar(255,255,255));
+	 Mat temp_bin = Mat(R.height,R.width,CV_8UC1,Scalar(255));
+	 Mat temp_img = Mat(R.height,R.width,CV_8UC1,Scalar(255));
+	 Mat temp =  Mat(R.height,R.width,CV_8UC1,Scalar(255));
+	 Mat stroke_clrimg = Mat(R.height,R.width,CV_8UC3,Scalar(255,255,255));
+	 int cnt = 0;
+	    int p = 0;
+	    for(int m=R.y;m<R.y+R.height;m++)
+	    {
+		int q = 0;
+		for(int n=R.x;n<R.x+R.width;n++)
+		{
+		  bool measure_dist = false;
+		  {		    
+		    if(pointPolygonTest(B.Contours,Point(n,m),measure_dist) >= 0.0)
+		    {
+		      for(int k=-0;k<blurimage.channels();k++)
+			temp_clrimg.at<Vec3b>(p,q)[k] = blurimage.at<Vec3b>(m,n)[k];
+		      temp_bin.at<uchar>(p,q) = Binary.at<uchar>(m,n);	
+		      temp_img.at<uchar>(p,q) = Boundary_Binary.at<uchar>(m,n);	
+		      cnt++;
+		    }
+		  }
+		  q++;
+		}
+		p++;
+	    }
+	    
+	    vector<float> GaborFeature = GetGaborFeature(temp_clrimg);
+	    for(int f=0;f<GaborFeature.size();f++)
+	      B.FeatureVec.push_back(GaborFeature[f]);
+	    
+	 if(R.height>3*avg_height && R.width > 3*avg_height) // Large component
+	 {
+	   Mat inv = FindImageInverse(temp_img);
+	   findContours( inv, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+	   cnt = 0;
+	   for(int j=0;j<contours.size();j++)
+	   {
+	     Rect RT = boundingRect( Mat(contours[j]) );
+	     if(hierarchy[j][3] != -1)
+	      {
+		int posi = hierarchy[j][3];
+		if(hierarchy[posi][3] == -1)
+		{
+		  //rectangle(temp,boundRect[j].br(),boundRect[j].tl(),Scalar(255,0,0),1,8);
+		  for(int m=RT.y;m<RT.y+RT.height;m++)
+			{
+			    for(int n=RT.x;n<RT.x+RT.width;n++)
+			    {
+			      bool measure_dist = false;
+			      {			
+				if(pointPolygonTest(contours[j],Point(n,m),measure_dist) >= 0.0)
+				{
+				  for(int k=-0;k<blurimage.channels();k++)
+				    stroke_clrimg.at<Vec3b>(m,n)[k] = 0;
+				  temp.at<uchar>(m,n) = 0;
+				  cnt++;
+				}
+			      }
+			    }
+			}
+		}
+		else
+		{
+		  for(int m=RT.y;m<RT.y+RT.height;m++)
+			{
+			    for(int n=RT.x;n<RT.x+RT.width;n++)
+			    {
+			      bool measure_dist = false;
+			      {			
+				if(pointPolygonTest(contours[j],Point(n,m),measure_dist) >= 0.0)
+				{	
+				  for(int k=-0;k<blurimage.channels();k++)
+				    stroke_clrimg.at<Vec3b>(m,n)[k] = 255;
+				  temp.at<uchar>(m,n) = 255;
+				  cnt--;
+				}
+			      }
+			    }
+			}
+		}
+	      }
+	      else
+	      {
+		for(int m=RT.y;m<RT.y+RT.height;m++)
+			{
+			    for(int n=RT.x;n<RT.x+RT.width;n++)
+			    {
+			      bool measure_dist = false;
+			      {			
+				if(pointPolygonTest(contours[j],Point(n,m),measure_dist) >= 0.0)
+				{	
+				  for(int k=-0;k<blurimage.channels();k++)
+				    stroke_clrimg.at<Vec3b>(m,n)[k] = 0;
+				  temp.at<uchar>(m,n) = 0;
+				  cnt++;
+				}
+			      }
+			    }
+			}
+	      }
+	      
+	   }
+	   if(cnt > 5)
+	   {
+	    vector<float> colorFeature = GetColorFeature(temp_clrimg,temp);
+	    vector<float> swfeature = GetStrokeWidthFeature(stroke_clrimg,temp);
+	    bool flag = true;
+	    for(int f=0;f<colorFeature.size();f++)
+	    {
+	      if(isnan(colorFeature[f]))
+		flag = false;
+	      B.FeatureVec.push_back(colorFeature[f]);
+	    }
+	    for(int f=0;f<swfeature.size();f++)
+	    {
+	      if(isnan(swfeature[f]))
+		flag = false;
+	      B.FeatureVec.push_back(swfeature[f]);
+	    }
+	    if(flag)
+	      B.Fvecflag = true;
+	   }
+	 }
+	 else
+	 {
+	   if(cnt > 5)
+	   {
+	    vector<float> colorFeature = GetColorFeature(temp_clrimg,temp_bin);
+	    vector<float> swfeature = GetStrokeWidthFeature(stroke_clrimg,temp_bin);
+	    bool flag = true;
+	    for(int f=0;f<colorFeature.size();f++)
+	    {
+	      if(isnan(colorFeature[f]))
+		flag = false;
+	      B.FeatureVec.push_back(colorFeature[f]);
+	    }
+	    for(int f=0;f<swfeature.size();f++)
+	    {
+	      if(isnan(swfeature[f]))
+		flag = false;
+	      B.FeatureVec.push_back(swfeature[f]);
+	    }
+	    if(flag)
+	      B.Fvecflag = true;
+	   }
+	 }
+	 
+	 
+	 blocks[i] = B;
+	 
+     }
+     
+     for(int i=0;i<blocks.size();)
+     {
+       if(blocks[i].Fvecflag)
+       {
+	 i++;
+       }
+       else
+	 blocks.erase(blocks.begin()+i);
+     }
+     
+     return blocks;
+}
 
 vector< SB > GetSegmentationUnit(Mat image)
 {
