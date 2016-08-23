@@ -137,7 +137,7 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
 	printf("Number of Clusters obetained by  CCE is %d\n",Clusters.size());
       }
       
-     // ClusteringClassification(SU,Clusters,alpha);
+      ClusteringClassification(SU,Clusters,alpha);
       
       
       vector<int> gtcls;
@@ -452,12 +452,12 @@ TDC Training(char* TrainFile)
     for(int j=0;j<TrainData[i].size();)
     {
       trainSamples.at<float>(i,k) = TrainData[i][j];
-      printf("%f\t",trainSamples.at<float>(i,k));
+      //printf("%f\t",trainSamples.at<float>(i,k));
       k++;
       j++;
       //j=j+2;
     }
-    printf("\n\n");
+   // printf("\n\n");
   }
   
   //exit(0);

@@ -229,46 +229,22 @@ vector<float>  GetGaborFeature(Mat image)
 	  }
 	}
 	
-	//printf("%lf\t",FindMean(GaborEnergy));
-	//printf("StdDev Energy = %lf\n",FindStdDev(GaborEnergy));
-	
-	//printf("Mean Energy = %lf\t",FindMean(GaborDest));
-	//printf("StdDev Energy = %lf\n",FindStdDev(GaborDest));
 	GaborFeature.push_back((float) FindMean(GaborEnergy));
 	GaborFeature.push_back((float) FindStdDev(GaborEnergy));
 	
-	//exit(0);
 	
-	//Mat abs_gabor;
-	//convertScaleAbs( GaborDest, abs_gabor );
-
 	GaborSrc.release();
 	Gaborkernel.release();
 	SymGKernel.release();
 	AntSymGKernel.release();
 	GaborEnergy.release();
-	
-	//GaborFeature.push_back((float) FindMean(abs_gabor));
-	//GaborFeature.push_back((float) FindStdDev(abs_gabor));
-	//abs_gabor.release();
-	//GaborFeature.push_back((float) FindMean(GaborDest));
-	//GaborFeature.push_back((float) FindStdDev(GaborDest));
-	
-	//Mat test;
-	//convertScaleAbs( GaborDest, test );
-	//GaborDest.copyTo(test);
-	//GaborDest.release();
-	
-	
+
 	
 	
       }
     }
   }
-  
-  for(int i=0;i<GaborFeature.size();i++)
-    printf("%f\t",GaborFeature[i]);
-  printf("\n\n");
+ 
   
   image.release();
   return GaborFeature;
