@@ -5,6 +5,34 @@ bool CCE_flag;
 
 using namespace IITkgp_functions;
 
+
+bool CheckSeparator(SB B)
+{
+
+    Rect R = boundingRect( Mat(B.Contours) );
+    if(R.height > R.width)
+    {
+      if(R.width < 6 )
+	return true;
+      else
+	return false;
+    }
+    else if(R.height < R.width)
+    {
+      if(R.height < 6)
+	return true;
+      else
+	return false;
+    }
+    else
+    {
+      if(R.height < 8 || R.height < 8)
+	return true;
+      else
+	return false;
+    }
+}
+
 vector<float> GetFeatureFromFVec(vector<float> FeatureVec)
 {
   vector<float> Fvec;

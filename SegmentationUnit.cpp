@@ -463,6 +463,8 @@ vector<SB> GetProcessingBlocks(Mat image)
 	    vector<float> swfeature = GetStrokeWidthFeature(temp_clrimg,temp_bin);
 	    bool flag = true;
 	    printf("\nColorFeature:\n");
+	    if(colorFeature[2]<3)
+	      flag = false;
 	    for(int f=0;f<colorFeature.size();f++)
 	    {
 	      if(isnan(colorFeature[f]))
@@ -471,6 +473,8 @@ vector<SB> GetProcessingBlocks(Mat image)
 	      printf("%f\t",colorFeature[f]);
 	    }
 	    printf("\nSWFeature:\n");
+	    if(swfeature[2]<3)
+	      flag = false;
 	    for(int f=0;f<swfeature.size();f++)
 	    {
 	      if(isnan(swfeature[f]))

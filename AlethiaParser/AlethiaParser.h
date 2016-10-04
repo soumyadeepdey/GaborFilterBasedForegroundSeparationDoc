@@ -317,6 +317,68 @@ private:
     
 };
 
+class MathsRegion: public Region
+{
+  
+};
+
+class NoiseRegion: public Region
+{
+  
+};
+
+class TableRegion: public Region
+{
+public:  
+  
+  
+    void setembText(bool x)
+    {
+      embText = x;
+    }
+      
+    bool getembText()
+    {
+      return embText;
+    }
+    
+    void setLineSeparator(bool x)
+    {
+      lineSeparator = x;
+    }
+    
+    bool getLineSeparator()
+    {
+      return lineSeparator;
+    }
+    
+    void setRow(int x)
+    {
+      row = x;
+    }
+    
+    
+    int getRow()
+    {
+      return row;
+    }
+    
+    void setcol(int x)
+    {
+      col = x;
+    }
+    
+    int getCol()
+    {
+      return col;
+    }
+    
+private:
+  bool embText;
+  int row;
+  int col;
+  bool lineSeparator;
+};
 
 class page
 {
@@ -332,6 +394,8 @@ public:
     IR.clear();
     CR.clear();
     SR.clear();
+    NR.clear();
+    MR.clear();
     //printf("Page Object Destroyed\n");
   }
   void SetImageName(char* ch)
@@ -368,10 +432,31 @@ public:
     SR.push_back(x);
   }
   
+  void FillNoiseRegion(NoiseRegion x)
+  {
+    NR.push_back(x);
+  }
+  
+  void FillMathsRegion(MathsRegion x)
+  {
+    MR.push_back(x);
+  }
+  
+  void FillTableRegion(TableRegion x)
+  {
+    TabR.push_back(x);
+  }
+  
   vector<TextRegion> GetTextRegion()
   {
     return TR;
   }
+  
+  vector<MathsRegion> GetMathsRegion()
+  {
+    return MR;
+  }
+  
   vector<GraphicRegion> GetGraphicRegion()
   {
     return GR;
@@ -380,14 +465,25 @@ public:
   {
     return IR;
   }
+  
   vector<ChartRegion> GetChartRegion()
   {
     return CR;
   }
   
+  vector<TableRegion> GetTableRegion()
+  {
+    return TabR;
+  }
+  
   vector<SeparatorRegion> GetSeparatorRegion()
   {
     return SR;
+  }
+  
+  vector<NoiseRegion> GetNoiseRegion()
+  {
+    return NR;
   }
   
   char* GetImageName()
@@ -414,6 +510,9 @@ private:
   vector<ImageRegion> IR;
   vector<ChartRegion> CR;
   vector<SeparatorRegion> SR;
+  vector<NoiseRegion> NR;
+  vector<MathsRegion> MR;
+  vector<TableRegion> TabR;
 };
 
 
@@ -436,10 +535,13 @@ private:
    XMLCh* ATTR_PagenHeight;
    XMLCh* ATTR_PagenWidth;
    XMLCh* TAG_TextRegion;
+   XMLCh* TAG_MathsRegion;
    XMLCh* TAG_GraphicRegion;
    XMLCh* TAG_ImageRegion;
    XMLCh* TAG_ChartRegion;
+   XMLCh* TAG_TableRegion;
    XMLCh* TAG_SeparatorRegion;
+   XMLCh* TAG_NoiseRegion;
    XMLCh* TAG_Coords; 
    XMLCh* TAG_Point;
    XMLCh* ATTR_id;
@@ -459,6 +561,9 @@ private:
    XMLCh* ATTR_ColorDepth;
    XMLCh* ATTR_x;
    XMLCh* ATTR_y;
+   XMLCh* ATTR_row;
+   XMLCh* ATTR_col;
+   XMLCh* ATTR_LineSeparator;
 
 };
 

@@ -1,252 +1,279 @@
 
 #include "GaborAngleFeature.h"
 
-vector<vector<float> >  GetMyGaborFeature(Mat image, char *im_name)
+vector<float>  GetGaborFeature(Mat image)
 {
-  
-  printf("%s\n",im_name);
-  makedir(im_name);
-  
-  
-   //Mat blurimage; 
-  // GaussianBlur(image,blurimage,Size(11,11),0,0);
-  //
-   char *output;
-  
-//   output=(char *)malloc(2001*sizeof(char));
-//   output = CreateNameIntoFolder(im_name,"bluredimage.png");
-//   imwrite(output,blurimage);
-   
   
   
   
   int kernel_size = 3; // 5
   Mat GaborDest,GaborSrc,Gaborkernel;
-  double sig = 1, th = 0, lm = 1.0, gm = 0.02; // sig = 1
-  vector<vector<float> > GaborAngleHist;
+  double sig = 1, th = 0, lm = 1.0, gm = 0.5; // sig = 1
   vector<float> GaborFeature;
   
   vector<double> th_gm;
-  th_gm.push_back(0.02);
-  //th_gm.push_back(0.025);
-  th_gm.push_back(0.03);
+  th_gm.push_back(0.5);
+  //th_gm.push_back(1.0);
+  //th_gm.push_back(2.0);
+  
+  vector<double> th_lm;
+ // th_lm.push_back(0.3);
+ // th_lm.push_back(0.5);
+ // th_lm.push_back(1.0);
+ // th_lm.push_back(2.0);
+ // th_lm.push_back(2.5);
+  th_lm.push_back(3.0);
+ // th_lm.push_back(3.5);
+ // th_lm.push_back(4.0);
+ // th_lm.push_back(5.0);
+  
  // th_gm.push_back(0.05);
  // th_gm.push_back(0.1);
  // th_gm.push_back(0.2);
   
   
   vector<double> th_sig;
- // th_sig.push_back(1.0);
- // th_sig.push_back(1.5);
- // th_sig.push_back(2.0);
- // th_sig.push_back(2.5);
-  th_sig.push_back(0.3);
-  //th_sig.push_back(0.5);
+  
+  th_sig.push_back(0.5);
+  th_sig.push_back(1.0);
+  th_sig.push_back(2.0);
+  th_sig.push_back(3.0);
+  th_sig.push_back(4.0);
+  th_sig.push_back(5.0);
+  th_sig.push_back(10.0);
+  th_sig.push_back(12.0);
   
   
   vector<double> theta;
+  theta.push_back(15.0);
   theta.push_back(30.0);
   theta.push_back(45.0);
   theta.push_back(60.0);
   theta.push_back(90.0);
-  //theta.push_back(120.0);
-  //theta.push_back(135.0);
+  theta.push_back(120.0);
+  theta.push_back(135.0);
   
-  Mat Wtgabor;
   
-  for(int sg=0;sg<th_sig.size();sg++)
+  
+  for(int ga=0;ga<th_gm.size();ga++)
   {
-    sig = th_sig[sg];
-    for(int gam=0;gam<th_gm.size();gam++)
+    gm = th_gm[ga];
+    for(int lam=0;lam<th_lm.size();lam++)
     {
-      gm = th_gm[gam];
-      //for(int th_i=30;th_i<=150;)
-      for(int th_i=0;th_i<theta.size();th_i++)
-      {
-	//th = th_i*1.0;
-	th = theta[th_i];
+      lm = th_lm[lam];
       
-	Gaborkernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm);
+      for(int sg=0;sg<th_sig.size();sg++)
+      {
+	sig = th_sig[sg];
+	Mat Wtgabor;
+	for(int th_i=0;th_i<theta.size();th_i++)
+	{
+	  th = theta[th_i];
+	  int type = CV_32F;
 	
-	Mat gray;
-	cvtColor(image,gray,CV_BGR2GRAY);
-	gray.convertTo(GaborSrc,CV_32F);
-	
-	filter2D(GaborSrc, GaborDest, CV_32F, Gaborkernel);
-	
-	
-
-	GaborSrc.release();
-	Gaborkernel.release();
-	
-	GaborFeature.push_back((float) FindMean(GaborDest));
-	GaborFeature.push_back((float) FindStdDev(GaborDest));
-	//float gf_mean = (float) FindMean(GaborDest);
-	//float gf_stddev = (float)  FindStdDev(GaborDest);
-	
-	double max,min;
-	int posi;
-	
-	Mat test;
-	convertScaleAbs( GaborDest, test );
-	//GaborDest.copyTo(test);
-	GaborDest.release();
-	if(Wtgabor.empty())
-	  test.copyTo(Wtgabor);
-	else
-	  /// Total Gradient (approximate)
-	  addWeighted( Wtgabor, 0.5, test, 0.5, 0, Wtgabor );
-
-	
-	char *name;
-	
-	char *output;
-	
-	
-	
-	
-	name=(char *)malloc(2001*sizeof(char));
-	sprintf(name, "Gresponse%lf_%lf_%d.png",sig,gm,th_i);
-	
-	output=(char *)malloc(2001*sizeof(char));
-	output = CreateNameIntoFolder(im_name,name);
-	imwrite(output,test);
-	
-	//
-	test.release();
-	
-	//th_i = th_i + 15;
+	  Mat AntSymGKernel,SymGKernel;
+	  
+	  SymGKernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.0,type);
+	  AntSymGKernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.5*PI,type);
+	  
+	  Mat gray;
+	  cvtColor(image,gray,CV_BGR2GRAY);
+	  //cvtColor(blurimage,gray,CV_BGR2GRAY);
+	  gray.convertTo(GaborSrc,CV_32F);
+	  
+	  //filter2D(GaborSrc, GaborDest, CV_32F, Gaborkernel);
+	  
+	  Mat SymGDest,AntSymGDest;
+	  
+	  filter2D(GaborSrc, SymGDest, CV_32F, SymGKernel);
+	  
+	  filter2D(GaborSrc, AntSymGDest, CV_32F, AntSymGKernel);
+	  
+	  Mat GaborEnergy = Mat(GaborSrc.rows,GaborSrc.cols,CV_32FC1);
+	  
+	  for(int r=0;r<GaborSrc.rows;r++)
+	  {
+	    for(int c=0;c<GaborSrc.cols;c++)
+	    {
+	      float sym = SymGDest.at<float>(r,c);
+	      float antsym = AntSymGDest.at<float>(r,c);
+	      float energy = sym*sym + antsym*antsym;
+	      energy =(float) sqrt(energy);
+	      GaborEnergy.at<float>(r,c) = energy;
+	    }
+	  }
+	  
+	  
+	  Mat test;
+	  convertScaleAbs( GaborEnergy, test );
+	  //GaborDest.copyTo(test);
+	  GaborDest.release();
+	  if(Wtgabor.empty())
+	  {
+	    //Wtgabor.copyTo(GaborEnergy);
+	    test.copyTo(Wtgabor);
+	  }
+	  else
+	  {
+	    /// Total Gradient (approximate)
+	    addWeighted( Wtgabor, 0.5, test, 0.5, 0, Wtgabor );
+	    //addWeighted( Wtgabor, 0.5, GaborEnergy, 0.5, 0, Wtgabor );
+	  }
+	}
+	GaborFeature.push_back((float) FindMean(Wtgabor));
+	GaborFeature.push_back((float) FindStdDev(Wtgabor));
+	GaborFeature.push_back((float) Wtgabor.rows*Wtgabor.cols*1.0);
+	Wtgabor.release();
       }
+      
     }
   }
-/*
-  //Mat nWtgdest;
-  //convertScaleAbs( Wtgabor, nWtgdest );
-  output=(char *)malloc(2001*sizeof(char));
-  output = CreateNameIntoFolder(im_name,"overallgaborfeature.png");
-  imwrite(output,Wtgabor);
-  Mat dest;
-  threshold(Wtgabor,dest,10,255,0);
-  output=(char *)malloc(2001*sizeof(char));
-  output = CreateNameIntoFolder(im_name,"overallgaborfeature_threshold.png");
-  imwrite(output,dest);
-  */
-  Wtgabor.release();
   
   
-  
-  
-  
-  printf("Done\n");
   
   image.release();
-  return GaborAngleHist;
+  
+  return GaborFeature;
   
 }
 
 
-vector<float>  GetGaborFeature(Mat image)
+
+vector<float>  GetGaborFeatureWithMask(Mat image, Mat MaskedImage)
 {
-  printf("\n\n\n");
+  int fp = NumberofForegroundPixel(MaskedImage);
   int kernel_size = 3; // 5
   Mat GaborDest,GaborSrc,Gaborkernel;
-  Mat AntSymGKernel,SymGKernel;
-  double sig = 1, th = 0, lm = 1.0, gm = 0.02; // sig = 1
+  double sig = 1, th = 0, lm = 1.0, gm = 0.5; // sig = 1
   vector<float> GaborFeature;
   
   vector<double> th_gm;
-  th_gm.push_back(0.02);
-  //th_gm.push_back(0.025);
- // th_gm.push_back(0.03);
+  th_gm.push_back(0.5);
+  //th_gm.push_back(1.0);
+  //th_gm.push_back(2.0);
+  
+  vector<double> th_lm;
+ // th_lm.push_back(0.3);
+ // th_lm.push_back(0.5);
+ // th_lm.push_back(1.0);
+ // th_lm.push_back(2.0);
+ // th_lm.push_back(2.5);
+  th_lm.push_back(3.0);
+ // th_lm.push_back(3.5);
+ // th_lm.push_back(4.0);
+ // th_lm.push_back(5.0);
+  
  // th_gm.push_back(0.05);
  // th_gm.push_back(0.1);
  // th_gm.push_back(0.2);
   
   
   vector<double> th_sig;
- // th_sig.push_back(1.0);
- // th_sig.push_back(1.5);
- // th_sig.push_back(2.0);
- // th_sig.push_back(2.5);
-  th_sig.push_back(0.3);
-  //th_sig.push_back(0.5);
+  
+  th_sig.push_back(0.5);
+  th_sig.push_back(1.0);
+  th_sig.push_back(2.0);
+  th_sig.push_back(3.0);
+  th_sig.push_back(4.0);
+  th_sig.push_back(5.0);
+  th_sig.push_back(10.0);
+  th_sig.push_back(12.0);
+  
   
   vector<double> theta;
+  theta.push_back(15.0);
   theta.push_back(30.0);
   theta.push_back(45.0);
   theta.push_back(60.0);
   theta.push_back(90.0);
- // theta.push_back(120.0);
- // theta.push_back(135.0);
-
-  printf("Gabor Feature\n");
+  theta.push_back(120.0);
+  theta.push_back(135.0);
   
-  for(int sg=0;sg<th_sig.size();sg++)
+  
+  
+  for(int ga=0;ga<th_gm.size();ga++)
   {
-    sig = th_sig[sg];
-    for(int gam=0;gam<th_gm.size();gam++)
+    gm = th_gm[ga];
+    for(int lam=0;lam<th_lm.size();lam++)
     {
-      gm = th_gm[gam];
-      //for(int th_i=30;th_i<=150;)
-      //{
-	//th = th_i*1.0;
-      //th_i = th_i + 15;
-      for(int th_i=0;th_i<theta.size();th_i++)
+      lm = th_lm[lam];
+      
+      for(int sg=0;sg<th_sig.size();sg++)
       {
-	th = theta[th_i];
-	int type = CV_32F;
-	
-	Gaborkernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.5*PI,type);
-	
-	SymGKernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.0,type);
-	AntSymGKernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.5*PI,type);
-	
-	Mat gray;
-	cvtColor(image,gray,CV_BGR2GRAY);
-	gray.convertTo(GaborSrc,CV_32F);
-	
-	//filter2D(GaborSrc, GaborDest, CV_32F, Gaborkernel);
-	
-	Mat SymGDest,AntSymGDest;
-	
-	filter2D(GaborSrc, SymGDest, CV_32F, SymGKernel);
-	
-	filter2D(GaborSrc, AntSymGDest, CV_32F, AntSymGKernel);
-	
-	Mat GaborEnergy = Mat(GaborSrc.rows,GaborSrc.cols,CV_32FC1);
-	Mat GaborMeanAmpli = Mat(GaborSrc.rows,GaborSrc.cols,CV_32FC1);
-	
-	for(int r=0;r<GaborSrc.rows;r++)
+	sig = th_sig[sg];
+	Mat Wtgabor;
+	for(int th_i=0;th_i<theta.size();th_i++)
 	{
-	  for(int c=0;c<GaborSrc.cols;c++)
+	  th = theta[th_i];
+	  int type = CV_32F;
+	
+	  Mat AntSymGKernel,SymGKernel;
+	  
+	  SymGKernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.0,type);
+	  AntSymGKernel = getGaborKernel(Size(kernel_size, kernel_size), sig, th, lm, gm,0.5*PI,type);
+	  
+	  Mat gray;
+	  cvtColor(image,gray,CV_BGR2GRAY);
+	  //cvtColor(blurimage,gray,CV_BGR2GRAY);
+	  gray.convertTo(GaborSrc,CV_32F);
+	  
+	  //filter2D(GaborSrc, GaborDest, CV_32F, Gaborkernel);
+	  
+	  Mat SymGDest,AntSymGDest;
+	  
+	  filter2D(GaborSrc, SymGDest, CV_32F, SymGKernel);
+	  
+	  filter2D(GaborSrc, AntSymGDest, CV_32F, AntSymGKernel);
+	  
+	  Mat GaborEnergy = Mat(fp,1,CV_32FC1);
+	  
+	  int cnt = 0;
+	  for(int r=0;r<GaborSrc.rows;r++)
 	  {
-	    float sym = SymGDest.at<float>(r,c);
-	    float antsym = AntSymGDest.at<float>(r,c);
-	    float energy = sym*sym + antsym*antsym;
-	    energy =(float) sqrt(energy);
-	   // printf("Energy = %f\n",energy);
-	    GaborEnergy.at<float>(r,c) = energy;
+	    for(int c=0;c<GaborSrc.cols;c++)
+	    {
+	      if(MaskedImage.at<uchar>(r,c) == 0)
+	      {
+		float sym = SymGDest.at<float>(r,c);
+		float antsym = AntSymGDest.at<float>(r,c);
+		float energy = sym*sym + antsym*antsym;
+		energy =(float) sqrt(energy);
+		GaborEnergy.at<float>(cnt,0) = energy;
+		cnt++;
+	      }
+	    }
+	  }
+	  
+	  
+	  Mat test;
+	  convertScaleAbs( GaborEnergy, test );
+	  //GaborDest.copyTo(test);
+	  GaborDest.release();
+	  if(Wtgabor.empty())
+	  {
+	    //Wtgabor.copyTo(GaborEnergy);
+	    test.copyTo(Wtgabor);
+	  }
+	  else
+	  {
+	    /// Total Gradient (approximate)
+	    addWeighted( Wtgabor, 0.5, test, 0.5, 0, Wtgabor );
+	    //addWeighted( Wtgabor, 0.5, GaborEnergy, 0.5, 0, Wtgabor );
 	  }
 	}
-	
-	GaborFeature.push_back((float) FindMean(GaborEnergy));
-	GaborFeature.push_back((float) FindStdDev(GaborEnergy));
-	
-	
-	GaborSrc.release();
-	Gaborkernel.release();
-	SymGKernel.release();
-	AntSymGKernel.release();
-	GaborEnergy.release();
-
-	
-	
+	GaborFeature.push_back((float) FindMean(Wtgabor));
+	GaborFeature.push_back((float) FindStdDev(Wtgabor));
+	GaborFeature.push_back((float) Wtgabor.rows*Wtgabor.cols*1.0);
+	Wtgabor.release();
       }
+      
     }
   }
- 
+  
+  
   
   image.release();
+  
   return GaborFeature;
   
 }

@@ -215,6 +215,7 @@ vector< float > IITkgp_functions::GetColorFeature(Mat image, Mat Binimage)
    
    ClrFeature.push_back((float)FindMean(Data));
    ClrFeature.push_back((float)FindStdDev(Data));
+   ClrFeature.push_back((float) Data.rows*Data.cols*1.0);
    
    return ClrFeature;
 }

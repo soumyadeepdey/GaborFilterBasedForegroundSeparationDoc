@@ -7,17 +7,15 @@
 #include "folder.h"
 #include "StatisticalFunctions.h"
 #include "Morphology.h"
+#include "Image_proc_functions.h"
 
 using namespace IITkgp_functions;
 
 
 
-vector<vector<float> > GetMyGaborFeature(Mat image, char* im_name);
-
-
 vector<float>  GetGaborFeature(Mat image);
 
-
+vector<float>  GetGaborFeatureWithMask(Mat image, Mat MaskedImage);
 
 
 

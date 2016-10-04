@@ -313,7 +313,7 @@ vector<vector<SB> > ClusteringCCN(vector< SB > SU, vector< double > Threshold)
     
     int cnt =0;
     
-    for(int k=0;k<FvecSize;k=k+2)
+    for(int k=0;k<FvecSize;k=k+3)
     {
 	printf("Working for feature %d\n",cnt);
 	cnt++;
@@ -331,14 +331,11 @@ vector<vector<SB> > ClusteringCCN(vector< SB > SU, vector< double > Threshold)
 	    if(i!=j)
 	    {
 	      SB B_j = SU[j];
-	      vector<Point> poly_j;
-	      approxPolyDP( Mat(B_j.Contours), poly_j, 3, true );
-	      Rect R_j = boundingRect( Mat(poly_j) );
-	      poly_j.clear();
+	      
 	      if(B_i.FeatureVec[k+1]==B_j.FeatureVec[k+1])
 		{
-		  double tval = twoSampleTtest_EqualVariance(R_i.area(),R_j.area(),B_i.FeatureVec[k],B_j.FeatureVec[k],B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
-		  int sdof = DegreeofFreedom_EqualVariance(R_i.area(),R_j.area());
+		  double tval = twoSampleTtest_EqualVariance(B_i.FeatureVec[k+2],B_j.FeatureVec[k+2],B_i.FeatureVec[k],B_j.FeatureVec[k],B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
+		  int sdof = DegreeofFreedom_EqualVariance(B_i.FeatureVec[k+2],B_j.FeatureVec[k+2]);
 		  tval = studenttdistribution(sdof,tval);
 		  if(tval > 0.5)
 		    tval =  2 * (1 - tval);
@@ -348,8 +345,8 @@ vector<vector<SB> > ClusteringCCN(vector< SB > SU, vector< double > Threshold)
 		}
 	      else
 		{
-		  double tval = twoSampleTtest_UnequalVariance(R_i.area(),R_j.area(),B_i.FeatureVec[k],B_j.FeatureVec[k],B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
-		  double sdof = DegreeofFreedom_UnequalVariance(R_i.area(),R_j.area(),B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
+		  double tval = twoSampleTtest_UnequalVariance(B_i.FeatureVec[k+2],B_j.FeatureVec[k+2],B_i.FeatureVec[k],B_j.FeatureVec[k],B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
+		  double sdof = DegreeofFreedom_UnequalVariance(B_i.FeatureVec[k+2],B_j.FeatureVec[k+2],B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
 		  tval = studenttdistribution(sdof,tval);
 		  if(tval > 0.5)
 		    tval =  2 * (1 - tval);
@@ -378,7 +375,7 @@ vector<vector<SB> > ClusteringCCN(vector< SB > SU, vector< double > Threshold)
     
     
     
-    for(int k=0;k<FvecSize/2;k++)
+    for(int k=0;k<FvecSize/3;k++)
     {
       vector<vector<bool> > AdjMat = FindAdjacencyMatrix(StudentTDistval[k], Threshold[k]);
       vector<int> labels(StudentTDistval[k].size());
@@ -394,7 +391,7 @@ vector<vector<SB> > ClusteringCCN(vector< SB > SU, vector< double > Threshold)
     
     printf("Doing the main clustering part\n");
     vector<vector<int> > K;
-    vector<vector<int> > D(FvecSize/2);
+    vector<vector<int> > D(FvecSize/3);
     int z = 0;
     int t = 0;
     
@@ -423,7 +420,7 @@ vector<vector<SB> > ClusteringCE(vector< SB > SU, vector< double > Threshold)
     
     vector<vector<vector<double> > > StudentTDistval;
     
-    for(int k=0;k<FvecSize;k=k+2)
+    for(int k=0;k<FvecSize;k=k+3)
     {
 	vector<vector<double> > Fstdistval;
 	for(int i=0;i<SU.size();i++)
@@ -445,8 +442,8 @@ vector<vector<SB> > ClusteringCE(vector< SB > SU, vector< double > Threshold)
 	      poly_j.clear();
 	      if(B_i.FeatureVec[k+1]==B_j.FeatureVec[k+1])
 		{
-		  double tval = twoSampleTtest_EqualVariance(R_i.area(),R_j.area(),B_i.FeatureVec[k],B_j.FeatureVec[k],B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
-		  int sdof = DegreeofFreedom_EqualVariance(R_i.area(),R_j.area());
+		  double tval = twoSampleTtest_EqualVariance(B_i.FeatureVec[k+2],B_j.FeatureVec[k+2],B_i.FeatureVec[k],B_j.FeatureVec[k],B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
+		  int sdof = DegreeofFreedom_EqualVariance(B_i.FeatureVec[k+2],B_j.FeatureVec[k+2]);
 		  tval = studenttdistribution(sdof,tval);
 		  if(tval > 0.5)
 		    tval =  2 * (1 - tval);
@@ -456,8 +453,8 @@ vector<vector<SB> > ClusteringCE(vector< SB > SU, vector< double > Threshold)
 		}
 	      else
 		{
-		  double tval = twoSampleTtest_UnequalVariance(R_i.area(),R_j.area(),B_i.FeatureVec[k],B_j.FeatureVec[k],B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
-		  double sdof = DegreeofFreedom_UnequalVariance(R_i.area(),R_j.area(),B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
+		  double tval = twoSampleTtest_UnequalVariance(B_i.FeatureVec[k+2],B_j.FeatureVec[k+2],B_i.FeatureVec[k],B_j.FeatureVec[k],B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
+		  double sdof = DegreeofFreedom_UnequalVariance(B_i.FeatureVec[k+2],B_j.FeatureVec[k+2],B_i.FeatureVec[k+1],B_j.FeatureVec[k+1]);
 		  tval = studenttdistribution(sdof,tval);
 		  if(tval > 0.5)
 		    tval =  2 * (1 - tval);

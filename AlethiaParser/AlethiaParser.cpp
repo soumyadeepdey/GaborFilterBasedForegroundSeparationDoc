@@ -49,8 +49,11 @@ GetConfig::GetConfig()
    TAG_TextRegion = XMLString::transcode("TextRegion");
    TAG_GraphicRegion = XMLString::transcode("GraphicRegion");
    TAG_ImageRegion = XMLString::transcode("ImageRegion");
+   TAG_MathsRegion = XMLString::transcode("MathsRegion");
    TAG_ChartRegion = XMLString::transcode("ChartRegion");
+   TAG_TableRegion = XMLString::transcode("TableRegion");
    TAG_SeparatorRegion = XMLString::transcode("SeparatorRegion"); 
+   TAG_NoiseRegion = XMLString::transcode("NoiseRegion"); 
    TAG_Coords = XMLString::transcode("Coords");
    TAG_Point = XMLString::transcode("Point");
    ATTR_id = XMLString::transcode("id");
@@ -70,6 +73,9 @@ GetConfig::GetConfig()
    ATTR_ColorDepth = XMLString::transcode("ColorDepth");
    ATTR_x = XMLString::transcode("x");
    ATTR_y = XMLString::transcode("y");
+   ATTR_row = XMLString::transcode("rows");
+   ATTR_col = XMLString::transcode("columns");
+   ATTR_LineSeparator = XMLString::transcode("lineSeparators");
 
    m_ConfigFileParser = new XercesDOMParser;
 }
@@ -95,10 +101,13 @@ GetConfig::~GetConfig()
       XMLString::release( &ATTR_PagenHeight );
       XMLString::release( &ATTR_PagenWidth );
       XMLString::release( &TAG_TextRegion );
+      XMLString::release( &TAG_MathsRegion );
       XMLString::release( &TAG_GraphicRegion );
       XMLString::release( &TAG_ImageRegion );
       XMLString::release( &TAG_ChartRegion );
+      XMLString::release( &TAG_TableRegion );
       XMLString::release( &TAG_SeparatorRegion );
+      XMLString::release( &TAG_NoiseRegion );
       XMLString::release( &TAG_Coords );
       XMLString::release( &TAG_Point );
       XMLString::release( &ATTR_id );
@@ -115,9 +124,12 @@ GetConfig::~GetConfig()
       XMLString::release( &ATTR_primaryScript );
       XMLString::release( &ATTR_embText );
       XMLString::release( &ATTR_numColors );
-      XMLString::release( & ATTR_ColorDepth );
-      XMLString::release( & ATTR_x );
-      XMLString::release( & ATTR_y );
+      XMLString::release( &ATTR_ColorDepth );
+      XMLString::release( &ATTR_x );
+      XMLString::release( &ATTR_y );
+      XMLString::release( &ATTR_col );
+      XMLString::release( &ATTR_row );
+      XMLString::release( &ATTR_LineSeparator );
       
    }
    catch( ... )
@@ -368,6 +380,99 @@ page GetConfig::readConfigFile(string& configFile)
 			  P.FillTextRegion(T);
 			  
 			}
+			else if( XMLString::equals(pagecurrentElement->getTagName(), TAG_TableRegion) )
+			{
+			  TableRegion Tab;
+			  const XMLCh* xid = pagecurrentElement->getAttribute(ATTR_id);
+			  char *tid = XMLString::transcode(xid);
+			  Tab.setid(tid);
+			  
+			  const XMLCh* xori = pagecurrentElement->getAttribute(ATTR_orientation);
+			  char *t_orientation = XMLString::transcode(xori);
+			  float orien = atof(t_orientation);
+			  Tab.setorientation(orien);
+			  
+			  const XMLCh* xbgc = pagecurrentElement->getAttribute(ATTR_bgColour);
+			  char *t_bgcolor = XMLString::transcode(xbgc);
+			  Tab.setbgcolor(t_bgcolor);
+			  
+			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
+			  const  XMLSize_t NnodeCount = Nchildren->getLength();
+			  //printf("next number of node = %ld\n",NnodeCount);
+			  
+			  
+			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
+			  {
+			    DOMNode* NcurrentNode = Nchildren->item(zz);
+			    if( XMLString::equals(NcurrentNode->getNodeName(), TAG_Coords) )
+			      {
+				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
+				const  XMLSize_t NNnodeCount = NNchildren->getLength();
+				//printf("next for points number of node = %ld\n",NNnodeCount);
+				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
+				{
+				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
+				   if( NNcurrentNode->getNodeType() &&  // true is not NULL
+				      NNcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
+				   {
+				     DOMElement* NNcurrentElement
+					      = dynamic_cast< xercesc::DOMElement* >( NNcurrentNode );
+				      if( XMLString::equals(NNcurrentElement->getTagName(), TAG_Point) )
+				      {
+					Point Q;
+				      
+					const XMLCh* xcor = NNcurrentElement->getAttribute(ATTR_x);
+					char *tempx = XMLString::transcode(xcor);
+					int xposi = atoi(tempx);
+					Q.x=xposi;
+					
+					const XMLCh* ycor = NNcurrentElement->getAttribute(ATTR_y);
+					char *tempy = XMLString::transcode(ycor);
+					int yposi = atoi(tempy);
+					Q.y=yposi;
+					//printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					Tab.setCoord(Q);
+				      }
+				   }
+				}
+			      }
+			  }
+			  
+			  //Attribute Specific to Table Region will go here
+			  
+			
+			  const XMLCh* xrow = pagecurrentElement->getAttribute(ATTR_row);
+			  char *rows = XMLString::transcode(xrow);
+			  int r = atoi(rows);
+			  Tab.setRow(r);
+			  
+			  const XMLCh* xcol = pagecurrentElement->getAttribute(ATTR_col);
+			  char *column = XMLString::transcode(xcol);
+			  int c = atoi(column);
+			  Tab.setcol(c);
+			  
+			  const XMLCh* xembText = pagecurrentElement->getAttribute(ATTR_embText);
+			  char *t_embText = XMLString::transcode(xembText);
+			  bool b_embText;
+			  if(strcmp(t_embText,"false"))
+			    b_embText = false;
+			  else
+			    b_embText = true;
+			  Tab.setembText(b_embText);
+			  
+			  const XMLCh* xLineSeparator = pagecurrentElement->getAttribute(ATTR_LineSeparator);
+			  char *t_LS = XMLString::transcode(xLineSeparator);
+			  bool b_LS;
+			  if(strcmp(t_LS,"false"))
+			    b_LS = false;
+			  else
+			    b_LS = true;
+			  Tab.setLineSeparator(b_LS);
+			  
+			  
+			  P.FillTableRegion(Tab);
+			  
+			}
 			else if( XMLString::equals(pagecurrentElement->getTagName(), TAG_SeparatorRegion) )
 			{
 			  SeparatorRegion S;
@@ -430,6 +535,127 @@ page GetConfig::readConfigFile(string& configFile)
 			  char *t_color = XMLString::transcode(xc);
 			  S.setcolor(t_color);
 			  
+			  
+			  P.FillSeparatorRegion(S);
+			  
+			}
+			else if( XMLString::equals(pagecurrentElement->getTagName(), TAG_MathsRegion) )
+			{
+			  MathsRegion M;
+			  const XMLCh* xid = pagecurrentElement->getAttribute(ATTR_id);
+			  char *tid = XMLString::transcode(xid);
+			  M.setid(tid);
+			  
+			  const XMLCh* xbgc = pagecurrentElement->getAttribute(ATTR_bgColour);
+			  char *t_bgcolor = XMLString::transcode(xbgc);
+			  M.setbgcolor(t_bgcolor);
+			 // printf("bgcolor=%s\n",t_bgcolor);
+			  
+			  const XMLCh* xori = pagecurrentElement->getAttribute(ATTR_orientation);
+			  char *t_orientation = XMLString::transcode(xori);
+			  float orien =(float) atof(t_orientation);
+			  M.setorientation(orien);
+			  
+			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
+			  const  XMLSize_t NnodeCount = Nchildren->getLength();
+			  //printf("next number of node = %ld\n",NnodeCount);
+			  
+			  
+			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
+			  {
+			    DOMNode* NcurrentNode = Nchildren->item(zz);
+			    if( XMLString::equals(NcurrentNode->getNodeName(), TAG_Coords) )
+			      {
+				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
+				const  XMLSize_t NNnodeCount = NNchildren->getLength();
+				//printf("next for points number of node = %ld\n",NNnodeCount);
+				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
+				{
+				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
+				   if( NNcurrentNode->getNodeType() &&  // true is not NULL
+				      NNcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
+				   {
+				     DOMElement* NNcurrentElement
+					      = dynamic_cast< xercesc::DOMElement* >( NNcurrentNode );
+				      if( XMLString::equals(NNcurrentElement->getTagName(), TAG_Point) )
+				      {
+					Point Q;
+				      
+					const XMLCh* xcor = NNcurrentElement->getAttribute(ATTR_x);
+					char *tempx = XMLString::transcode(xcor);
+					int xposi = atoi(tempx);
+					Q.x=xposi;
+					
+					const XMLCh* ycor = NNcurrentElement->getAttribute(ATTR_y);
+					char *tempy = XMLString::transcode(ycor);
+					int yposi = atoi(tempy);
+					Q.y=yposi;
+					//printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					M.setCoord(Q);
+				      }
+				   }
+				}
+			      }
+			  }
+			  
+			  //Attribute Specific to Noise Region will go here
+			  
+			  P.FillNoiseRegion(M);
+			}
+			else if( XMLString::equals(pagecurrentElement->getTagName(), TAG_NoiseRegion) )
+			{
+			  NoiseRegion N;
+			  const XMLCh* xid = pagecurrentElement->getAttribute(ATTR_id);
+			  char *tid = XMLString::transcode(xid);
+			  N.setid(tid);
+			  
+			  
+			  
+			  DOMNodeList* Nchildren = pagecurrentElement->getChildNodes();
+			  const  XMLSize_t NnodeCount = Nchildren->getLength();
+			  //printf("next number of node = %ld\n",NnodeCount);
+			  
+			  
+			  for( XMLSize_t zz = 0; zz < NnodeCount; ++zz )
+			  {
+			    DOMNode* NcurrentNode = Nchildren->item(zz);
+			    if( XMLString::equals(NcurrentNode->getNodeName(), TAG_Coords) )
+			      {
+				DOMNodeList* NNchildren = NcurrentNode->getChildNodes();
+				const  XMLSize_t NNnodeCount = NNchildren->getLength();
+				//printf("next for points number of node = %ld\n",NNnodeCount);
+				for( XMLSize_t zzz = 0; zzz < NNnodeCount; ++zzz )
+				{
+				  DOMNode* NNcurrentNode = NNchildren->item(zzz);
+				   if( NNcurrentNode->getNodeType() &&  // true is not NULL
+				      NNcurrentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element 
+				   {
+				     DOMElement* NNcurrentElement
+					      = dynamic_cast< xercesc::DOMElement* >( NNcurrentNode );
+				      if( XMLString::equals(NNcurrentElement->getTagName(), TAG_Point) )
+				      {
+					Point Q;
+				      
+					const XMLCh* xcor = NNcurrentElement->getAttribute(ATTR_x);
+					char *tempx = XMLString::transcode(xcor);
+					int xposi = atoi(tempx);
+					Q.x=xposi;
+					
+					const XMLCh* ycor = NNcurrentElement->getAttribute(ATTR_y);
+					char *tempy = XMLString::transcode(ycor);
+					int yposi = atoi(tempy);
+					Q.y=yposi;
+					//printf("COORD x=%d\ty=%d\n",xposi,yposi);
+					N.setCoord(Q);
+				      }
+				   }
+				}
+			      }
+			  }
+			  
+			  //Attribute Specific to Noise Region will go here
+			  
+			  P.FillNoiseRegion(N);
 			}
 			else if( XMLString::equals(pagecurrentElement->getTagName(), TAG_GraphicRegion) )
 			{

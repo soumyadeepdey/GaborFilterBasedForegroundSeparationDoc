@@ -1,6 +1,8 @@
 #include "PrepareAlethiaGT.h"
 
 
+// text 0
+//graphic 1
 
 vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 {
@@ -150,8 +152,6 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
       }
    }
    
-   
-   
    // graphic region
    
    
@@ -183,7 +183,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
-		  B.GtClass = 2;
+		  B.GtClass = 1;
 		  B.gtflag = true;
 		}
 	      }
@@ -194,7 +194,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
 		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
 		    {
-		      B.childs[k].GtClass = 2;
+		      B.childs[k].GtClass = 1;
 		      B.childs[k].gtflag = true;
 		      B.GtClass = B.childs[k].GtClass;
 		      B.gtflag = true;
@@ -242,7 +242,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
-		  B.GtClass = 3;
+		  B.GtClass = 1;
 		  B.gtflag = true;
 		}
 	      }
@@ -253,7 +253,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
 		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
 		    {
-		      B.childs[k].GtClass = 3;
+		      B.childs[k].GtClass = 1;
 		      B.childs[k].gtflag = true;
 		      B.GtClass = B.childs[k].GtClass;
 		      B.gtflag = true;
@@ -300,7 +300,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
-		  B.GtClass = 4;
+		  B.GtClass = 1;
 		  B.gtflag = true;
 		}
 	      }
@@ -311,7 +311,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
 		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
 		    {
-		      B.childs[k].GtClass = 4;
+		      B.childs[k].GtClass = 1;
 		      B.childs[k].gtflag = true;
 		      B.GtClass = B.childs[k].GtClass;
 		      B.gtflag = true;
@@ -358,7 +358,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
-		  B.GtClass = 5;
+		  B.GtClass = 1;
 		  B.gtflag = true;
 		}
 	      }
@@ -369,7 +369,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
 		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
 		    {
-		      B.childs[k].GtClass = 5;
+		      B.childs[k].GtClass = 1;
 		      B.childs[k].gtflag = true;
 		      B.GtClass = B.childs[k].GtClass;
 		      B.gtflag = true;
@@ -415,7 +415,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
-		  B.GtClass = 6;
+		  B.GtClass = 0;
 		  B.gtflag = true;
 		}
 	      }
@@ -426,7 +426,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
 		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
 		    {
-		      B.childs[k].GtClass = 6;
+		      B.childs[k].GtClass = 0;
 		      B.childs[k].gtflag = true;
 		      B.GtClass = B.childs[k].GtClass;
 		      B.gtflag = true;
@@ -441,7 +441,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
       }
    }
    
-   // Table region
+      // Table region
    
    if(!TabR.empty())
    {
@@ -471,7 +471,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
-		  B.GtClass = 7;
+		  B.GtClass = 0;
 		  B.gtflag = true;
 		}
 	      }
@@ -482,7 +482,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
 		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
 		    {
-		      B.childs[k].GtClass = 7;
+		      B.childs[k].GtClass = 0;
 		      B.childs[k].gtflag = true;
 		      B.GtClass = B.childs[k].GtClass;
 		      B.gtflag = true;
@@ -496,6 +496,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 	blocks[i] = B;	
       }
    }
+   
    
    // Done
    

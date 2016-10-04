@@ -40,6 +40,7 @@ typedef struct TrainDataClass
   vector<int> ClassNumber;
 }TDC;
 
+vector<float> GetFeatureFromFVec(vector<float> FeatureVec);
 
 void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &Data);
 

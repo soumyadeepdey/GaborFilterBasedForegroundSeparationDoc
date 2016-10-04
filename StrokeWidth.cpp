@@ -729,6 +729,7 @@ vector<float> IITkgp_functions::GetStrokeWidthFeature(Mat Image, Mat BinaryImage
   vector<float> SWFeature;
   SWFeature.push_back((float) FindMean(SW));
   SWFeature.push_back((float) FindStdDev(SW));
+  SWFeature.push_back((float) strokes.size()*1.0);
   
   return SWFeature;
 }
