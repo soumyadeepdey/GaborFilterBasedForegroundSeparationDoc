@@ -6,6 +6,22 @@ bool CCE_flag;
 using namespace IITkgp_functions;
 
 
+bool CheckNoise(SB B, Mat image)
+{
+  if(CheckSeparator(B))
+  {
+    Rect R = boundingRect( Mat(B.Contours) );
+    if((R.x<10 && R.width < 6) || (image.cols-R.x<10 && R.width < 6))
+      return true;
+    else if((R.y<10 && R.height < 6) || (image.rows - R.y < 10 && R.height < 6))
+      return true;
+    else
+      return false;
+  }
+  else
+    return false;
+}
+
 bool CheckSeparator(SB B)
 {
 
@@ -26,7 +42,7 @@ bool CheckSeparator(SB B)
     }
     else
     {
-      if(R.height < 8 || R.height < 8)
+      if(R.height < 6 || R.height < 6)
 	return true;
       else
 	return false;
