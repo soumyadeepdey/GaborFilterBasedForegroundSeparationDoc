@@ -1,10 +1,9 @@
 #include "PrepareAlethiaGT.h"
 
 
-// text 0 (text) 
-// graphics 1 (image)
-// noise 5 (noise)
-// separator 4 (separator)
+// text 0
+//graphic 1
+
 vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 {
    vector<ChartRegion> CR = P.GetChartRegion(); // value 1
@@ -13,7 +12,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
    vector<ImageRegion> IR = P.GetImageRegion(); // value 3
    vector<SeparatorRegion> SR = P.GetSeparatorRegion(); // value 4
    vector<NoiseRegion> NR = P.GetNoiseRegion(); // value 5
-   vector<MathsRegion> MR = P.GetMathsRegion(); // value 6  
+   vector<MathsRegion> MR = P.GetMathsRegion(); // value 6
    vector<TableRegion> TabR = P.GetTableRegion(); // value 7
    
    for(int i=0;i<blocks.size();i++)
@@ -97,7 +96,9 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
       }
    }
    
-  
+   
+   
+   // graphic region
    
   
    
@@ -133,7 +134,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
-		  B.GtClass = 3;
+		  B.GtClass = 1;
 		  B.gtflag = true;
 		}
 	      }
@@ -144,7 +145,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
 		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
 		    {
-		      B.childs[k].GtClass = 3;
+		      B.childs[k].GtClass = 1;
 		      B.childs[k].gtflag = true;
 		      B.GtClass = B.childs[k].GtClass;
 		      B.gtflag = true;
@@ -160,120 +161,6 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
    }
    
    
-   // Separator region
-   
-   
-   if(!SR.empty())
-   {
-      for(int i=0;i<blocks.size();i++)
-      {
-	SB B = blocks[i];
-	//vector<int> count(B.ChildContour.size(),0);
-	if(B.Fvecflag  && !B.gtflag)
-	{
-	  for(int j=0;j<SR.size();j++)
-	  {
-	    SeparatorRegion S = SR[j];
-	    vector<Point> poly = S.GetCoord();
-	    if(poly.empty())
-	    {
-	      printf("Something wrong in %s\n",S.getid());
-	      //TR.erase(TR.begin()+j);
-	      //exit(0);
-	    }
-	    else
-	    {
-	      Point pp = poly[0];
-	      poly.push_back(pp);
-	      int val;
-	      if(B.childs.empty())
-	      {
-		val = PolygonInsidePolygonTest(poly, B.Contours);
-		if(val == 2 || val == 3)
-		{
-		  B.GtClass = 4;
-		  B.gtflag = true;
-		}
-	      }
-	      else
-	      {	   
-		for(int k=0;k<B.childs.size();k++)
-		{
-		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
-		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
-		    {
-		      B.childs[k].GtClass = 4;
-		      B.childs[k].gtflag = true;
-		      B.GtClass = B.childs[k].GtClass;
-		      B.gtflag = true;
-		    }
-		}
-		
-	      }
-	    }
-	  }
-	}
-	blocks[i] = B;	
-      }
-   }
-   
-   
-   // Noise region
-   
-   
-   if(!NR.empty())
-   {
-      for(int i=0;i<blocks.size();i++)
-      {
-	SB B = blocks[i];
-	//vector<int> count(B.ChildContour.size(),0);
-	if(B.Fvecflag  && !B.gtflag)
-	{
-	  for(int j=0;j<NR.size();j++)
-	  {
-	    NoiseRegion N = NR[j];
-	    vector<Point> poly = N.GetCoord();
-	    if(poly.empty())
-	    {
-	      printf("Something wrong in %s\n",N.getid());
-	      //TR.erase(TR.begin()+j);
-	      //exit(0);
-	    }
-	    else
-	    {
-	      Point pp = poly[0];
-	      poly.push_back(pp);
-	      int val;
-	      if(B.childs.empty())
-	      {
-		val = PolygonInsidePolygonTest(poly, B.Contours);
-		if(val == 2 || val == 3)
-		{
-		  B.GtClass = 5;
-		  B.gtflag = true;
-		}
-	      }
-	      else
-	      {	   
-		for(int k=0;k<B.childs.size();k++)
-		{
-		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
-		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
-		    {
-		      B.childs[k].GtClass = 5;
-		      B.childs[k].gtflag = true;
-		      B.GtClass = B.childs[k].GtClass;
-		      B.gtflag = true;
-		    }
-		}
-		
-	      }
-	    }
-	  }
-	}
-	blocks[i] = B;	
-      }
-   }
    
    
    
