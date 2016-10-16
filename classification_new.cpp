@@ -212,12 +212,12 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
       for(int i=0;i<gtcls.size();i++)
       {
 	Gtlabels.at<int>(i,0) = gtcls[i];
-	if(gtcls[i]>4)
+	if(gtcls[i]>7)
 	{
 	  printf("B.GtClass = %d\n",gtcls[i]);
 	  exit(0);
 	}
-	if(pcls[i]>4)
+	if(pcls[i]>7)
 	{
 	   printf(" Error B.predictedclass = %d\n",pcls[i]);
 	  exit(0);
@@ -375,7 +375,7 @@ TDC Training(char* TrainFile)
 	  if(B.Fvecflag && B.gtflag)
 	  {
 	    //printf("Hello\n");
-	    if(B.GtClass>4)
+	    if(B.GtClass>7)
 	    {
 	      printf("Error .... value of gt is %d\n",B.GtClass);
 	      exit(0);
@@ -403,7 +403,7 @@ TDC Training(char* TrainFile)
 		  }
 		  else
 		  {
-		    if(cnttype[po]<4)
+		    if(cnttype[po]<7)
 		    {
 		      TrainData.push_back(GetFeatureFromFVec(B.FeatureVec));
 		      TrainClass.push_back(B.GtClass);
@@ -421,8 +421,11 @@ TDC Training(char* TrainFile)
 	    }
 	    else
 	    {
-	      TrainData.push_back(GetFeatureFromFVec(B.FeatureVec));
-	      TrainClass.push_back(B.GtClass);
+	      if(B.GtClass!=4&&B.GtClass!=5)
+	      {
+		TrainData.push_back(GetFeatureFromFVec(B.FeatureVec));
+		TrainClass.push_back(B.GtClass);
+	      }
 	    }
 	  }
 	}
@@ -463,7 +466,7 @@ TDC Training(char* TrainFile)
 		    }
 		    else
 		    {
-		      if(cnttype[po]<4)
+		      if(cnttype[po]<7)
 		      {
 			TrainData.push_back(GetFeatureFromFVec(B_C.FeatureVec));
 			TrainClass.push_back(B_C.GtClass);
@@ -480,8 +483,11 @@ TDC Training(char* TrainFile)
 	      }
 	      else
 	      {
-		TrainData.push_back(GetFeatureFromFVec(B_C.FeatureVec));
-		TrainClass.push_back(B_C.GtClass);
+		if(B_C.GtClass!=4&&B_C.GtClass!=5)
+		{
+		  TrainData.push_back(GetFeatureFromFVec(B_C.FeatureVec));
+		  TrainClass.push_back(B_C.GtClass);
+		}
 	      }
 	    }
 	  }
@@ -540,7 +546,7 @@ TDC Training(char* TrainFile)
     for(int i=0;i<Data.TrainClass.rows;i++)
     {
     //  printf("class of %d is %d\n",i,Data.TrainClass.at<int>(i,0));
-      if(Data.TrainClass.at<int>(i,0)>4)
+      if(Data.TrainClass.at<int>(i,0)>7)
       {
 	printf("Problem in Training Class\n");
 	exit(0);
@@ -604,7 +610,7 @@ void classify_KNN(vector<SB> &blocks, TDC &Data)
 	     response = (int)knnClassifier.find_nearest( TestData, K );
 	    
 	  #endif
-	  if(response>4 || response<0)
+	  if(response>7 || response<0)
 	    {
 	      printf("Error in classifier\nand response is outragious %d\n",response);
 	      exit(0);
@@ -649,7 +655,7 @@ void classify_KNN(vector<SB> &blocks, TDC &Data)
 	     response = (int)knnClassifier.find_nearest( TestData, K );
 	    
 	  #endif
-	    if(response>4 || response<0)
+	    if(response>7 || response<0)
 	    {
 	      printf("Error in classifier\nand response is outragious %d\n",response);
 	      exit(0);
@@ -724,7 +730,7 @@ void classify_SVM(vector<SB> &blocks, TDC &Data)
 	    }
 	    printf("\n");
 	  int response = (int)svmClassifier.predict( TestData );
-	  if(response>4 || response<0)
+	  if(response>7 || response<0)
 	    {
 	      printf("Error in classifier\nand response is outragious %d\n",response);
 	      exit(0);
@@ -758,7 +764,7 @@ void classify_SVM(vector<SB> &blocks, TDC &Data)
 	    printf("\n");
 	    
 	    int response = (int)svmClassifier.predict( TestData );
-	    if(response>4 || response<0)
+	    if(response>7 || response<0)
 	    {
 	      printf("Error in classifier\nand response is outragious %d\n",response);
 	      exit(0);
@@ -839,7 +845,7 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
 	    }
 	    printf("\n");
 	  int response = (int)rftrees.predict( TestData );
-	  if(response>4 || response<0)
+	  if(response>7 || response<0)
 	    {
 	      printf("Error in classifier\nand response is outragious %d\n",response);
 	      exit(0);
@@ -873,7 +879,7 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
 	    printf("\n");
 	    
 	    int response = (int)rftrees.predict( TestData );
-	    if(response>4 || response<0)
+	    if(response>7 || response<0)
 	    {
 	      printf("Error in classifier\nand response is outragious %d\n",response);
 	      exit(0);
@@ -944,7 +950,7 @@ void classify_DT(vector<SB> &blocks, TDC &Data)
 	    }
 	    printf("\n");
 	  int response = (int)dtree.predict( TestData )->value;
-	  if(response>4 || response<0)
+	  if(response>7 || response<0)
 	    {
 	      printf("Error in classifier\nand response is outragious %d\n",response);
 	      exit(0);
@@ -978,7 +984,7 @@ void classify_DT(vector<SB> &blocks, TDC &Data)
 	    printf("\n");
 	    
 	    int response = (int)dtree.predict( TestData )->value;
-	    if(response>4 || response<0)
+	    if(response>7 || response<0)
 	    {
 	      printf("Error in classifier\nand response is outragious %d\n",response);
 	      exit(0);
@@ -1037,7 +1043,7 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 	    }
 	    printf("\n");
 	  int response = (int)normalBayesClassifier.predict( TestData );
-	  if(response>4 || response<0)
+	  if(response>7 || response<0)
 	    {
 	      printf("Error in classifier\nand response is outragious %d\n",response);
 	      exit(0);
@@ -1071,7 +1077,7 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 	    printf("\n");
 	    
 	    int response = (int)normalBayesClassifier.predict( TestData );
-	    if(response>4 || response<0)
+	    if(response>7 || response<0)
 	    {
 	      printf("Error in classifier\nand response is outragious %d\n",response);
 	      exit(0);
