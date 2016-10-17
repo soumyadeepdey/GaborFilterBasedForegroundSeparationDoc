@@ -6,6 +6,9 @@
 #include "SegmentationUnit.h"
 
 
-void WriteXMLFile(page P, char *xmlname, vector<SB> Blocks);
+
+void WriteGTXMLFile(page P, char *xmlname, vector<SB> Blocks);
+
+void WriteOutputXMLFile(page P, char *xmlname, vector<SB> Blocks);
 
 #endif

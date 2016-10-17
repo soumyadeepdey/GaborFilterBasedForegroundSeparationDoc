@@ -1,4 +1,6 @@
 #include "classification.h"
+#include "WriteintoXML.h"
+#include "folder.h"
 
 bool CCCN_flag;
 bool CCE_flag;
@@ -136,9 +138,33 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
       
       
       
+      for(int i=0;i<blocks.size();i++)
+      {
+	SB B = blocks[i];
+	if(B.PredFlag && B.gtflag)
+	{
+	  if(CheckNoise(B,image))
+	  {
+	    B.PredictedClass = 5;
+	    B.PredFlag = false;
+	  }
+	  else if(CheckSeparator(B))
+	  {
+	    B.PredictedClass = 4;
+	    B.PredFlag = false;
+	  }
+	}
+	blocks[i] = B;
+      }
+      
+      
+      
+      //WriteGTXMLFile();
+      
       vector<SB> SU;
       
       int su_cnt = 0;
+      
       
      
       Classification(blocks,Data,classifiername);
@@ -173,6 +199,51 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
       }
       
       blocks.clear();
+      
+      char *initial_name = input_image_name_cut(pg.GetImageName()); 
+      
+      char *output,*tempname, *gtname,*outname;
+      output = (char *) malloc ( 2001 * sizeof(char));
+      if(output == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(output,initial_name);
+
+      tempname = (char *) malloc ( 2001 * sizeof(char));
+      if(tempname == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      tempname = "_gt.xml";
+      strcat(output,tempname);
+      gtname = CreateNameIntoFolder(classifiername,output);
+      
+      WriteGTXMLFile(pg,gtname,SU);
+      
+      
+      
+      output = (char *) malloc ( 2001 * sizeof(char));
+      if(output == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(output,initial_name);
+
+      tempname = (char *) malloc ( 2001 * sizeof(char));
+      if(tempname == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      tempname = "_out.xml";
+      strcat(output,tempname);
+      outname = CreateNameIntoFolder(classifiername,output);
+      
+      WriteOutputXMLFile(pg,outname,SU);
       
       
       vector<vector<SB> > Clusters;
@@ -228,7 +299,7 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
       pcls.clear();
       
       vector<ConfusionMatrix> CM = GetConfusionMatrix(Gtlabels,PredictedLabels,classnumber);
-      char *tempname;
+      //char *tempname;
 	 opt = (char *)malloc(2000*sizeof(char));
 	 tempname = (char *)malloc(2000*sizeof(char));
 	 
@@ -582,7 +653,7 @@ void classify_KNN(vector<SB> &blocks, TDC &Data)
       SB B = blocks[i];
       if(B.childs.empty())
       {
-	if(B.Fvecflag)
+	if(B.Fvecflag && B.PredFlag)
 	{
 	  vector<float> FVec = GetFeatureFromFVec(B.FeatureVec);
 	  //Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
@@ -617,6 +688,7 @@ void classify_KNN(vector<SB> &blocks, TDC &Data)
 	    }
 	  //printf("response is %d\n",response);
 	  B.PredictedClass = response;
+	  B.PredFlag = false;
 	  blocks[i] = B;
 	}
       }
@@ -627,7 +699,7 @@ void classify_KNN(vector<SB> &blocks, TDC &Data)
 	{
 	  
 	  SB B_C = B.childs[k];
-	  if(B_C.Fvecflag);
+	  if(B_C.Fvecflag && B_C.PredFlag);
 	  { 
 	    vector<float> FVec = GetFeatureFromFVec(B_C.FeatureVec);
 	  //Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
@@ -662,6 +734,7 @@ void classify_KNN(vector<SB> &blocks, TDC &Data)
 	    }
 	    //printf("response is %d\n",response);
 	    B_C.PredictedClass = response;
+	    B_C.PredFlag = false;
 	    B.childs[k] = B_C;
 	    p_C[response]++;
 	  }
@@ -673,6 +746,7 @@ void classify_KNN(vector<SB> &blocks, TDC &Data)
 	  {
 	    maxv=p_C[k];
 	    B.PredictedClass = k;
+	    B.PredFlag = false;
 	  }
 	}
 	blocks[i] = B;
@@ -714,7 +788,7 @@ void classify_SVM(vector<SB> &blocks, TDC &Data)
       SB B = blocks[i];
       if(B.childs.empty())
       {
-	if(B.Fvecflag)
+	if(B.Fvecflag && B.PredFlag)
 	{
 	  vector<float> FVec = GetFeatureFromFVec(B.FeatureVec);
 	  //Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
@@ -737,6 +811,7 @@ void classify_SVM(vector<SB> &blocks, TDC &Data)
 	    }
 	  //printf("response is %d\n",response);
 	  B.PredictedClass = response;
+	  B.PredFlag = false;
 	  blocks[i] = B;
 	}
       }
@@ -747,7 +822,7 @@ void classify_SVM(vector<SB> &blocks, TDC &Data)
 	{
 	  
 	  SB B_C = B.childs[k];
-	  if(B_C.Fvecflag);
+	  if(B_C.Fvecflag && B_C.PredFlag);
 	  { 
 	    vector<float> FVec = GetFeatureFromFVec(B_C.FeatureVec);
 	  //Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
@@ -771,6 +846,7 @@ void classify_SVM(vector<SB> &blocks, TDC &Data)
 	    }
 	    //printf("response is %d\n",response);
 	    B_C.PredictedClass = response;
+	    B_C.PredFlag = false;
 	    B.childs[k] = B_C;
 	    p_C[response]++;
 	  }
@@ -782,6 +858,7 @@ void classify_SVM(vector<SB> &blocks, TDC &Data)
 	  {
 	    maxv=p_C[k];
 	    B.PredictedClass = k;
+	    B.PredFlag = false;
 	  }
 	}
 	blocks[i] = B;
@@ -829,7 +906,7 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
       SB B = blocks[i];
       if(B.childs.empty())
       {
-	if(B.Fvecflag)
+	if(B.Fvecflag && B.PredFlag)
 	{
 	 vector<float> FVec = GetFeatureFromFVec(B.FeatureVec);
 	  //Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
@@ -852,6 +929,7 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
 	    }
 	  //printf("response is %d\n",response);
 	  B.PredictedClass = response;
+	  B.PredFlag = false;
 	  blocks[i] = B;
 	}
       }
@@ -862,7 +940,7 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
 	{
 	  
 	  SB B_C = B.childs[k];
-	  if(B_C.Fvecflag);
+	  if(B_C.Fvecflag && B_C.PredFlag);
 	  { 
 	    vector<float> FVec = GetFeatureFromFVec(B_C.FeatureVec);
 	  //Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
@@ -886,6 +964,7 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
 	    }
 	    //printf("response is %d\n",response);
 	    B_C.PredictedClass = response;
+	    B_C.PredFlag = false;
 	    B.childs[k] = B_C;
 	    p_C[response]++;
 	  }
@@ -897,6 +976,7 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
 	  {
 	    maxv=p_C[k];
 	    B.PredictedClass = k;
+	    B.PredFlag = false;
 	  }
 	}
 	blocks[i] = B;
@@ -934,7 +1014,7 @@ void classify_DT(vector<SB> &blocks, TDC &Data)
       SB B = blocks[i];
       if(B.childs.empty())
       {
-	if(B.Fvecflag)
+	if(B.Fvecflag && B.PredFlag)
 	{
 	  vector<float> FVec = GetFeatureFromFVec(B.FeatureVec);
 	  //Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
@@ -957,6 +1037,7 @@ void classify_DT(vector<SB> &blocks, TDC &Data)
 	    }
 	  //printf("response is %d\n",response);
 	  B.PredictedClass = response;
+	  B.PredFlag = false;
 	  blocks[i] = B;
 	}
       }
@@ -967,7 +1048,7 @@ void classify_DT(vector<SB> &blocks, TDC &Data)
 	{
 	  
 	  SB B_C = B.childs[k];
-	  if(B_C.Fvecflag);
+	  if(B_C.Fvecflag && B_C.PredFlag);
 	  { 
 	    vector<float> FVec = GetFeatureFromFVec(B_C.FeatureVec);
 	  //Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
@@ -991,6 +1072,7 @@ void classify_DT(vector<SB> &blocks, TDC &Data)
 	    }
 	    //printf("response is %d\n",response);
 	    B_C.PredictedClass = response;
+	    B_C.PredFlag = false;
 	    B.childs[k] = B_C;
 	    p_C[response]++;
 	  }
@@ -1002,6 +1084,7 @@ void classify_DT(vector<SB> &blocks, TDC &Data)
 	  {
 	    maxv=p_C[k];
 	    B.PredictedClass = k;
+	    B.PredFlag = false;
 	  }
 	}
 	blocks[i] = B;
@@ -1027,7 +1110,7 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
       SB B = blocks[i];
       if(B.childs.empty())
       {
-	if(B.Fvecflag)
+	if(B.Fvecflag && B.PredFlag)
 	{
 	  vector<float> FVec = GetFeatureFromFVec(B.FeatureVec);
 	  //Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
@@ -1050,6 +1133,7 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 	    }
 	  //printf("response is %d\n",response);
 	  B.PredictedClass = response;
+	  B.PredFlag = false;
 	  blocks[i] = B;
 	}
       }
@@ -1060,7 +1144,7 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 	{
 	  
 	  SB B_C = B.childs[k];
-	  if(B_C.Fvecflag);
+	  if(B_C.Fvecflag && B_C.PredFlag);
 	  { 
 	    vector<float> FVec = GetFeatureFromFVec(B_C.FeatureVec);
 	    //Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
@@ -1084,6 +1168,7 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 	    }
 	    //printf("response is %d\n",response);
 	    B_C.PredictedClass = response;
+	    B_C.PredFlag = false;
 	    B.childs[k] = B_C;
 	    p_C[response]++;
 	  }
@@ -1095,6 +1180,7 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 	  {
 	    maxv=p_C[k];
 	    B.PredictedClass = k;
+	    B.PredFlag = false;
 	  }
 	}
 	blocks[i] = B;

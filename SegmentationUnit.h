@@ -17,6 +17,7 @@ typedef struct SegmentationBlocks
   bool clusterflag;
   bool gtflag;
   bool Fvecflag;
+  bool PredFlag;
   char *bgcolor;
   char *type;
 }SB;

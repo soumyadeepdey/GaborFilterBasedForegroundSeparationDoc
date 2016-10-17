@@ -147,7 +147,8 @@ vector<SB> GetProcessingBlocks(Mat image)
 	 B.B = boundRect[j];
 	 B.Contours = contours[j];
 	 B.gtflag=false;
-	 B.Fvecflag = false;	    
+	 B.Fvecflag = false;
+	 B.PredFlag = true;
 	 blocks.push_back(B);
 	 //rectangle(Draw,boundRect[j].tl(),boundRect[j].br(),Scalar(255,0,0),8,1);
        }
@@ -371,6 +372,7 @@ vector<SB> GetProcessingBlocks(Mat image)
 		   }
 		   B_C.gtflag = false;
 		   B_C.Fvecflag = false;
+		   B_C.PredFlag = true;
 		   rectangle(Draw,B_C.B.tl(),B_C.B.br(),Scalar(0,0,0),8,1);
 		   vector<float> GaborFeature = GetGaborFeature(new_clr_temp);
 		   vector<float> colorFeature = GetColorFeature(new_clr_temp,new_temp);
