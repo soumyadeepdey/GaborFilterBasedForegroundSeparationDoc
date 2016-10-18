@@ -22,8 +22,8 @@ using namespace IITkgp_functions;
 int main(int argc, char* argv[])
 {
   
-  if(argc!=3)
-  {printf("Wrong input style\n Correct style: ./gabor <traindata.txt> <testdata.txt>"); return -1; }
+  if(argc!=4)
+  {printf("Wrong input style\n Correct style: ./gabor <traindata.txt> <testdata.txt> <NoForKFold>"); return -1; }
   
   TDC Tdata = Training(argv[1]);
   
@@ -41,9 +41,9 @@ int main(int argc, char* argv[])
   vector<char*> ClassifierName;
  
     ClassifierName.push_back("RF");
-    ClassifierName.push_back("SVM");
+    //ClassifierName.push_back("SVM");
     ClassifierName.push_back("KNN");
-    ClassifierName.push_back("DT");
+    //ClassifierName.push_back("DT");
     ClassifierName.push_back("NBC");
     
   vector<char *> ClusteringName;
@@ -52,13 +52,15 @@ int main(int argc, char* argv[])
   //ClusteringName.push_back("CCE");
  
   
+  
  for(int j=0;j<ClusteringName.size();j++)
  {
   for(int i=0;i<ClassifierName.size();i++)
   {
       makedir(ClassifierName[i]);
+      
       printf("ClassifierName = %s\n",ClassifierName[i]);
-      classify(argv[2],ClassifierName[i], ClusteringName[j], Tdata);
+      classify(argv[2],ClassifierName[i], argv[3],ClusteringName[j], Tdata);
   }
  }
   

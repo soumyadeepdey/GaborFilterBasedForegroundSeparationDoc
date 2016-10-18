@@ -62,7 +62,7 @@ vector<float> GetFeatureFromFVec(vector<float> FeatureVec)
   return Fvec;
 }
 
-void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &Data)
+void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *ClusteringName, TDC &Data)
 {
   vector<int> classnumber;
       classnumber.push_back(0); classnumber.push_back(1); 
@@ -74,6 +74,13 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
       vector<ConfusionMatrix> CM_ALL(classnumber.size(),ConfusionMatrix(classnumber.size()));
   
   printf("Classifiername = %s\n",classifiername);
+  
+  char *Classi_KFoldFolder = CreateNameIntoFolder(classifiername,KFoldNum);
+  makedir(Classi_KFoldFolder);
+  
+  char *tempfol = CreateNameIntoFolder(classifiername,ClusteringName);
+  char *Classi_Clus_KFoldFolder = CreateNameIntoFolder(tempfol,KFoldNum);
+  makedir(Classi_Clus_KFoldFolder);
   
   if(strcmp(ClusteringName,"CCCN")==0)
     CCCN_flag = true;
@@ -219,7 +226,7 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
       }
       tempname = "_gt.xml";
       strcat(output,tempname);
-      gtname = CreateNameIntoFolder(classifiername,output);
+      gtname = CreateNameIntoFolder(Classi_KFoldFolder,output);
       
       WriteGTXMLFile(pg,gtname,SU);
       
@@ -241,7 +248,7 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
       }
       tempname = "_out.xml";
       strcat(output,tempname);
-      outname = CreateNameIntoFolder(classifiername,output);
+      outname = CreateNameIntoFolder(Classi_KFoldFolder,output);
       
       WriteOutputXMLFile(pg,outname,SU);
       
@@ -263,6 +270,48 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
       }
       
       ClusteringClassification(SU,Clusters,alpha);
+      
+      output = (char *) malloc ( 2001 * sizeof(char));
+      if(output == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(output,initial_name);
+
+      tempname = (char *) malloc ( 2001 * sizeof(char));
+      if(tempname == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      tempname = "_gt.xml";
+      strcat(output,tempname);
+      gtname = CreateNameIntoFolder(Classi_Clus_KFoldFolder,output);
+      
+      WriteGTXMLFile(pg,gtname,SU);
+      
+      
+      
+      output = (char *) malloc ( 2001 * sizeof(char));
+      if(output == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(output,initial_name);
+
+      tempname = (char *) malloc ( 2001 * sizeof(char));
+      if(tempname == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      tempname = "_out.xml";
+      strcat(output,tempname);
+      outname = CreateNameIntoFolder(Classi_Clus_KFoldFolder,output);
+      
+      WriteOutputXMLFile(pg,outname,SU);
       
       
       vector<int> gtcls;
@@ -305,7 +354,7 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
 	 
 	 tempname = "image_Classification_Result.xls";
 	 
-	opt = CreateNameIntoFolder(classifiername,tempname);
+	opt = CreateNameIntoFolder(tempfol,tempname);
 	 
 	 
 	 
@@ -339,7 +388,7 @@ void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &D
   name = (char *)malloc(2000*sizeof(char));
   tempname = (char *)malloc(2000*sizeof(char));	 
   tempname = "Overall_Classification_Result.xls";
-  name = CreateNameIntoFolder(classifiername,tempname);
+  name = CreateNameIntoFolder(tempfol,tempname);
   
   FILE *res;
   res = fopen(name,"a+");

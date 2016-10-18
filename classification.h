@@ -47,7 +47,7 @@ bool CheckSeparator(SB B);
 
 vector<float> GetFeatureFromFVec(vector<float> FeatureVec);
 
-void classify(char *TestFILE, char *classifiername, char *ClusteringName, TDC &Data);
+void classify(char *TestFILE, char *classifiername, char *KFoldFolder, char *ClusteringName, TDC &Data);
 
 TDC Training(char *TrainFile);
 
