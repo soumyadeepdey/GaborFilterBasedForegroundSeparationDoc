@@ -1241,6 +1241,16 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 
 #endif
 
+#if _CCCN_
+
+void classify_CCCN(vector<SB> &blocks, TDC &Data)
+{
+  CCCN_Classifier CCCN_classify;
+  CCCN_classify.Train();
+}
+
+#endif
+
 
 void Classification(vector<SB> &blocks, TDC &Data, char *ClassifierName)
 {
@@ -1264,6 +1274,10 @@ void Classification(vector<SB> &blocks, TDC &Data, char *ClassifierName)
   else if(strcmp(ClassifierName,"SVM")==0)
   {
     classify_SVM(blocks,Data);
+  }
+  else if(strcmp(ClassifierName,"CCCN_Classifier")==0)
+  {
+    classify_CCCN(blocks,Data);
   }
   else
   {
