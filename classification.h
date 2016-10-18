@@ -10,6 +10,7 @@
 #include "MultiClassClassificationMetrics.h"
 #include "ConcensusBasedClustering.h"
 #include "ClusteringClassification.h"
+#include "CCCN_Classifier.h"
 
 
 #ifdef HAVE_OPENCV_OCL
@@ -31,6 +32,7 @@
 #define _ERT_ 0 // extremely randomized trees
 #define _ANN_ 0 // artificial neural networks
 #define _EM_  0 // expectation-maximization
+#define _CCCN_ 1 //CCCN Classification
 
 
 typedef struct TrainDataClass
@@ -47,7 +49,7 @@ bool CheckSeparator(SB B);
 
 vector<float> GetFeatureFromFVec(vector<float> FeatureVec);
 
-void classify(char *TestFILE, char *classifiername, char *KFoldFolder, char *ClusteringName, TDC &Data);
+void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *ClusteringName, TDC &Data);
 
 TDC Training(char *TrainFile);
 
@@ -60,6 +62,8 @@ void classify_DT(vector<SB> &blocks, TDC &Data);
 void classify_RF(vector<SB> &blocks, TDC &Data);
 
 void classify_SVM(vector<SB> &blocks, TDC &Data);
+
+void classify_CCCN(vector<SB> &blocks, TDC &Data);
 
 void Classification(vector<SB> &blocks, TDC &Data, char *ClassifierName);
 
