@@ -47,7 +47,7 @@ void CCCN_Classifier::PrepareTrainData(vector< SB > K, vector< double > alpha)
       
       newcluster = ClusteringCCN(K,alpha);
       
-      for(int j=0;j<newcluster.size();j++);
+      for(int j=0;j<newcluster.size();j++)
 	PrepareTrainData(newcluster[j], alpha);
     }
     else
@@ -91,6 +91,21 @@ vector< float > CCCN_Classifier::ComputeHomogeneityatTrain(vector< SB > K, int N
   }
   return homogeneity;
 }
+
+
+int findtypepresence(vector<char*> types, char* type)
+{
+  int i;
+  for( i=0;i<types.size();i++)
+  {
+    if(strcmp(types[i],type)==0)
+    {
+      return i;
+    }
+  }
+  return i;
+}
+
 
 void CCCN_Classifier::Train(char* trainfile, double alpha, float homogeneitycriteria)
 {
@@ -149,8 +164,8 @@ void CCCN_Classifier::Train(char* trainfile, double alpha, float homogeneitycrit
       
       blocks = PrepareAlethiaGt(pg,blocks);
       
-    
-       for(int i=0;i<blocks.size();i++)
+    /*************************************************************/
+      /* for(int i=0;i<blocks.size();i++)
       {
 	SB B = blocks[i];
 	
@@ -194,7 +209,148 @@ void CCCN_Classifier::Train(char* trainfile, double alpha, float homogeneitycrit
       }
       
       blocks.clear();
+      */
+      
+      /*****************************************************************************/
+      
+      vector<char*> type;
+      vector<int> cnttype;
+      for(int i=0;i<blocks.size();i++)
+      {
+	SB B = blocks[i];
+	if(B.childs.empty())
+	{
+	  
+	  if(B.Fvecflag && B.gtflag)
+	  {
+	    //printf("Hello\n");
+	    if(B.GtClass>7)
+	    {
+	      printf("Error .... value of gt is %d\n",B.GtClass);
+	      exit(0);
+	    }
+	    if(B.GtClass == 0)
+	    {
+	      if(strcmp(B.bgcolor,"White")==0)
+	      {
+		if(type.empty())
+		{
+		  type.push_back(B.type);
+		  cnttype.push_back(0);
+		  SU.push_back(B);
+		  Labels.push_back(B.GtClass);
+		}
+		else
+		{
+		  int po = findtypepresence(type,B.type);
+		  if(po==type.size())
+		  {
+		    type.push_back(B.type);
+		    cnttype.push_back(0);
+		    SU.push_back(B);
+		    Labels.push_back(B.GtClass);
+		  }
+		  else
+		  {
+		    if(cnttype[po]<7)
+		    {
+		      SU.push_back(B);
+		      Labels.push_back(B.GtClass);
+		      cnttype[po] = cnttype[po] + 1;
+		    }
+		  }
+		}
+	      }
+	      else
+	      {
+		SU.push_back(B);
+		Labels.push_back(B.GtClass);
+	      }
+	      
+	    }
+	    else
+	    {
+	      if(B.GtClass!=4&&B.GtClass!=5)
+	      {
+		SU.push_back(B);
+		Labels.push_back(B.GtClass);
+	      }
+	    }
+	  }
+	}
+	else
+	{
+	  for(int k=0;k<B.childs.size();k++)
+	  {
+	    SB B_C = B.childs[k];
+	    
+	    if(B_C.Fvecflag && B_C.gtflag)
+	    {
+	     // printf("Hello\n");
+	      if(B_C.GtClass>7)
+	      {
+		printf("Error .... value of gt is %d\n",B_C.GtClass);
+		exit(0);
+	      }
+	      if(B_C.GtClass == 0)
+	      {
+		if(strcmp(B_C.bgcolor,"White")==0)
+		{
+		  if(type.empty())
+		  {
+		    type.push_back(B_C.type);
+		    cnttype.push_back(0);
+		    SU.push_back(B_C);
+		    Labels.push_back(B_C.GtClass);
+		  }
+		  else
+		  {
+		    int po = findtypepresence(type,B_C.type);
+		    if(po==type.size())
+		    {
+		      type.push_back(B_C.type);
+		      cnttype.push_back(0);
+		      SU.push_back(B_C);
+		      Labels.push_back(B_C.GtClass);
+		    }
+		    else
+		    {
+		      if(cnttype[po]<7)
+		      {
+			SU.push_back(B_C);
+			Labels.push_back(B_C.GtClass);
+			cnttype[po] = cnttype[po] + 1;
+		      }
+		    }
+		  }
+		}
+		else
+		{
+		  SU.push_back(B_C);
+		  Labels.push_back(B_C.GtClass);
+		}
+	      }
+	      else
+	      {
+		if(B_C.GtClass!=4&&B_C.GtClass!=5)
+		{
+		  SU.push_back(B_C);
+		  Labels.push_back(B_C.GtClass);
+		}
+	      }
+	    }
+	  }
+	}
+      }
+      
+      blocks.clear();
+      
+      
+      /*****************************************************************************/
   }
+  
+  
+  
   
   Hom_criteria = homogeneitycriteria;
   LabelList = Labels;

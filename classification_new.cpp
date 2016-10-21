@@ -67,7 +67,8 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
   vector<int> classnumber;
       classnumber.push_back(0); classnumber.push_back(1); 
       classnumber.push_back(2); classnumber.push_back(3); 
-      classnumber.push_back(4);
+      classnumber.push_back(4); classnumber.push_back(5);
+      classnumber.push_back(6); classnumber.push_back(7);
       
       Data.ClassNumber = classnumber;
       
@@ -558,7 +559,7 @@ TDC Training(char* TrainFile)
 	    if(B_C.Fvecflag && B_C.gtflag)
 	    {
 	     // printf("Hello\n");
-	      if(B_C.GtClass>4)
+	      if(B_C.GtClass>7)
 	      {
 		printf("Error .... value of gt is %d\n",B_C.GtClass);
 		exit(0);
@@ -1243,10 +1244,314 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 
 #if _CCCN_
 
-void classify_CCCN(vector<SB> &blocks, TDC &Data)
+void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
 {
+  vector<int> classnumber;
+      classnumber.push_back(0); classnumber.push_back(1); 
+      classnumber.push_back(2); classnumber.push_back(3); 
+      classnumber.push_back(4); classnumber.push_back(5);
+      classnumber.push_back(6); classnumber.push_back(7);
+      
+  char *classifiername = "CCCN_Classifier";
+  makedir(classifiername);
+  char *Classi_KFoldFolder = CreateNameIntoFolder(classifiername,KFoldNum);
+  makedir(Classi_KFoldFolder);
+  
   CCCN_Classifier CCCN_classify;
-  CCCN_classify.Train();
+  CCCN_classify.Train(trainfile);
+  
+  FILE *f;
+  f = fopen(testfile,"r");
+  while(!feof(f))
+  {
+    char filename[2000];
+      fscanf(f,"%s",&filename);
+      printf("%s\n",filename);
+      page pg = GetPageGroundtruth(filename);
+  
+      char *name;
+      name = input_image_name_cut(pg.GetImageName());
+      //makedir(name);
+      
+      char *opt;
+      opt = (char *) malloc ( 2001 * sizeof(char));
+      if(opt == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(opt,name);
+
+      char *tnm;
+      tnm = (char *) malloc ( 2001 * sizeof(char));
+      if(tnm == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      tnm = ".jpg";
+      strcat(opt,tnm);
+      
+      char *tnm1;
+      tnm1 = (char *) malloc ( 2001 * sizeof(char));
+      if(tnm1 == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(tnm1,opt);
+      
+      printf("imagename %s\n",tnm1);
+      
+      Mat image = imread(tnm1,1);
+      
+      //vector<SB> blocks = GetSegmentationUnit(image);
+      
+      vector<SB> blocks = GetProcessingBlocks(image);
+      
+      blocks = PrepareAlethiaGt(pg,blocks);
+      
+      
+      
+      
+      
+      for(int i=0;i<blocks.size();i++)
+      {
+	SB B = blocks[i];
+	if(B.PredFlag && B.gtflag)
+	{
+	  if(CheckNoise(B,image))
+	  {
+	    B.PredictedClass = 5;
+	    B.PredFlag = false;
+	  }
+	  else if(CheckSeparator(B))
+	  {
+	    B.PredictedClass = 4;
+	    B.PredFlag = false;
+	  }
+	  else
+	  {
+	    B.PredictedClass(CCCN_classify.Predict(B.FeatureVec));
+	    B.PredFlag = false;
+	  }
+	}
+	blocks[i] = B;
+      }
+      
+      
+      
+      //WriteGTXMLFile();
+      
+      vector<SB> SU;
+      
+      int su_cnt = 0;
+      
+       for(int i=0;i<blocks.size();i++)
+      {
+	SB B = blocks[i];
+	
+	if(B.childs.empty())
+	{
+	  if(B.Fvecflag && B.gtflag)
+	  {
+	    B.blockid = su_cnt;
+	    SU.push_back(B);
+	    su_cnt++;
+	  }
+	}
+	else
+	{
+	  for(int k=0;k<B.childs.size();k++)
+	  {
+	    
+	    SB B_C = B.childs[k];
+	    if(B_C.Fvecflag && B_C.gtflag);
+	    { 
+	      B_C.blockid = su_cnt;
+	      SU.push_back(B_C);
+	      su_cnt++;
+	    }
+	  }
+	}
+      }
+      
+      blocks.clear();
+      
+      char *initial_name = input_image_name_cut(pg.GetImageName()); 
+      
+      char *output,*tempname, *gtname,*outname;
+      output = (char *) malloc ( 2001 * sizeof(char));
+      if(output == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(output,initial_name);
+
+      tempname = (char *) malloc ( 2001 * sizeof(char));
+      if(tempname == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      tempname = "_gt.xml";
+      strcat(output,tempname);
+      gtname = CreateNameIntoFolder(Classi_KFoldFolder,output);
+      
+      WriteGTXMLFile(pg,gtname,SU);
+      
+      
+      
+      output = (char *) malloc ( 2001 * sizeof(char));
+      if(output == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(output,initial_name);
+
+      tempname = (char *) malloc ( 2001 * sizeof(char));
+      if(tempname == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      tempname = "_out.xml";
+      strcat(output,tempname);
+      outname = CreateNameIntoFolder(Classi_KFoldFolder,output);
+      
+      WriteOutputXMLFile(pg,outname,SU);
+      
+      
+      vector<vector<SB> > Clusters;
+      vector<double> alpha(classnumber.size(),0.5);
+      
+      if(CCCN_flag)
+      {
+	printf("CCCN Clustering\n");
+	Clusters = ClusteringCCN(SU,alpha);
+	printf("Number of Clusters obetained by  CCCN is %d\n",Clusters.size());
+      }
+      if(CCE_flag)
+      {
+	printf("CCE Clustering\n");
+	Clusters = ClusteringCE(SU,alpha);
+	printf("Number of Clusters obetained by  CCE is %d\n",Clusters.size());
+      }
+      
+      ClusteringClassification(SU,Clusters,alpha);
+      
+      output = (char *) malloc ( 2001 * sizeof(char));
+      if(output == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(output,initial_name);
+
+      tempname = (char *) malloc ( 2001 * sizeof(char));
+      if(tempname == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      tempname = "_gt.xml";
+      strcat(output,tempname);
+      gtname = CreateNameIntoFolder(Classi_KFoldFolder,output);
+      
+      WriteGTXMLFile(pg,gtname,SU);
+      
+      
+      
+      output = (char *) malloc ( 2001 * sizeof(char));
+      if(output == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      strcpy(output,initial_name);
+
+      tempname = (char *) malloc ( 2001 * sizeof(char));
+      if(tempname == NULL)
+      {
+	printf("Memory can not be allocated\n");
+	exit(0);
+      }
+      tempname = "_out.xml";
+      strcat(output,tempname);
+      outname = CreateNameIntoFolder(Classi_KFoldFolder,output);
+      
+      WriteOutputXMLFile(pg,outname,SU);
+      
+      
+      vector<int> gtcls;
+      vector<int> pcls;
+      
+      for(int i=0;i<SU.size();i++)
+      {
+	SB B = SU[i];
+	printf("Block id =%d\t gt= %d\t predict = %d\n",B.blockid,B.GtClass,B.PredictedClass);
+	gtcls.push_back(B.GtClass);
+	pcls.push_back(B.PredictedClass);
+      }
+      SU.clear();
+      
+      Mat Gtlabels = Mat(gtcls.size(),1,CV_8UC1);
+      Mat PredictedLabels = Mat(gtcls.size(),1,CV_8UC1);
+      
+      for(int i=0;i<gtcls.size();i++)
+      {
+	Gtlabels.at<int>(i,0) = gtcls[i];
+	if(gtcls[i]>7)
+	{
+	  printf("B.GtClass = %d\n",gtcls[i]);
+	  exit(0);
+	}
+	if(pcls[i]>7)
+	{
+	   printf(" Error B.predictedclass = %d\n",pcls[i]);
+	  exit(0);
+	}
+	PredictedLabels.at<int>(i,0) = pcls[i];
+      }
+      gtcls.clear();
+      pcls.clear();
+      
+      vector<ConfusionMatrix> CM = GetConfusionMatrix(Gtlabels,PredictedLabels,classnumber);
+      //char *tempname;
+	 opt = (char *)malloc(2000*sizeof(char));
+	 tempname = (char *)malloc(2000*sizeof(char));
+	 
+	 tempname = "image_Classification_Result.xls";
+	 
+	opt = CreateNameIntoFolder(tempfol,tempname);
+	 
+	 
+	 
+	 FILE *res;
+	 
+	 res = fopen(opt,"a+");
+	 
+	 
+	 fprintf(res,"%s\t",name);
+	 for(int j=0;j<CM.size();j++)
+	 {
+	   ConfusionMatrix cm_j = CM[j];
+	   fprintf(res,"%s\t%d\t%d\t%d\t%d\t%d\t",classifiername,classnumber[j],cm_j.tp,cm_j.fp,cm_j.tn,cm_j.fn);
+	   
+	   CM_ALL[j].tp = CM_ALL[j].tp + cm_j.tp;
+	   CM_ALL[j].fp = CM_ALL[j].fp + cm_j.fp;
+	   CM_ALL[j].tn = CM_ALL[j].tn + cm_j.tn;
+	   CM_ALL[j].fn = CM_ALL[j].fn + cm_j.fn;
+	   
+	 }
+	 fprintf(res,"\n");
+	 fclose(res);
+
+	 CM.clear();
+      
+  }
 }
 
 #endif
@@ -1274,10 +1579,6 @@ void Classification(vector<SB> &blocks, TDC &Data, char *ClassifierName)
   else if(strcmp(ClassifierName,"SVM")==0)
   {
     classify_SVM(blocks,Data);
-  }
-  else if(strcmp(ClassifierName,"CCCN_Classifier")==0)
-  {
-    classify_CCCN(blocks,Data);
   }
   else
   {

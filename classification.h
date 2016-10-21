@@ -49,6 +49,8 @@ bool CheckSeparator(SB B);
 
 vector<float> GetFeatureFromFVec(vector<float> FeatureVec);
 
+void classify_CCCN(char *trainfile, char *testfile);
+
 void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *ClusteringName, TDC &Data);
 
 TDC Training(char *TrainFile);
@@ -62,8 +64,6 @@ void classify_DT(vector<SB> &blocks, TDC &Data);
 void classify_RF(vector<SB> &blocks, TDC &Data);
 
 void classify_SVM(vector<SB> &blocks, TDC &Data);
-
-void classify_CCCN(vector<SB> &blocks, TDC &Data);
 
 void Classification(vector<SB> &blocks, TDC &Data, char *ClassifierName);
 
