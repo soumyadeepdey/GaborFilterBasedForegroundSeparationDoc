@@ -35,6 +35,12 @@
 #define _CCCN_ 1 //CCCN Classification
 
 
+
+#define _classifyAll_ 1
+#define _classifySelected_ 0
+#define _classifyTG_ 0
+
+
 typedef struct TrainDataClass
 {
   Mat TrainData;

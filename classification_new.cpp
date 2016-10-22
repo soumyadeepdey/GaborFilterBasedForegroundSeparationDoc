@@ -65,12 +65,8 @@ vector<float> GetFeatureFromFVec(vector<float> FeatureVec)
 void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *ClusteringName, TDC &Data)
 {
   vector<int> classnumber;
-      classnumber.push_back(0); classnumber.push_back(1); 
-      classnumber.push_back(2); classnumber.push_back(3); 
-      classnumber.push_back(4); classnumber.push_back(5);
-      classnumber.push_back(6); classnumber.push_back(7);
       
-      Data.ClassNumber = classnumber;
+      
       
       vector<ConfusionMatrix> CM_ALL(classnumber.size(),ConfusionMatrix(classnumber.size()));
   
@@ -142,7 +138,37 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       
       vector<SB> blocks = GetProcessingBlocks(image);
       
+#if _classifyAll_
+      
+      classnumber.push_back(0); classnumber.push_back(1); 
+      classnumber.push_back(2); classnumber.push_back(3); 
+      classnumber.push_back(4); classnumber.push_back(5);
+      classnumber.push_back(6); classnumber.push_back(7);
+      
+      Data.ClassNumber = classnumber;
+      
       blocks = PrepareAlethiaGt(pg,blocks);
+      
+#endif
+      
+#if _classifySelected_
+      classnumber.push_back(0); classnumber.push_back(1);  
+      classnumber.push_back(4); classnumber.push_back(5);
+      
+      Data.ClassNumber = classnumber;
+      
+      blocks = PrepareAlethiaGt_tgns(pg,blocks);
+#endif
+ 
+#if _classifyTG_
+      classnumber.push_back(0); classnumber.push_back(1);  
+      classnumber.push_back(4); classnumber.push_back(5);
+      
+      Data.ClassNumber = classnumber;
+      
+      blocks = PrepareAlethiaGt_tg(pg,blocks);
+#endif
+      
       
       
       
@@ -153,12 +179,20 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
 	{
 	  if(CheckNoise(B,image))
 	  {
-	    B.PredictedClass = 5;
+	    #if _classifyTG_
+	      B.PredictedClass = 1;
+	    #else
+	      B.PredictedClass = 5;
+	    #endif
 	    B.PredFlag = false;
 	  }
 	  else if(CheckSeparator(B))
 	  {
-	    B.PredictedClass = 4;
+	    #if _classifyTG_
+	      B.PredictedClass = 1;
+	    #else
+	      B.PredictedClass = 4;
+	    #endif
 	    B.PredFlag = false;
 	  }
 	}
@@ -1247,10 +1281,9 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
 {
   vector<int> classnumber;
-      classnumber.push_back(0); classnumber.push_back(1); 
-      classnumber.push_back(2); classnumber.push_back(3); 
-      classnumber.push_back(4); classnumber.push_back(5);
-      classnumber.push_back(6); classnumber.push_back(7);
+      
+  vector<ConfusionMatrix> CM_ALL(classnumber.size(),ConfusionMatrix(classnumber.size()));    
+      
       
   char *classifiername = "CCCN_Classifier";
   makedir(classifiername);
@@ -1309,10 +1342,30 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       
       vector<SB> blocks = GetProcessingBlocks(image);
       
+#if _classifyAll_
+      
+      classnumber.push_back(0); classnumber.push_back(1); 
+      classnumber.push_back(2); classnumber.push_back(3); 
+      classnumber.push_back(4); classnumber.push_back(5);
+      classnumber.push_back(6); classnumber.push_back(7);
+      
       blocks = PrepareAlethiaGt(pg,blocks);
       
+#endif
       
+#if _classifySelected_
+      classnumber.push_back(0); classnumber.push_back(1);  
+      classnumber.push_back(4); classnumber.push_back(5);
       
+      blocks = PrepareAlethiaGt_tgns(pg,blocks);
+#endif
+ 
+#if _classifyTG_
+      classnumber.push_back(0); classnumber.push_back(1);  
+      classnumber.push_back(4); classnumber.push_back(5);
+      
+      blocks = PrepareAlethiaGt_tg(pg,blocks);
+#endif
       
       
       for(int i=0;i<blocks.size();i++)
@@ -1322,12 +1375,20 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
 	{
 	  if(CheckNoise(B,image))
 	  {
-	    B.PredictedClass = 5;
+	    #if _classifyTG_
+	      B.PredictedClass = 1;
+	    #else
+	      B.PredictedClass = 5;
+	    #endif
 	    B.PredFlag = false;
 	  }
 	  else if(CheckSeparator(B))
 	  {
-	    B.PredictedClass = 4;
+	    #if _classifyTG_
+	      B.PredictedClass = 1;
+	    #else
+	      B.PredictedClass = 4;
+	    #endif
 	    B.PredFlag = false;
 	  }
 	  else
@@ -1525,7 +1586,7 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
 	 
 	 tempname = "image_Classification_Result.xls";
 	 
-	opt = CreateNameIntoFolder(tempfol,tempname);
+	opt = CreateNameIntoFolder(classifiername,tempname);
 	 
 	 
 	 
