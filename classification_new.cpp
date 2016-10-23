@@ -72,10 +72,42 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
   
   printf("Classifiername = %s\n",classifiername);
   
-  char *Classi_KFoldFolder = CreateNameIntoFolder(classifiername,KFoldNum);
+  char *dirname;
+  
+#if _classifyAll_
+    dirname = (char *)malloc(2001*sizeof(char));
+    strcpy(dirname,"ClassifyAll"); 
+#endif
+      
+#if _classifySelected_
+    dirname = (char *)malloc(2001*sizeof(char));
+    strcpy(dirname,"ClassifySelected");
+#endif
+      
+#if _classifySelected_ignore_
+    dirname = (char *)malloc(2001*sizeof(char));
+    strcpy(dirname,"ClassifySelectedIgnore");
+#endif
+ 
+#if _classifyTG_
+    dirname = (char *)malloc(2001*sizeof(char));
+    strcpy(dirname,"ClassifyTG");
+#endif
+
+#if _classifyTG_ignore
+    dirname = (char *)malloc(2001*sizeof(char));
+    strcpy(dirname,"ClassifyTGIgnore");
+#endif
+  
+    makedir(dirname);
+    
+    char *classidir = CreateNameIntoFolder(dirname,classifiername);
+    makedir(classidir);
+    
+  char *Classi_KFoldFolder = CreateNameIntoFolder(classidir,KFoldNum);
   makedir(Classi_KFoldFolder);
   
-  char *tempfol = CreateNameIntoFolder(classifiername,ClusteringName);
+  char *tempfol = CreateNameIntoFolder(classidir,ClusteringName);
   char *Classi_Clus_KFoldFolder = CreateNameIntoFolder(tempfol,KFoldNum);
   makedir(Classi_Clus_KFoldFolder);
   
@@ -145,8 +177,6 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       classnumber.push_back(4); classnumber.push_back(5);
       classnumber.push_back(6); classnumber.push_back(7);
       
-      Data.ClassNumber = classnumber;
-      
       blocks = PrepareAlethiaGt(pg,blocks);
       
 #endif
@@ -155,21 +185,29 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
-      Data.ClassNumber = classnumber;
-      
       blocks = PrepareAlethiaGt_tgns(pg,blocks);
+#endif
+      
+#if _classifySelected_ignore_
+      classnumber.push_back(0); classnumber.push_back(1);  
+      classnumber.push_back(4); classnumber.push_back(5);
+      
+      blocks = PrepareAlethiaGt_tgns_ignore(pg,blocks);
 #endif
  
 #if _classifyTG_
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
-      Data.ClassNumber = classnumber;
-      
       blocks = PrepareAlethiaGt_tg(pg,blocks);
 #endif
+
+#if _classifyTG_ignore
+      classnumber.push_back(0); classnumber.push_back(1);  
+      classnumber.push_back(4); classnumber.push_back(5);
       
-      
+      blocks = PrepareAlethiaGt_tg_ignore(pg,blocks);
+#endif
       
       
       for(int i=0;i<blocks.size();i++)
@@ -181,19 +219,27 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
 	  {
 	    #if _classifyTG_
 	      B.PredictedClass = 1;
+	      B.PredFlag = false;
+	    #else if _classifyTG_ignore
+	      B.PredictedClass = 1;
 	    #else
 	      B.PredictedClass = 5;
+	      B.PredFlag = false;
 	    #endif
-	    B.PredFlag = false;
+	    
 	  }
 	  else if(CheckSeparator(B))
 	  {
 	    #if _classifyTG_
 	      B.PredictedClass = 1;
+	      B.PredFlag = false;
+	    #else if _classifyTG_ignore
+	      B.PredictedClass = 1;
 	    #else
 	      B.PredictedClass = 4;
+	      B.PredFlag = false;
 	    #endif
-	    B.PredFlag = false;
+	    
 	  }
 	}
 	blocks[i] = B;
@@ -1286,8 +1332,39 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       
       
   char *classifiername = "CCCN_Classifier";
-  makedir(classifiername);
-  char *Classi_KFoldFolder = CreateNameIntoFolder(classifiername,KFoldNum);
+   char *dirname;
+  
+#if _classifyAll_
+    dirname = (char *)malloc(2001*sizeof(char));
+    strcpy(dirname,"ClassifyAll"); 
+#endif
+      
+#if _classifySelected_
+    dirname = (char *)malloc(2001*sizeof(char));
+    strcpy(dirname,"ClassifySelected");
+#endif
+      
+#if _classifySelected_ignore_
+    dirname = (char *)malloc(2001*sizeof(char));
+    strcpy(dirname,"ClassifySelectedIgnore");
+#endif
+ 
+#if _classifyTG_
+    dirname = (char *)malloc(2001*sizeof(char));
+    strcpy(dirname,"ClassifyTG");
+#endif
+
+#if _classifyTG_ignore
+    dirname = (char *)malloc(2001*sizeof(char));
+    strcpy(dirname,"ClassifyTGIgnore");
+#endif
+  
+    makedir(dirname);
+    
+    char *classidir = CreateNameIntoFolder(dirname,classifiername);
+    makedir(classidir);
+    
+  char *Classi_KFoldFolder = CreateNameIntoFolder(classidir,KFoldNum);
   makedir(Classi_KFoldFolder);
   
   CCCN_Classifier CCCN_classify;
@@ -1359,12 +1436,26 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       
       blocks = PrepareAlethiaGt_tgns(pg,blocks);
 #endif
+      
+#if _classifySelected_ignore_
+      classnumber.push_back(0); classnumber.push_back(1);  
+      classnumber.push_back(4); classnumber.push_back(5);
+      
+      blocks = PrepareAlethiaGt_tgns_ignore(pg,blocks);
+#endif
  
 #if _classifyTG_
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
       blocks = PrepareAlethiaGt_tg(pg,blocks);
+#endif
+
+#if _classifyTG_ignore
+      classnumber.push_back(0); classnumber.push_back(1);  
+      classnumber.push_back(4); classnumber.push_back(5);
+      
+      blocks = PrepareAlethiaGt_tg_ignore(pg,blocks);
 #endif
       
       
@@ -1377,19 +1468,26 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
 	  {
 	    #if _classifyTG_
 	      B.PredictedClass = 1;
+	      B.PredFlag = false;
+	    #else if _classifyTG_ignore
+	      B.PredictedClass = 1;
 	    #else
 	      B.PredictedClass = 5;
+	      B.PredFlag = false;
 	    #endif
-	    B.PredFlag = false;
+	    
 	  }
 	  else if(CheckSeparator(B))
 	  {
 	    #if _classifyTG_
 	      B.PredictedClass = 1;
+	      B.PredFlag = false;
+	    #else if _classifyTG_ignore
+	      B.PredictedClass = 1;
 	    #else
 	      B.PredictedClass = 4;
+	      B.PredFlag = false;
 	    #endif
-	    B.PredFlag = false;
 	  }
 	  else
 	  {
