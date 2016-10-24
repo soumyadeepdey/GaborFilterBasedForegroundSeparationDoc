@@ -25,7 +25,7 @@
 #define _NBC_ 1 // normal Bayessian classifier
 #define _KNN_ 1 // k nearest neighbors classifier
 #define _SVM_ 1 // support vectors machine
-#define _DT_  1 // decision tree
+#define _DT_  0 // decision tree
 #define _BT_  0 // ADA Boost
 #define _GBT_ 0 // gradient boosted trees
 #define _RF_  1 // random forest
@@ -56,7 +56,7 @@ bool CheckSeparator(SB B);
 
 vector<float> GetFeatureFromFVec(vector<float> FeatureVec);
 
-void classify_CCCN(char *trainfile, char *testfile);
+void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum);
 
 void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *ClusteringName, TDC &Data);
 

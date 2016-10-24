@@ -22,10 +22,11 @@ using namespace IITkgp_functions;
 int main(int argc, char* argv[])
 {
   
-  if(argc!=5)
-  {printf("Wrong input style\n Correct style: ./gabor <traindata.txt> <testdata.txt> <NoForKFold> <type={0,1,2,3,4}>"); return -1; }
+  if(argc!=6)
+  {printf("Wrong input style\n Correct style: ./gabor <traindata.txt> <testdata.txt> <NoForKFold> <type={0,1,2,3,4}> <classi_type={0,1,2,3,4}>"); return -1; }
   
   int type = atoi(argv[4]);
+  int classi_type = atoi(argv[5]);
   
   char *dirname;
   
@@ -129,8 +130,52 @@ int main(int argc, char* argv[])
   
   makedir(dirname);
   
-  TDC Tdata = Training(argv[1]);
+  char *ClassifierName;
+  if(classi_type==0)
+  {
+    ClassifierName = (char *)malloc(2001*sizeof(char));
+    strcpy(ClassifierName,"RF");
+    TDC Tdata = Training(argv[1]);
+    printf("ClassifierName = %s\n",ClassifierName);
+    classify(argv[2],ClassifierName, argv[3],"CCCN", Tdata);
+    
+  }
+  else if(classi_type==1)
+  {
+    ClassifierName = (char *)malloc(2001*sizeof(char));
+    strcpy(ClassifierName,"KNN");
+    TDC Tdata = Training(argv[1]);
+    printf("ClassifierName = %s\n",ClassifierName);
+    classify(argv[2],ClassifierName, argv[3],"CCCN", Tdata);
+  }
+  else if(classi_type==2)
+  {
+    ClassifierName = (char *)malloc(2001*sizeof(char));
+    strcpy(ClassifierName,"NBC");
+    TDC Tdata = Training(argv[1]);
+    printf("ClassifierName = %s\n",ClassifierName);
+    classify(argv[2],ClassifierName, argv[3],"CCCN", Tdata);
+  }
+  else if(classi_type==3)
+  {
+    ClassifierName = (char *)malloc(2001*sizeof(char));
+    strcpy(ClassifierName,"SVM");
+    TDC Tdata = Training(argv[1]);
+    printf("ClassifierName = %s\n",ClassifierName);
+    classify(argv[2],ClassifierName, argv[3],"CCCN", Tdata);
+  }
+  else if(classi_type==4)
+  {
+    ClassifierName = (char *)malloc(2001*sizeof(char));
+    strcpy(ClassifierName,"CNNN_Classifier");
+    classify_CCCN(argv[1],argv[2],argv[3]);
+  }
   
+  
+  
+ // TDC Tdata = Training(argv[1]);
+  
+  /*
   for(int i=0;i<Tdata.TrainData.rows;i++)
   {
     for(int j=0;j<Tdata.TrainData.cols;j++)
@@ -139,9 +184,9 @@ int main(int argc, char* argv[])
     }
     printf("\n\n");
   }
-  
+  */
   //exit(0);
-  
+  /*
   vector<char*> ClassifierName;
  
     ClassifierName.push_back("RF");
@@ -155,8 +200,8 @@ int main(int argc, char* argv[])
   ClusteringName.push_back("CCCN");
   //ClusteringName.push_back("CCE");
  
-  
-  
+  */
+  /*
  for(int j=0;j<ClusteringName.size();j++)
  {
   for(int i=0;i<ClassifierName.size();i++)
@@ -167,7 +212,7 @@ int main(int argc, char* argv[])
       classify(argv[2],ClassifierName[i], argv[3],ClusteringName[j], Tdata);
   }
  }
-  
+  */
   //system("rm *.yml");
   
   return 0;

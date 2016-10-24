@@ -66,9 +66,9 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
 {
   vector<int> classnumber;
       
+      vector<ConfusionMatrix> CM_ALL;
       
-      
-      vector<ConfusionMatrix> CM_ALL(classnumber.size(),ConfusionMatrix(classnumber.size()));
+     // vector<ConfusionMatrix> CM_ALL(classnumber.size(),ConfusionMatrix(classnumber.size()));
   
   printf("Classifiername = %s\n",classifiername);
   
@@ -177,6 +177,9 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       classnumber.push_back(4); classnumber.push_back(5);
       classnumber.push_back(6); classnumber.push_back(7);
       
+      CM_ALL.clear();
+      CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
+      
       blocks = PrepareAlethiaGt(pg,blocks);
       
 #endif
@@ -185,12 +188,18 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
+      CM_ALL.clear();
+      CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
+      
       blocks = PrepareAlethiaGt_tgns(pg,blocks);
 #endif
       
 #if _classifySelected_ignore_
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
+      
+      CM_ALL.clear();
+      CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tgns_ignore(pg,blocks);
 #endif
@@ -199,12 +208,18 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
+      CM_ALL.clear();
+      CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
+      
       blocks = PrepareAlethiaGt_tg(pg,blocks);
 #endif
 
 #if _classifyTG_ignore
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
+      
+      CM_ALL.clear();
+      CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tg_ignore(pg,blocks);
 #endif
@@ -1327,8 +1342,10 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
 {
   vector<int> classnumber;
-      
-  vector<ConfusionMatrix> CM_ALL(classnumber.size(),ConfusionMatrix(classnumber.size()));    
+    
+  vector<ConfusionMatrix> CM_ALL;
+  
+  //vector<ConfusionMatrix> CM_ALL(classnumber.size(),ConfusionMatrix(classnumber.size()));    
       
       
   char *classifiername = "CCCN_Classifier";
@@ -1426,6 +1443,9 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       classnumber.push_back(4); classnumber.push_back(5);
       classnumber.push_back(6); classnumber.push_back(7);
       
+      CM_ALL.clear();
+      CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
+      
       blocks = PrepareAlethiaGt(pg,blocks);
       
 #endif
@@ -1434,12 +1454,18 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
+      CM_ALL.clear();
+      CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
+      
       blocks = PrepareAlethiaGt_tgns(pg,blocks);
 #endif
       
 #if _classifySelected_ignore_
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
+      
+      CM_ALL.clear();
+      CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tgns_ignore(pg,blocks);
 #endif
@@ -1448,12 +1474,18 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
+      CM_ALL.clear();
+      CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
+      
       blocks = PrepareAlethiaGt_tg(pg,blocks);
 #endif
 
 #if _classifyTG_ignore
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
+      
+      CM_ALL.clear();
+      CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tg_ignore(pg,blocks);
 #endif
