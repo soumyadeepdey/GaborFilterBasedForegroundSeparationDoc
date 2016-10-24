@@ -74,30 +74,35 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
   
   char *dirname;
   
-#if _classifyAll_
+if(classifyAll)
+{
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifyAll"); 
-#endif
+}
       
-#if _classifySelected_
+if(classifySelected)
+{
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifySelected");
-#endif
+}
       
-#if _classifySelected_ignore_
+if(classifySelected_ignore)
+{
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifySelectedIgnore");
-#endif
+}
  
-#if _classifyTG_
+if(classifyTG)
+{
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifyTG");
-#endif
+}
 
-#if _classifyTG_ignore
+if(classifyTG_ignore)
+{
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifyTGIgnore");
-#endif
+}
   
     makedir(dirname);
     
@@ -170,8 +175,8 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       
       vector<SB> blocks = GetProcessingBlocks(image);
       
-#if _classifyAll_
-      
+if(classifyAll)
+{
       classnumber.push_back(0); classnumber.push_back(1); 
       classnumber.push_back(2); classnumber.push_back(3); 
       classnumber.push_back(4); classnumber.push_back(5);
@@ -182,9 +187,10 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       
       blocks = PrepareAlethiaGt(pg,blocks);
       
-#endif
+}
       
-#if _classifySelected_
+if(classifySelected)
+{
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
@@ -192,9 +198,10 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tgns(pg,blocks);
-#endif
+}
       
-#if _classifySelected_ignore_
+if(classifySelected_ignore)
+{
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
@@ -202,9 +209,10 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tgns_ignore(pg,blocks);
-#endif
+}
  
-#if _classifyTG_
+if(classifyTG)
+{
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
@@ -212,9 +220,10 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tg(pg,blocks);
-#endif
+}
 
-#if _classifyTG_ignore
+if(classifyTG_ignore)
+{
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
@@ -222,7 +231,7 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tg_ignore(pg,blocks);
-#endif
+}
       
       
       for(int i=0;i<blocks.size();i++)
@@ -232,28 +241,34 @@ void classify(char *TestFILE, char *classifiername, char *KFoldNum, char *Cluste
 	{
 	  if(CheckNoise(B,image))
 	  {
-	    #if _classifyTG_
+	    if(classifyTG)
+	    {
 	      B.PredictedClass = 1;
 	      B.PredFlag = false;
-	    #else if _classifyTG_ignore
+	    }
+	    else if(classifyTG_ignore)
 	      B.PredictedClass = 1;
-	    #else
+	    else
+	    {
 	      B.PredictedClass = 5;
 	      B.PredFlag = false;
-	    #endif
+	    }
 	    
 	  }
 	  else if(CheckSeparator(B))
 	  {
-	    #if _classifyTG_
+	    if(classifyTG)
+	    {
 	      B.PredictedClass = 1;
 	      B.PredFlag = false;
-	    #else if _classifyTG_ignore
+	    }
+	    else if(classifyTG_ignore)
 	      B.PredictedClass = 1;
-	    #else
+	    else
+	    {
 	      B.PredictedClass = 4;
 	      B.PredFlag = false;
-	    #endif
+	    }
 	    
 	  }
 	}
@@ -1351,30 +1366,35 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
   char *classifiername = "CCCN_Classifier";
    char *dirname;
   
-#if _classifyAll_
+if(classifyAll)
+{
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifyAll"); 
-#endif
+}
       
-#if _classifySelected_
+if(classifySelected)
+{
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifySelected");
-#endif
+}
       
-#if _classifySelected_ignore_
+if(classifySelected_ignore)
+{
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifySelectedIgnore");
-#endif
+}
  
-#if _classifyTG_
+if(classifyTG)
+{
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifyTG");
-#endif
+}
 
-#if _classifyTG_ignore
+if(classifyTG_ignore)
+{
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifyTGIgnore");
-#endif
+}
   
     makedir(dirname);
     
@@ -1436,8 +1456,8 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       
       vector<SB> blocks = GetProcessingBlocks(image);
       
-#if _classifyAll_
-      
+if(classifyAll)
+{
       classnumber.push_back(0); classnumber.push_back(1); 
       classnumber.push_back(2); classnumber.push_back(3); 
       classnumber.push_back(4); classnumber.push_back(5);
@@ -1448,9 +1468,10 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       
       blocks = PrepareAlethiaGt(pg,blocks);
       
-#endif
+}
       
-#if _classifySelected_
+if(classifySelected)
+{
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
@@ -1458,9 +1479,10 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tgns(pg,blocks);
-#endif
+}
       
-#if _classifySelected_ignore_
+if(classifySelected_ignore)
+{
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
@@ -1468,9 +1490,10 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tgns_ignore(pg,blocks);
-#endif
+}
  
-#if _classifyTG_
+if(classifyTG)
+{
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
@@ -1478,9 +1501,10 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tg(pg,blocks);
-#endif
+}
 
-#if _classifyTG_ignore
+if(classifyTG_ignore)
+{
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
@@ -1488,7 +1512,8 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tg_ignore(pg,blocks);
-#endif
+}
+ 
       
       
       for(int i=0;i<blocks.size();i++)
@@ -1498,28 +1523,34 @@ void classify_CCCN(char *trainfile, char *testfile, char *KFoldNum)
 	{
 	  if(CheckNoise(B,image))
 	  {
-	    #if _classifyTG_
+	    if(classifyTG)
+	    {
 	      B.PredictedClass = 1;
 	      B.PredFlag = false;
-	    #else if _classifyTG_ignore
+	    }
+	    else if(classifyTG_ignore)
 	      B.PredictedClass = 1;
-	    #else
+	    else
+	    {
 	      B.PredictedClass = 5;
 	      B.PredFlag = false;
-	    #endif
+	    }
 	    
 	  }
 	  else if(CheckSeparator(B))
 	  {
-	    #if _classifyTG_
+	    if(classifyTG)
+	    {
 	      B.PredictedClass = 1;
 	      B.PredFlag = false;
-	    #else if _classifyTG_ignore
+	    }
+	    else if(classifyTG_ignore)
 	      B.PredictedClass = 1;
-	    #else
+	    else
+	    {
 	      B.PredictedClass = 4;
 	      B.PredFlag = false;
-	    #endif
+	    }
 	  }
 	  else
 	  {

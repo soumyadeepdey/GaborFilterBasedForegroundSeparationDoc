@@ -32,97 +32,41 @@ int main(int argc, char* argv[])
   
   if(type == 0)
   {
-    #undef _classifyAll_
-    #define _classifyAll_ 1
-    #undef _classifySelected_ 
-    #define _classifySelected_ 0
-    #undef _classifySelected_ignore_
-    #define _classifySelected_ignore_ 0
-    #undef _classifyTG_
-    #define _classifyTG_ 0
-    #undef _classifyTG_ignore_
-    #define _classifyTG_ignore_ 0
-    
+    classifyAll = true;
+   
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifyAll");
   }
   else if(type == 1)
   {
-    #undef _classifyAll_
-    #define _classifyAll_ 0
-    #undef _classifySelected_ 
-    #define _classifySelected_ 1
-    #undef _classifySelected_ignore_
-    #define _classifySelected_ignore_ 0
-    #undef _classifyTG_
-    #define _classifyTG_ 0
-    #undef _classifyTG_ignore_
-    #define _classifyTG_ignore_ 0
+    classifySelected = true;
     
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifySelected");
   }
   else if(type == 2)
   {
-    #undef _classifyAll_
-    #define _classifyAll_ 0
-    #undef _classifySelected_ 
-    #define _classifySelected_ 0
-    #undef _classifySelected_ignore_
-    #define _classifySelected_ignore_ 1
-    #undef _classifyTG_
-    #define _classifyTG_ 0
-    #undef _classifyTG_ignore_
-    #define _classifyTG_ignore_ 0
-    
+    classifySelected_ignore = true;
+
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifySelectedIgnore");
   }
   else if(type == 3)
   {
-    #undef _classifyAll_
-    #define _classifyAll_ 0
-    #undef _classifySelected_ 
-    #define _classifySelected_ 0
-    #undef _classifySelected_ignore_
-    #define _classifySelected_ignore_ 0
-    #undef _classifyTG_
-    #define _classifyTG_ 1
-    #undef _classifyTG_ignore_
-    #define _classifyTG_ignore_ 0
+   classifyTG = true;
     
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifyTG");
   }
   else if(type == 4)
   {
-    #undef _classifyAll_
-    #define _classifyAll_ 0
-    #undef _classifySelected_ 
-    #define _classifySelected_ 0
-    #undef _classifySelected_ignore_
-    #define _classifySelected_ignore_ 0
-    #undef _classifyTG_
-    #define _classifyTG_ 0
-    #undef _classifyTG_ignore_
-    #define _classifyTG_ignore_ 1
+   classifyTG_ignore = true;
     
     dirname = (char *)malloc(2001*sizeof(char));
     strcpy(dirname,"ClassifyTGIgnore");
   }
   else
-  {
-    #undef _classifyAll_
-    #define _classifyAll_ 0
-    #undef _classifySelected_ 
-    #define _classifySelected_ 0
-    #undef _classifySelected_ignore_
-    #define _classifySelected_ignore_ 0
-    #undef _classifyTG_
-    #define _classifyTG_ 0
-    #undef _classifyTG_ignore_
-    #define _classifyTG_ignore_ 0
-    
+  {   
     printf("Wrong Choise!!!\nValue must be 0,1,2,3,4\n");
     exit(0);
   }

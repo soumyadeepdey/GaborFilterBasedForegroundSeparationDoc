@@ -35,12 +35,12 @@
 #define _CCCN_ 1 //CCCN Classification
 
 
+bool classifyAll;
+bool classifySelected;
+bool classifySelected_ignore;
+bool classifyTG;
+bool classifyTG_ignore;
 
-#define _classifyAll_ 1
-#define _classifySelected_ 0
-#define _classifySelected_ignore_ 0
-#define _classifyTG_ 0
-#define _classifyTG_ignore_ 0
 
 typedef struct TrainDataClass
 {
