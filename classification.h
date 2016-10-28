@@ -35,11 +35,11 @@
 #define _CCCN_ 1 //CCCN Classification
 
 
-bool classifyAll;
-bool classifySelected;
-bool classifySelected_ignore;
-bool classifyTG;
-bool classifyTG_ignore;
+extern bool classifyAll;
+extern bool classifySelected;
+extern bool classifySelected_ignore;
+extern bool classifyTG;
+extern bool classifyTG_ignore;
 
 
 typedef struct TrainDataClass
@@ -49,6 +49,7 @@ typedef struct TrainDataClass
   vector<int> ClassNumber;
 }TDC;
 
+int findtypepresence(vector<char*> types, char* type);
 
 bool CheckNoise(SB B, Mat image);
 

@@ -600,7 +600,7 @@ page GetConfig::readConfigFile(string& configFile)
 			  
 			  //Attribute Specific to Noise Region will go here
 			  
-			  P.FillNoiseRegion(M);
+			  P.FillMathsRegion(M);
 			}
 			else if( XMLString::equals(pagecurrentElement->getTagName(), TAG_NoiseRegion) )
 			{

@@ -1,5 +1,5 @@
 #include "CCCN_Classifier.h"
-#include "sorting.h"
+
 
 
 void CCCN_Classifier::PrepareTrainData(vector< SB > K, vector< double > alpha)
@@ -93,21 +93,10 @@ vector< float > CCCN_Classifier::ComputeHomogeneityatTrain(vector< SB > K, int N
 }
 
 
-int findtypepresence(vector<char*> types, char* type)
-{
-  int i;
-  for( i=0;i<types.size();i++)
-  {
-    if(strcmp(types[i],type)==0)
-    {
-      return i;
-    }
-  }
-  return i;
-}
 
 
-void CCCN_Classifier::Train(char* trainfile, double alpha, float homogeneitycriteria)
+
+void CCCN_Classifier::Train(char *trainfile, double alpha, float homogeneitycriteria)
 {
 
   FILE *f;
@@ -381,7 +370,7 @@ void CCCN_Classifier::Train(vector< SB > Traindata, vector<int> Labels, double a
 
 
 
-int CCCN_Classifier::Predict(vector< float > FeatureVec, double alpha)
+int CCCN_Classifier::Predict(vector<float> FeatureVec, double alpha)
 {
   
   vector<vector<double> > DistanceVector;

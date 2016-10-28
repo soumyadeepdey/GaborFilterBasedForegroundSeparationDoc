@@ -17,6 +17,13 @@
 RNG rng(12345);
 
 
+bool classifyAll = false;
+bool classifySelected = false;
+bool classifySelected_ignore = false;
+bool classifyTG = false;
+bool classifyTG_ignore = false;
+
+
 using namespace IITkgp_functions;
 
 int main(int argc, char* argv[])

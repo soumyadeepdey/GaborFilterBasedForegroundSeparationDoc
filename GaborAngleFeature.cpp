@@ -34,24 +34,24 @@ vector<float>  GetGaborFeature(Mat image)
   
   vector<double> th_sig;
   
-  th_sig.push_back(0.5);
+  //th_sig.push_back(0.5);
   th_sig.push_back(1.0);
   th_sig.push_back(2.0);
-  th_sig.push_back(3.0);
-  th_sig.push_back(4.0);
+  //th_sig.push_back(3.0);
+  //th_sig.push_back(4.0);
   th_sig.push_back(5.0);
   th_sig.push_back(10.0);
-  th_sig.push_back(12.0);
+  //th_sig.push_back(12.0);
   
   
   vector<double> theta;
-  theta.push_back(15.0);
+  //theta.push_back(15.0);
   theta.push_back(30.0);
   theta.push_back(45.0);
   theta.push_back(60.0);
   theta.push_back(90.0);
-  theta.push_back(120.0);
-  theta.push_back(135.0);
+  //theta.push_back(120.0);
+  //theta.push_back(135.0);
   
   
   

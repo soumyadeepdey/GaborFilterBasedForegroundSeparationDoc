@@ -81,8 +81,10 @@ SET(TG_HEADERS
 				GeneralFunctions.h
 				MultiClassClassificationMetrics.h
 				classification.h
+				CCCN_Classifier.h
 				ConcensusBasedClustering.h
 				ClusteringClassification.h
+				WriteintoXML.h
 					)  
 
 
@@ -108,9 +110,12 @@ SET(TG_SOURCES
 				ScalarColorFeature.cpp
 				GeneralFunctions.cpp
 				MultiClassClassificationMetrics.cpp
-				classification.cpp
+				classification_new.cpp
+				CCCN_Classifier.cpp				
+				#classification.cpp
 				ConcensusBasedClustering.cpp
 				ClusteringClassification.cpp
+				WriteintoXML.cpp
 					)
 				
 

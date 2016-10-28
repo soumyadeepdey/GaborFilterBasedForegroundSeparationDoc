@@ -8,6 +8,21 @@ bool CCE_flag;
 using namespace IITkgp_functions;
 
 
+
+int findtypepresence(vector<char*> types, char* type)
+{
+  int i;
+  for( i=0;i<types.size();i++)
+  {
+    if(strcmp(types[i],type)==0)
+    {
+      return i;
+    }
+  }
+  return i;
+}
+
+
 bool CheckNoise(SB B, Mat image)
 {
   if(CheckSeparator(B))
@@ -516,19 +531,6 @@ if(classifyTG_ignore)
   
 }
 
-
-int findtypepresence(vector<char*> types, char* type)
-{
-  int i;
-  for( i=0;i<types.size();i++)
-  {
-    if(strcmp(types[i],type)==0)
-    {
-      return i;
-    }
-  }
-  return i;
-}
 
 TDC Training(char* TrainFile)
 {
@@ -1554,7 +1556,7 @@ if(classifyTG_ignore)
 	  }
 	  else
 	  {
-	    B.PredictedClass(CCCN_classify.Predict(B.FeatureVec));
+	    B.PredictedClass = CCCN_classify.Predict(B.FeatureVec,0.5);
 	    B.PredFlag = false;
 	  }
 	}
@@ -1784,23 +1786,33 @@ void Classification(vector<SB> &blocks, TDC &Data, char *ClassifierName)
   printf("classifiername =%s\n",ClassifierName);
   if(strcmp(ClassifierName,"NBC")==0)
   {
+#if _NBC_
     classify_NBC(blocks,Data);
+#endif
   }
   else if(strcmp(ClassifierName,"KNN")==0)
   {
+#if _KNN_
     classify_KNN(blocks,Data);
+#endif
   }
   else if(strcmp(ClassifierName,"DT")==0)
   {
+#if _DT_
     classify_DT(blocks,Data);
+#endif
   }
   else if(strcmp(ClassifierName,"RF")==0)
   {
+#if _RF_
     classify_RF(blocks,Data);
+#endif
   }
   else if(strcmp(ClassifierName,"SVM")==0)
   {
+#if _SVM_
     classify_SVM(blocks,Data);
+#endif
   }
   else
   {

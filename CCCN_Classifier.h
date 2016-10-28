@@ -6,7 +6,7 @@
 #include "folder.h"
 #include "AlethiaParser/AlethiaParser.h"
 #include "PrepareAlethiaGT.h"
-//#include "classification.h"
+#include "classification.h"
 #include "SegmentationUnit.h"
 #include "sorting.h"
 
@@ -44,14 +44,14 @@ public:
  * @def: This Function Train the CCCN classifier using CCCN Clustering with alpha 0.5,
  * This function takes a file containing name of trining images
  */
-void Train(char *trainfile, double alpha=0.5, float homogeneitycriteria = 0.9);
+void Train(char *trainfile, double alpha=0.5, float homogeneitycriteria=0.9);
 
 /**
  * @func:Train
  * @def: This Function Train the CCCN classifier using CCCN Clustering with alpha 0.5,
  * This function takes a vector of training data, and number of distict class of the training data as an input to the algorithm
  */
-void Train(vector<SB> Traindata, vector<int> Labels, double alpha=0.5, float homogeneitycriteria = 0.9);
+void Train(vector<SB> Traindata, vector<int> Labels, double alpha=0.5, float homogeneitycriteria=0.9);
 
 int Predict(vector<float> FeatureVec, double alpha=0.5);
 

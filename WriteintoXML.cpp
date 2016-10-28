@@ -23,7 +23,7 @@ void WriteGTXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<TextRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -37,7 +37,7 @@ void WriteGTXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<ChartRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -50,7 +50,7 @@ void WriteGTXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<GraphicsRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -63,7 +63,7 @@ void WriteGTXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<ImageRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -76,7 +76,7 @@ void WriteGTXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<SeparatorRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -89,7 +89,7 @@ void WriteGTXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<NoiseRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -102,7 +102,7 @@ void WriteGTXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<MathsRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -144,7 +144,7 @@ void WriteOutputXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<TextRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -158,7 +158,7 @@ void WriteOutputXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<ChartRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -171,7 +171,7 @@ void WriteOutputXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<GraphicsRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -184,7 +184,7 @@ void WriteOutputXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<ImageRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -197,7 +197,7 @@ void WriteOutputXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<SeparatorRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -210,7 +210,7 @@ void WriteOutputXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<NoiseRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -223,7 +223,7 @@ void WriteOutputXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<MathsRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -236,7 +236,7 @@ void WriteOutputXMLFile(page P, char *xmlname, vector<SB> Blocks)
       {
 	fprintf(fp,"<TableRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
-	vector<Points> poly;
+	vector<Point> poly;
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
