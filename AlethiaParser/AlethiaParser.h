@@ -387,17 +387,24 @@ public:
 //   {
 //       printf("Page Object Created\n");
 //     }
-  ~page()
+ /* ~page()
   {
-    TR.clear();
-    GR.clear();
-    IR.clear();
-    CR.clear();
-    SR.clear();
-    NR.clear();
-    MR.clear();
+    if(!TR.empty())
+      TR.clear();
+    if(!GR.empty())
+      GR.clear();
+    if(!IR.empty())
+      IR.clear();
+    if(!CR.empty())
+      CR.clear();
+    if(!SR.empty())
+      SR.clear();
+    if(!NR.empty())
+      NR.clear();
+    if(!MR.empty())
+      MR.clear();
     //printf("Page Object Destroyed\n");
-  }
+  }*/
   void SetImageName(char* ch)
   {
     imagename = ch;

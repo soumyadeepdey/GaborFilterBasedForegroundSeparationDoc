@@ -450,7 +450,8 @@ if(classifyTG_ignore)
 	gtcls.push_back(B.GtClass);
 	pcls.push_back(B.PredictedClass);
       }
-      SU.clear();
+      if(!SU.empty())
+	SU.clear();
       
       Mat Gtlabels = Mat(gtcls.size(),1,CV_8UC1);
       Mat PredictedLabels = Mat(gtcls.size(),1,CV_8UC1);
@@ -470,8 +471,10 @@ if(classifyTG_ignore)
 	}
 	PredictedLabels.at<int>(i,0) = pcls[i];
       }
-      gtcls.clear();
-      pcls.clear();
+      if(!gtcls.empty())
+	gtcls.clear();
+      if(!pcls.empty())
+	pcls.clear();
       
       vector<ConfusionMatrix> CM = GetConfusionMatrix(Gtlabels,PredictedLabels,classnumber);
       //char *tempname;
@@ -503,8 +506,8 @@ if(classifyTG_ignore)
 	 }
 	 fprintf(res,"\n");
 	 fclose(res);
-
-	 CM.clear();
+	 if(!CM.empty()) 
+	  CM.clear();
   }
   
   
@@ -726,8 +729,8 @@ TDC Training(char* TrainFile)
 	  }
 	}
       }
-      
-      blocks.clear();
+      if(!blocks.empty())
+	blocks.clear();
       
   }
   
@@ -760,9 +763,10 @@ TDC Training(char* TrainFile)
   
    // Mat( TrainData ).copyTo( trainSamples );
     Mat( TrainClass ).copyTo( trainClasses );
-    
-    TrainData.clear();
-    TrainClass.clear();
+    if(!TrainData.empty())
+      TrainData.clear();
+    if(!TrainClass.empty())
+      TrainClass.clear();
     
     printf("Sample Ori row=%d,col=%d,channels=%d\n",trainSamples.rows,trainSamples.cols,trainSamples.channels());
     printf("Class Ori row=%d,col=%d,channels=%d\n",trainClasses.rows,trainClasses.cols,trainClasses.channels());
@@ -1464,8 +1468,8 @@ if(classifyAll)
       classnumber.push_back(2); classnumber.push_back(3); 
       classnumber.push_back(4); classnumber.push_back(5);
       classnumber.push_back(6); classnumber.push_back(7);
-      
-      CM_ALL.clear();
+      if(!CM_ALL.empty())
+	CM_ALL.clear();
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt(pg,blocks);
@@ -1477,7 +1481,8 @@ if(classifySelected)
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
-      CM_ALL.clear();
+      if(!CM_ALL.empty())
+	CM_ALL.clear();
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tgns(pg,blocks);
@@ -1488,7 +1493,8 @@ if(classifySelected_ignore)
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
-      CM_ALL.clear();
+      if(!CM_ALL.empty())
+	CM_ALL.clear();
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tgns_ignore(pg,blocks);
@@ -1499,7 +1505,8 @@ if(classifyTG)
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
-      CM_ALL.clear();
+      if(!CM_ALL.empty())
+	CM_ALL.clear();
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tg(pg,blocks);
@@ -1510,7 +1517,8 @@ if(classifyTG_ignore)
       classnumber.push_back(0); classnumber.push_back(1);  
       classnumber.push_back(4); classnumber.push_back(5);
       
-      CM_ALL.clear();
+      if(!CM_ALL.empty())
+	CM_ALL.clear();
       CM_ALL.resize(classnumber.size(),ConfusionMatrix(classnumber.size()));
       
       blocks = PrepareAlethiaGt_tg_ignore(pg,blocks);
@@ -1600,7 +1608,8 @@ if(classifyTG_ignore)
 	}
       }
       
-      blocks.clear();
+      if(!blocks.empty())
+	blocks.clear();
       
       char *initial_name = input_image_name_cut(pg.GetImageName()); 
       
@@ -1719,7 +1728,8 @@ if(classifyTG_ignore)
 	gtcls.push_back(B.GtClass);
 	pcls.push_back(B.PredictedClass);
       }
-      SU.clear();
+      if(!SU.empty())
+	SU.clear();
       
       Mat Gtlabels = Mat(gtcls.size(),1,CV_8UC1);
       Mat PredictedLabels = Mat(gtcls.size(),1,CV_8UC1);
@@ -1739,8 +1749,10 @@ if(classifyTG_ignore)
 	}
 	PredictedLabels.at<int>(i,0) = pcls[i];
       }
-      gtcls.clear();
-      pcls.clear();
+      if(!gtcls.empty())
+	gtcls.clear();
+      if(!pcls.empty())
+	pcls.clear();
       
       vector<ConfusionMatrix> CM = GetConfusionMatrix(Gtlabels,PredictedLabels,classnumber);
       //char *tempname;
@@ -1772,8 +1784,9 @@ if(classifyTG_ignore)
 	 }
 	 fprintf(res,"\n");
 	 fclose(res);
-
-	 CM.clear();
+	  
+	 if(!CM.empty())
+	  CM.clear();
       
   }
 }

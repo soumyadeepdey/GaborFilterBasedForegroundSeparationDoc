@@ -272,6 +272,7 @@ int DegreeofFreedom_EqualVariance(int sample1_size, int sample2_size)
 
 void FindCommonNodes(vector<vector<int> > &K, vector<vector<int> > D, vector<vector<vector<int> > > N, int z, int t)
 {
+  printf("Finding Common Nodes\n");
   if(z<N.size()-1)
   {
     int h = 0;
@@ -285,7 +286,7 @@ void FindCommonNodes(vector<vector<int> > &K, vector<vector<int> > D, vector<vec
   }
   else
   {
-   // printf("working for feature %d\n",z);
+    printf("working for feature %d\n",z);
     for(int l=0;l<N[z].size();l++)
     {
       D[t] = N[z][l];
@@ -396,6 +397,8 @@ vector<vector<SB> > ClusteringCCN(vector< SB > SU, vector< double > Threshold)
     int t = 0;
     
     FindCommonNodes(K,D,CC,z,t);
+    
+    printf("Done\n");
     
     vector<vector<SB> > clusters;
     

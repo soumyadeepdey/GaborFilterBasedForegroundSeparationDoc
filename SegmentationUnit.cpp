@@ -155,10 +155,12 @@ vector<SB> GetProcessingBlocks(Mat image)
      }
      //imwrite("INiblocks.png",Draw);
      //Draw.release();
-     
-     boundRect.clear();
-     contours.clear();
-     hierarchy.clear();
+     if(!boundRect.empty())
+      boundRect.clear();
+     if(!contours.empty())
+      contours.clear();
+     if(!hierarchy.empty())
+      hierarchy.clear();
 
      avg_height = avg_height/count;
      
@@ -214,9 +216,46 @@ vector<SB> GetProcessingBlocks(Mat image)
 		p++;
 	    }
 	    
-	    
-	    
-	 if(R.height>3*avg_height && R.width > 3*avg_height) // Large component
+	 if(cnt > 5)
+	 {
+	   vector<float> GaborFeature = GetGaborFeature(temp_clrimg);
+	    printf("\ngabor feature:\n");
+	    for(int f=0;f<GaborFeature.size();f++)
+	    {
+	      B.FeatureVec.push_back(GaborFeature[f]);
+	      printf("%f\t",GaborFeature[f]);
+	    }
+	    vector<float> colorFeature = GetColorFeature(temp_clrimg,temp_bin);
+	    vector<float> swfeature = GetStrokeWidthFeature(temp_clrimg,temp_bin);
+	    bool flag = true;
+	    printf("\nColorFeature:\n");
+	    if(colorFeature[2]<3)
+	      flag = false;
+	    for(int f=0;f<colorFeature.size();f++)
+	    {
+	      if(isnan(colorFeature[f]))
+		flag = false;
+	      B.FeatureVec.push_back(colorFeature[f]);
+	      printf("%f\t",colorFeature[f]);
+	    }
+	    printf("\nSWFeature:\n");
+	    if(swfeature[2]<3)
+	      flag = false;
+	    for(int f=0;f<swfeature.size();f++)
+	    {
+	      if(isnan(swfeature[f]))
+		flag = false;
+	      B.FeatureVec.push_back(swfeature[f]);
+	      printf("%f\t",swfeature[f]);
+	    }
+	    printf("\n");
+	    if(flag)
+	      B.Fvecflag = true;
+	 }
+	 
+	 blocks[i] = B;
+	  /*  
+	 if(R.height>3*avg_height && R.width > 3*avg_height && cnt > 5) // Large component
 	 {
 	   rectangle(Draw,R.tl(),R.br(),Scalar(255,0,0),8,1);
 	   contours.clear();
@@ -314,6 +353,8 @@ vector<SB> GetProcessingBlocks(Mat image)
 			}
 	      }
 	    }
+	   
+	   */
 	   
 	   /*
 	     contours.clear();
@@ -415,7 +456,7 @@ vector<SB> GetProcessingBlocks(Mat image)
 	   sprintf(name, "IniBlock_%d.png",i);
 	   imwrite(name,stroke_clrimg);
 	   */
-	     
+	 /*    
 	    vector<float> GaborFeature = GetGaborFeature(Tmp_clrimg);
 	    printf("\ngabor feature:\n");
 	    for(int f=0;f<GaborFeature.size();f++)
@@ -452,7 +493,7 @@ vector<SB> GetProcessingBlocks(Mat image)
 	 {
 	   if(cnt > 5)
 	   {
-	     rectangle(Draw,R.tl(),R.br(),Scalar(0,255,0),8,1);
+	     //rectangle(Draw,R.tl(),R.br(),Scalar(0,255,0),8,1);
 	     //printf("No child\n");
 	    vector<float> GaborFeature = GetGaborFeature(temp_clrimg);
 	    printf("\ngabor feature:\n");
@@ -492,6 +533,7 @@ vector<SB> GetProcessingBlocks(Mat image)
 	 
 	 
 	 blocks[i] = B;
+	 */
 	 
      }
      

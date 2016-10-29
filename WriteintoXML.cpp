@@ -13,7 +13,7 @@ void WriteGTXMLFile(page P, char *xmlname, vector<SB> Blocks)
   strftime(buf, sizeof(buf), "%d-%m-%Y", &tstruct);
   fprintf(fp,"<PcGts xmlns=\"http://schema.primaresearch.org/PAGE/gts/pagecontent/2010-03-19\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.primaresearch.org/PAGE/gts/pagecontent/2010-03-19 http://schema.primaresearch.org/PAGE/gts/pagecontent/2010-03-19/pagecontent.xsd\">\n<Metadata> <Creator>\"Soumyadeep Dey\"</Creator>\n<Created>%s</Created>\n<LastChange>%s</LastChange></Metadata>\n",buf);
   fprintf(fp,"<Page imageFilename=\"%s\" imageWidth=\"%d\" imageHeight=\"%d\">\n",P.GetImageName(),P.GetCol(),P.GetRow());
-  P.~page();
+  
   for(int i=0;i<Blocks.size();i++)
   {
     SB B;
@@ -134,7 +134,7 @@ void WriteOutputXMLFile(page P, char *xmlname, vector<SB> Blocks)
   strftime(buf, sizeof(buf), "%d-%m-%Y", &tstruct);
   fprintf(fp,"<PcGts xmlns=\"http://schema.primaresearch.org/PAGE/gts/pagecontent/2010-03-19\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.primaresearch.org/PAGE/gts/pagecontent/2010-03-19 http://schema.primaresearch.org/PAGE/gts/pagecontent/2010-03-19/pagecontent.xsd\">\n<Metadata> <Creator>\"Soumyadeep Dey\"</Creator>\n<Created>%s</Created>\n<LastChange>%s</LastChange></Metadata>\n",buf);
   fprintf(fp,"<Page imageFilename=\"%s\" imageWidth=\"%d\" imageHeight=\"%d\">\n",P.GetImageName(),P.GetCol(),P.GetRow());
-  P.~page();
+
   for(int i=0;i<Blocks.size();i++)
   {
     SB B;
