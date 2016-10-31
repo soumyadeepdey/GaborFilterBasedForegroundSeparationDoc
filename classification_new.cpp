@@ -1761,7 +1761,7 @@ if(classifyTG_ignore)
 	 
 	 tempname = "image_Classification_Result.xls";
 	 
-	opt = CreateNameIntoFolder(classifiername,tempname);
+	opt = CreateNameIntoFolder(classidir,tempname);
 	 
 	 
 	 
@@ -1789,6 +1789,28 @@ if(classifyTG_ignore)
 	  CM.clear();
       
   }
+  
+  
+  
+ printf("ALL Input Image classification Completed\n");
+ 
+  char *tempname,*name;
+  name = (char *)malloc(2000*sizeof(char));
+  tempname = (char *)malloc(2000*sizeof(char));	 
+  tempname = "Overall_Classification_Result.xls";
+  name = CreateNameIntoFolder(classidir,tempname);
+  
+  FILE *res;
+  res = fopen(name,"a+");
+
+    MultiClassPerformanceMetrics M(CM_ALL);
+  
+    fprintf(res,"%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",classifiername,M.GetAverageAccuracy(),M.GetErrorRate(),M.GetPrecesionMu(),M.GetRecallMu(),M.GetFScoreMu(1),M.GetPrecesionM(),M.GetRecallM(),M.GetFScoreM(1));
+ 
+    //M.~MultiClassPerformanceMetrics();
+
+  
+  fclose(res);
 }
 
 #endif

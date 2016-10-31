@@ -117,8 +117,6 @@ int main(int argc, char* argv[])
   }
   else if(classi_type==4)
   {
-    ClassifierName = (char *)malloc(2001*sizeof(char));
-    strcpy(ClassifierName,"CNNN_Classifier");
     classify_CCCN(argv[1],argv[2],argv[3]);
   }
   
