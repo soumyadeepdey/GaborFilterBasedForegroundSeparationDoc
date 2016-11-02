@@ -128,6 +128,7 @@ if(classifyTG_ignore)
   makedir(Classi_KFoldFolder);
   
   char *tempfol = CreateNameIntoFolder(classidir,ClusteringName);
+  makedir(tempfol);
   char *Classi_Clus_KFoldFolder = CreateNameIntoFolder(tempfol,KFoldNum);
   makedir(Classi_Clus_KFoldFolder);
   
@@ -597,7 +598,36 @@ TDC Training(char* TrainFile)
       
       printf("Initial blocks size %d\n",blocks.size());
       
+     // blocks = PrepareAlethiaGt(pg,blocks);
+      
+      if(classifyAll)
+{     
       blocks = PrepareAlethiaGt(pg,blocks);
+      
+}
+      
+if(classifySelected)
+{      
+      blocks = PrepareAlethiaGt_tgns(pg,blocks);
+}
+      
+if(classifySelected_ignore)
+{
+      
+      blocks = PrepareAlethiaGt_tgns_ignore(pg,blocks);
+}
+ 
+if(classifyTG)
+{
+      
+      blocks = PrepareAlethiaGt_tg(pg,blocks);
+}
+
+if(classifyTG_ignore)
+{
+      
+      blocks = PrepareAlethiaGt_tg_ignore(pg,blocks);
+}
       
       printf("GT block size %d\n",blocks.size());
       vector<char*> type;

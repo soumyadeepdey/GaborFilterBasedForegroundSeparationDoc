@@ -39,7 +39,7 @@ void CCCN_Classifier::PrepareTrainData(vector< SB > K, vector< double > alpha)
   }
   else
   {
-    if(alpha[0]>0.1)
+    if(alpha[0]>0.4)//modified
     {
       for(int i=0;i<alpha.size();i++)
 	alpha[i] = alpha[i] - 0.1;
@@ -151,7 +151,36 @@ void CCCN_Classifier::Train(char *trainfile, double alpha, float homogeneitycrit
       
       vector<SB> blocks = GetProcessingBlocks(image);
       
+      //blocks = PrepareAlethiaGt(pg,blocks);
+      
+      if(classifyAll)
+{     
       blocks = PrepareAlethiaGt(pg,blocks);
+      
+}
+      
+if(classifySelected)
+{      
+      blocks = PrepareAlethiaGt_tgns(pg,blocks);
+}
+      
+if(classifySelected_ignore)
+{
+      
+      blocks = PrepareAlethiaGt_tgns_ignore(pg,blocks);
+}
+ 
+if(classifyTG)
+{
+      
+      blocks = PrepareAlethiaGt_tg(pg,blocks);
+}
+
+if(classifyTG_ignore)
+{
+      
+      blocks = PrepareAlethiaGt_tg_ignore(pg,blocks);
+}
       
     /*************************************************************/
       /* for(int i=0;i<blocks.size();i++)

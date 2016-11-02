@@ -3,7 +3,7 @@
 
 void LabelSegmentationUnitofEachCluster(vector< SB > K, vector<SB> &blocks, vector< double > alpha)
 {
-  vector<float> homogeneity(5,0.0);
+  vector<float> homogeneity(8,0.0);
   for(int i=0;i<K.size();i++)
   {
     SB b = K[i];
@@ -31,7 +31,7 @@ void LabelSegmentationUnitofEachCluster(vector< SB > K, vector<SB> &blocks, vect
   }
   else
   {
-    if(alpha[0]>0.1)
+    if(alpha[0]>0.4)
     {
       for(int i=0;i<alpha.size();i++)
 	alpha[i] = alpha[i] - 0.1;
