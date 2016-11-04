@@ -16,7 +16,7 @@ void WriteGTXMLFile(page P, char *xmlname, vector<SB> Blocks)
   
   for(int i=0;i<Blocks.size();i++)
   {
-    SB B;
+    SB B = Blocks[i];
     if(B.gtflag && B.Fvecflag)
     {
       if(B.GtClass == 0)
@@ -24,6 +24,7 @@ void WriteGTXMLFile(page P, char *xmlname, vector<SB> Blocks)
 	fprintf(fp,"<TextRegion id=\"%d\">\n",i);
 	fprintf(fp,"<Coords>\n");
 	vector<Point> poly;
+	//printf("Size of Contours %d\n",B.Contours.size());
 	approxPolyDP( Mat(B.Contours), poly, 3, true );
 	for(int j=0;j<poly.size();j++)
 	{
@@ -150,7 +151,7 @@ void WriteOutputXMLFile(page P, char *xmlname, vector<SB> Blocks)
 
   for(int i=0;i<Blocks.size();i++)
   {
-    SB B;
+    SB B = Blocks[i];
     if(B.gtflag && B.Fvecflag)
     {
       if(B.PredictedClass == 0)

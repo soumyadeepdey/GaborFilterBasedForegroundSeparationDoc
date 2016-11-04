@@ -39,7 +39,7 @@ void CCCN_Classifier::PrepareTrainData(vector< SB > K, vector< double > alpha)
   }
   else
   {
-    if(alpha[0]>0.4)//modified
+    if(alpha[0]>0.5)//modified
     {
       for(int i=0;i<alpha.size();i++)
 	alpha[i] = alpha[i] - 0.1;

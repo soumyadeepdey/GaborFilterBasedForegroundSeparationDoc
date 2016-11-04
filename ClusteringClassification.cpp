@@ -31,7 +31,7 @@ void LabelSegmentationUnitofEachCluster(vector< SB > K, vector<SB> &blocks, vect
   }
   else
   {
-    if(alpha[0]>0.4)
+    if(alpha[0]>0.5)
     {
       for(int i=0;i<alpha.size();i++)
 	alpha[i] = alpha[i] - 0.1;

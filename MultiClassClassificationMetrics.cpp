@@ -276,13 +276,13 @@ vector<ConfusionMatrix> GetConfusionMatrix(Mat Groundtruthlabel, Mat ClassifiedL
       for(int i=0;i<Groundtruthlabel.rows;i++)
       {
 	int GtClass =(int) Groundtruthlabel.at<uchar>(i,0);
-	if(GtClass>4)
+	if(GtClass>7)
 	{
 	  printf("problem GtClass  = %d\n",GtClass);
 	  exit(0);
 	}
 	//printf("GtClass  = %d\n",GtClass);
-	if(GtClass > 0)
+	if(GtClass >= 0)
 	{
 	// printf("If Gt not 0\n");
 	  int response = ClassifiedLabel.at<uchar>(i,0);

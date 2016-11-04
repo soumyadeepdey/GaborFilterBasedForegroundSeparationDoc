@@ -191,6 +191,8 @@ if(classifyTG_ignore)
       
       vector<SB> blocks = GetProcessingBlocks(image);
       
+      
+      
 if(classifyAll)
 {
       classnumber.push_back(0); classnumber.push_back(1); 
@@ -248,6 +250,8 @@ if(classifyTG_ignore)
       
       blocks = PrepareAlethiaGt_tg_ignore(pg,blocks);
 }
+
+     
       
       
       for(int i=0;i<blocks.size();i++)
@@ -303,6 +307,8 @@ if(classifyTG_ignore)
      
       Classification(blocks,Data,classifiername);
       
+      
+      
        for(int i=0;i<blocks.size();i++)
       {
 	SB B = blocks[i];
@@ -320,7 +326,7 @@ if(classifyTG_ignore)
 	{
 	  for(int k=0;k<B.childs.size();k++)
 	  {
-	    
+	    printf("Wrong move for now\n");
 	    SB B_C = B.childs[k];
 	    if(B_C.Fvecflag && B_C.gtflag);
 	    { 
@@ -333,6 +339,8 @@ if(classifyTG_ignore)
       }
       
       blocks.clear();
+      
+      
       
       char *initial_name = input_image_name_cut(pg.GetImageName()); 
       
@@ -398,6 +406,18 @@ if(classifyTG_ignore)
       
       ClusteringClassification(SU,Clusters,alpha);
       
+      printf("ClusteringClassification Done\n");
+      
+      for(int i=0;i<SU.size();i++)
+      {
+	SB B = SU[i];
+	if(B.Contours.size()==0)
+	 {
+	   printf("There is some problem after Clustering Classification\n");
+	   exit(0);
+	 }
+      }
+      
       output = (char *) malloc ( 2001 * sizeof(char));
       if(output == NULL)
       {
@@ -418,7 +438,7 @@ if(classifyTG_ignore)
       
       WriteGTXMLFile(pg,gtname,SU);
       
-      
+      printf("GT XML Writing Done\n");
       
       output = (char *) malloc ( 2001 * sizeof(char));
       if(output == NULL)
@@ -440,6 +460,7 @@ if(classifyTG_ignore)
       
       WriteOutputXMLFile(pg,outname,SU);
       
+      printf("Out XML Writing Done\n");
       
       vector<int> gtcls;
       vector<int> pcls;
@@ -798,8 +819,8 @@ if(classifyTG_ignore)
     if(!TrainClass.empty())
       TrainClass.clear();
     
-    printf("Sample Ori row=%d,col=%d,channels=%d\n",trainSamples.rows,trainSamples.cols,trainSamples.channels());
-    printf("Class Ori row=%d,col=%d,channels=%d\n",trainClasses.rows,trainClasses.cols,trainClasses.channels());
+   // printf("Sample Ori row=%d,col=%d,channels=%d\n",trainSamples.rows,trainSamples.cols,trainSamples.channels());
+   // printf("Class Ori row=%d,col=%d,channels=%d\n",trainClasses.rows,trainClasses.cols,trainClasses.channels());
     
   
     TDC Data;
@@ -855,15 +876,15 @@ void classify_KNN(vector<SB> &blocks, TDC &Data)
 	  //Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
 	  Mat TestData = Mat(1,FVec.size(),CV_32FC1);
 	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
-	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	  //  printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	  //  printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
 	    int p = 0;
 	    for(int j=0;j<FVec.size();j++)
 	    {
 	      TestData.at<float>(0,p)= FVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	    //  printf("%f\t",TestData.at<float>(0,j));
 	    }
-	    printf("\n");
+	   // printf("\n");
 	  int response;
 	  #if defined HAVE_OPENCV_OCL && _OCL_KNN_
 	    knnClassifier.find_nearest(testSample_ocl, K, reslut_ocl);
@@ -901,15 +922,15 @@ void classify_KNN(vector<SB> &blocks, TDC &Data)
 	  //Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
 	  Mat TestData = Mat(1,FVec.size(),CV_32FC1);
 	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
-	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	   // printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	   // printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
 	    int p = 0;
 	    for(int j=0;j<FVec.size();j++)
 	    {
 	      TestData.at<float>(0,p)= FVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	     // printf("%f\t",TestData.at<float>(0,j));
 	    }
-	    printf("\n");
+	   // printf("\n");
 	    int response;
 	    #if defined HAVE_OPENCV_OCL && _OCL_KNN_
 	    knnClassifier.find_nearest(testSample_ocl, K, reslut_ocl);
@@ -990,15 +1011,15 @@ void classify_SVM(vector<SB> &blocks, TDC &Data)
 	  //Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
 	  Mat TestData = Mat(1,FVec.size(),CV_32FC1);
 	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
-	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	  //  printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	  //  printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
 	    int p = 0;
 	    for(int j=0;j<FVec.size();j++)
 	    {
 	      TestData.at<float>(0,p)= FVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	    //  printf("%f\t",TestData.at<float>(0,j));
 	    }
-	    printf("\n");
+	   // printf("\n");
 	  int response = (int)svmClassifier.predict( TestData );
 	  if(response>7 || response<0)
 	    {
@@ -1024,15 +1045,15 @@ void classify_SVM(vector<SB> &blocks, TDC &Data)
 	  //Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
 	  Mat TestData = Mat(1,FVec.size(),CV_32FC1);
 	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
-	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	  //  printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	  //  printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
 	    int p = 0;
 	    for(int j=0;j<FVec.size();j++)
 	    {
 	      TestData.at<float>(0,p)= FVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	    //  printf("%f\t",TestData.at<float>(0,j));
 	    }
-	    printf("\n");
+	    //printf("\n");
 	    
 	    int response = (int)svmClassifier.predict( TestData );
 	    if(response>7 || response<0)
@@ -1084,7 +1105,7 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
                         0, // forest_accuracy,
                         CV_TERMCRIT_ITER // termcrit_type
                        );
-
+/*
     FILE *fp;
     fp=fopen("Features.xls","w");
     for(int i=0;i<Data.TrainData.rows;i++)
@@ -1094,6 +1115,7 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
       fprintf(fp,"\n");
     }
     fclose(fp);
+    */
     
     rftrees.train( Data.TrainData, CV_ROW_SAMPLE, Data.TrainClass, Mat(), Mat(), Mat(), Mat(), rf_params );
   
@@ -1108,15 +1130,15 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
 	  //Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
 	  Mat TestData = Mat(1,FVec.size(),CV_32FC1);
 	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
-	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	   // printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	  //  printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
 	    int p = 0;
 	    for(int j=0;j<FVec.size();j++)
 	    {
 	      TestData.at<float>(0,p)= FVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	     // printf("%f\t",TestData.at<float>(0,j));
 	    }
-	    printf("\n");
+	   // printf("\n");
 	  int response = (int)rftrees.predict( TestData );
 	  if(response>7 || response<0)
 	    {
@@ -1142,13 +1164,13 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
 	  //Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
 	  Mat TestData = Mat(1,FVec.size(),CV_32FC1);
 	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
-	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	   // printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	   // printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
 	    int p = 0;
 	    for(int j=0;j<FVec.size();j++)
 	    {
 	      TestData.at<float>(0,p)= FVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	     // printf("%f\t",TestData.at<float>(0,j));
 	    }
 	    printf("\n");
 	    
@@ -1216,15 +1238,15 @@ void classify_DT(vector<SB> &blocks, TDC &Data)
 	  //Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
 	  Mat TestData = Mat(1,FVec.size(),CV_32FC1);
 	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
-	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	 //   printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	 //   printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
 	    int p = 0;
 	    for(int j=0;j<FVec.size();j++)
 	    {
 	      TestData.at<float>(0,p)= FVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	    //  printf("%f\t",TestData.at<float>(0,j));
 	    }
-	    printf("\n");
+	  //  printf("\n");
 	  int response = (int)dtree.predict( TestData )->value;
 	  if(response>7 || response<0)
 	    {
@@ -1250,15 +1272,15 @@ void classify_DT(vector<SB> &blocks, TDC &Data)
 	  //Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
 	  Mat TestData = Mat(1,FVec.size(),CV_32FC1);
 	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
-	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	  //  printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	  //  printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
 	    int p = 0;
 	    for(int j=0;j<FVec.size();j++)
 	    {
 	      TestData.at<float>(0,p)= FVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	    //  printf("%f\t",TestData.at<float>(0,j));
 	    }
-	    printf("\n");
+	  //  printf("\n");
 	    
 	    int response = (int)dtree.predict( TestData )->value;
 	    if(response>7 || response<0)
@@ -1312,15 +1334,15 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 	  //Mat TestData = Mat(1,B.FeatureVec.size(),CV_32FC1);
 	  Mat TestData = Mat(1,FVec.size(),CV_32FC1);
 	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
-	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	   // printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	   // printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
 	    int p = 0;
 	    for(int j=0;j<FVec.size();j++)
 	    {
 	      TestData.at<float>(0,p)= FVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	    //  printf("%f\t",TestData.at<float>(0,j));
 	    }
-	    printf("\n");
+	  //  printf("\n");
 	  int response = (int)normalBayesClassifier.predict( TestData );
 	  if(response>7 || response<0)
 	    {
@@ -1346,15 +1368,15 @@ void classify_NBC(vector<SB> &blocks, TDC &Data)
 	    //Mat TestData = Mat(1,B_C.FeatureVec.size(),CV_32FC1);
 	    Mat TestData = Mat(1,FVec.size(),CV_32FC1);
 	    //Mat TestData = Mat(1,B.FeatureVec.size()/2,CV_32FC1);
-	    printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
-	    printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
+	   // printf("Training Data size row %d col %d",Data.TrainData.rows,Data.TrainData.cols);
+	   // printf("child TestData size row %d col %d\n and test data is\n",TestData.rows,TestData.cols);
 	    int p = 0;
 	    for(int j=0;j<FVec.size();j++)
 	    {
 	      TestData.at<float>(0,p)= FVec[j];
-	      printf("%f\t",TestData.at<float>(0,j));
+	    //  printf("%f\t",TestData.at<float>(0,j));
 	    }
-	    printf("\n");
+	   // printf("\n");
 	    
 	    int response = (int)normalBayesClassifier.predict( TestData );
 	    if(response>7 || response<0)

@@ -141,12 +141,17 @@ vector<SB> GetProcessingBlocks(Mat image)
      {
        if(hierarchy[j][3] == -1 && boundRect[j].height > 6 &&  boundRect[j].width > 10)
        {
+	 if(contours[j].size()==0)
+	 {
+	   printf("There is some problem ERROR\n");
+	   exit(0);
+	 }
 	 avg_height = avg_height +  boundRect[j].height;
 	 count++;
 	 SB B;
 	 B.B = boundRect[j];
 	 B.Contours = contours[j];
-	 B.gtflag=false;
+	 B.gtflag = false;
 	 B.Fvecflag = false;
 	 B.PredFlag = true;
 	 blocks.push_back(B);
