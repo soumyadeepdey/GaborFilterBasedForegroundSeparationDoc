@@ -710,6 +710,7 @@ if(classifyTG_ignore)
 	    {
 	      if(B.GtClass!=4&&B.GtClass!=5)
 	      {
+		printf("Gt Class is %d\n",B.GtClass);
 		TrainData.push_back(GetFeatureFromFVec(B.FeatureVec));
 		TrainClass.push_back(B.GtClass);
 	      }
@@ -1145,7 +1146,7 @@ void classify_RF(vector<SB> &blocks, TDC &Data)
 	      printf("Error in classifier\nand response is outragious %d\n",response);
 	      exit(0);
 	    }
-	  //printf("response is %d\n",response);
+	  printf("response is %d\n",response);
 	  B.PredictedClass = response;
 	  B.PredFlag = false;
 	  blocks[i] = B;
