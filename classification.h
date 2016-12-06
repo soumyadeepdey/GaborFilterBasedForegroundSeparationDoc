@@ -53,7 +53,7 @@ int findtypepresence(vector<char*> types, char* type);
 
 bool CheckNoise(SB B, Mat image);
 
-bool CheckSeparator(SB B);
+bool CheckSeparator(SB B, Mat image);
 
 vector<float> GetFeatureFromFVec(vector<float> FeatureVec);
 

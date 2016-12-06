@@ -25,45 +25,160 @@ int findtypepresence(vector<char*> types, char* type)
 
 bool CheckNoise(SB B, Mat image)
 {
-  if(CheckSeparator(B))
-  {
-    Rect R = boundingRect( Mat(B.Contours) );
-    if((R.x<10 && R.width < 6) || (image.cols-R.x<10 && R.width < 6))
-      return true;
-    else if((R.y<10 && R.height < 6) || (image.rows - R.y < 10 && R.height < 6))
-      return true;
-    else
-      return false;
-  }
-  else
-    return false;
+  Rect R = boundingRect( Mat(B.Contours) );
+  if(R.height>R.width)
+		{
+		  //printf("Gt Class is %d\n",B.GtClass);
+		  Point2i centroid;
+		  centroid.x=R.x+(R.width/2);
+		  centroid.y=R.y+(R.height/2);
+		  int distx,disty;
+		  if(centroid.x<(image.cols-centroid.x))
+		    distx=centroid.x;
+		  else
+		    distx=image.cols-centroid.x;
+		  if(centroid.y<(image.rows-centroid.y))
+		    disty=centroid.y;
+		  else
+		    disty=image.rows-centroid.y;
+		  int distb;
+		  if(distx>disty)
+		  {
+		   // printf("Dist frm Bound: %d\t",disty);
+		    distb = disty;
+		  }
+		  else
+		  {
+		    distb = distx;
+		    //printf("Dist frm Bound: %d\t",distx);
+		  }
+		  float ratio = R.width*1.0;
+		  ratio = ratio/(R.height*1.0);
+		  if(distb<30 && R.width<33)
+		    return true;
+		  else if(distb>30 && distb<100 && R.width<33 && ratio > 0.5)
+		    return true;
+		  else
+		    return false;
+		  
+		}
+		else
+		{
+		 // printf("Gt Class is %d\n",B.GtClass);
+		  Point2i centroid;
+		  centroid.x=R.x+(R.width/2);
+		  centroid.y=R.y+(R.height/2);
+		  int distx,disty;
+		  if(centroid.x<(image.cols-centroid.x))
+		    distx=centroid.x;
+		  else
+		    distx=image.cols-centroid.x;
+		  if(centroid.y<(image.rows-centroid.y))
+		    disty=centroid.y;
+		  else
+		    disty=image.rows-centroid.y;
+		  int distb;
+		  if(distx>disty)
+		  {
+		   // printf("Dist frm Bound: %d\t",disty);
+		    distb = disty;
+		  }
+		  else
+		  {
+		    distb = distx;
+		   // printf("Dist frm Bound: %d\t",distx);
+		  }
+		  
+		  float ratio = R.height*1.0;
+		  ratio = ratio/(R.width*1.0);
+		  if(distb<30 && R.height<33)
+		    return true;
+		  else if(distb>30 && distb<100 && R.height<33 && ratio > 0.5)
+		    return true;
+		  else
+		    return false;
+		 
+		}
+ 
 }
 
-bool CheckSeparator(SB B)
+bool CheckSeparator(SB B, Mat image)
 {
 
     Rect R = boundingRect( Mat(B.Contours) );
-    if(R.height > R.width)
-    {
-      if(R.width < 6 )
-	return true;
-      else
-	return false;
-    }
-    else if(R.height < R.width)
-    {
-      if(R.height < 6)
-	return true;
-      else
-	return false;
-    }
-    else
-    {
-      if(R.height < 6 || R.height < 6)
-	return true;
-      else
-	return false;
-    }
+  if(R.height>R.width)
+		{
+		  //printf("Gt Class is %d\n",B.GtClass);
+		  Point2i centroid;
+		  centroid.x=R.x+(R.width/2);
+		  centroid.y=R.y+(R.height/2);
+		  int distx,disty;
+		  if(centroid.x<(image.cols-centroid.x))
+		    distx=centroid.x;
+		  else
+		    distx=image.cols-centroid.x;
+		  if(centroid.y<(image.rows-centroid.y))
+		    disty=centroid.y;
+		  else
+		    disty=image.rows-centroid.y;
+		  int distb;
+		  if(distx>disty)
+		  {
+		   // printf("Dist frm Bound: %d\t",disty);
+		    distb = disty;
+		  }
+		  else
+		  {
+		    distb = distx;
+		    //printf("Dist frm Bound: %d\t",distx);
+		  }
+		  
+		  float ratio = R.width*1.0;
+		  ratio = ratio/(R.height*1.0);
+		  
+		  if(R.width<70 && ratio < 0.1)
+		    return true;
+		  else
+		    return false;
+		    
+		  
+		}
+		else
+		{
+		 // printf("Gt Class is %d\n",B.GtClass);
+		  Point2i centroid;
+		  centroid.x=R.x+(R.width/2);
+		  centroid.y=R.y+(R.height/2);
+		  int distx,disty;
+		  if(centroid.x<(image.cols-centroid.x))
+		    distx=centroid.x;
+		  else
+		    distx=image.cols-centroid.x;
+		  if(centroid.y<(image.rows-centroid.y))
+		    disty=centroid.y;
+		  else
+		    disty=image.rows-centroid.y;
+		  int distb;
+		  if(distx>disty)
+		  {
+		   // printf("Dist frm Bound: %d\t",disty);
+		    distb = disty;
+		  }
+		  else
+		  {
+		    distb = distx;
+		   // printf("Dist frm Bound: %d\t",distx);
+		  }
+		  
+		  float ratio = R.height*1.0;
+		  ratio = ratio/(R.width*1.0);
+		  
+		  if(R.height<70 && ratio < 0.1)
+		    return true;
+		  else
+		    return false;
+		 
+		}
 }
 
 vector<float> GetFeatureFromFVec(vector<float> FeatureVec)
@@ -275,7 +390,7 @@ if(classifyTG_ignore)
 	    }
 	    
 	  }
-	  else if(CheckSeparator(B))
+	  else if(CheckSeparator(B,image))
 	  {
 	    if(classifyTG)
 	    {
@@ -563,6 +678,7 @@ TDC Training(char* TrainFile)
   vector<int> TrainClass;
   vector<int> NumberPerCluster;
   
+  vector<int> TrainClassHist(8,0);
   //int classnumber = 0;
   
   //makedir("TrainClassifiers");
@@ -574,7 +690,7 @@ TDC Training(char* TrainFile)
       
       char filename[2000];
       fscanf(f,"%s",&filename);
-      printf("%s\n",filename);
+      //printf("%s\n",filename);
       page pg = GetPageGroundtruth(filename);
   
       char *name;
@@ -609,7 +725,7 @@ TDC Training(char* TrainFile)
       }
       strcpy(tnm1,opt);
       
-      printf("imagename %s\n",tnm1);
+    //  printf("imagename %s\n",tnm1);
       
       Mat image = imread(tnm1,1);
       
@@ -617,7 +733,7 @@ TDC Training(char* TrainFile)
       
       vector<SB> blocks = GetProcessingBlocks(image);
       
-      printf("Initial blocks size %d\n",blocks.size());
+     // printf("Initial blocks size %d\n",blocks.size());
       
      // blocks = PrepareAlethiaGt(pg,blocks);
       
@@ -649,12 +765,18 @@ if(classifyTG_ignore)
       
       blocks = PrepareAlethiaGt_tg_ignore(pg,blocks);
 }
-      
-      printf("GT block size %d\n",blocks.size());
+  
+  
+  FILE *ns,*sep;
+  ns=fopen("Noise.xls","a+");
+  sep=fopen("Separator.xls","a+");
+    //  printf("GT block size %d\n",blocks.size());
       vector<char*> type;
       vector<int> cnttype;
       for(int i=0;i<blocks.size();i++)
       {
+	
+	
 	SB B = blocks[i];
 	if(B.childs.empty())
 	{
@@ -710,11 +832,170 @@ if(classifyTG_ignore)
 	    {
 	      if(B.GtClass!=4&&B.GtClass!=5)
 	      {
-		printf("Gt Class is %d\n",B.GtClass);
+		//printf("Gt Class is %d\n",B.GtClass);
 		TrainData.push_back(GetFeatureFromFVec(B.FeatureVec));
 		TrainClass.push_back(B.GtClass);
 	      }
+	      else
+	      {
+		
+		Rect R = boundingRect( Mat(B.Contours) );
+		if(R.height>R.width)
+		{
+		  //printf("Gt Class is %d\n",B.GtClass);
+		  Point2i centroid;
+		  centroid.x=R.x+(R.width/2);
+		  centroid.y=R.y+(R.height/2);
+		  int distx,disty;
+		  if(centroid.x<(image.cols-centroid.x))
+		    distx=centroid.x;
+		  else
+		    distx=image.cols-centroid.x;
+		  if(centroid.y<(image.rows-centroid.y))
+		    disty=centroid.y;
+		  else
+		    disty=image.rows-centroid.y;
+		  int distb;
+		  if(distx>disty)
+		  {
+		   // printf("Dist frm Bound: %d\t",disty);
+		    distb = disty;
+		  }
+		  else
+		  {
+		    distb = distx;
+		    //printf("Dist frm Bound: %d\t",distx);
+		  }
+		  //printf("Posi: (%d,%d)\t",centroid.y,centroid.x);
+		 // printf("width: %d\t",R.width);
+		  //printf("Ratio(h/w): %f\n",(R.width*1.0/R.height));
+		  if(B.GtClass==4)
+		    fprintf(sep,"%d\t%d\t%f\n",distb,R.width,(R.width*1.0/R.height));
+		  if(B.GtClass==5)
+		    fprintf(ns,"%d\t%d\t%f\n",distb,R.width,(R.width*1.0/R.height));
+		}
+		else
+		{
+		 // printf("Gt Class is %d\n",B.GtClass);
+		  Point2i centroid;
+		  centroid.x=R.x+(R.width/2);
+		  centroid.y=R.y+(R.height/2);
+		  int distx,disty;
+		  if(centroid.x<(image.cols-centroid.x))
+		    distx=centroid.x;
+		  else
+		    distx=image.cols-centroid.x;
+		  if(centroid.y<(image.rows-centroid.y))
+		    disty=centroid.y;
+		  else
+		    disty=image.rows-centroid.y;
+		  int distb;
+		  if(distx>disty)
+		  {
+		   // printf("Dist frm Bound: %d\t",disty);
+		    distb = disty;
+		  }
+		  else
+		  {
+		    distb = distx;
+		   // printf("Dist frm Bound: %d\t",distx);
+		  }
+		 // printf("Posi: (%d,%d)\t",centroid.y,centroid.x);
+		 // printf("width: %d\t",R.height);
+		 // printf("Ratio(h/w): %f\n",(R.height*1.0/R.width));
+		  if(B.GtClass==4)
+		    fprintf(sep,"%d\t%d\t%f\n",distb,R.height,(R.height*1.0/R.width));
+		  if(B.GtClass==5)
+		    fprintf(ns,"%d\t%d\t%f\n",distb,R.height,(R.height*1.0/R.width));
+		}
+		
+	      }
 	    }
+	  }
+	  else
+	  {
+	    //printf("Gt Class in not FVEC is %d\n",B.GtClass);
+	    Rect R = boundingRect( Mat(B.Contours) );
+	    if(R.height>R.width)
+		{
+		  //printf("Gt Class is %d\n",B.GtClass);
+		  Point2i centroid;
+		  centroid.x=R.x+(R.width/2);
+		  centroid.y=R.y+(R.height/2);
+		  int distx,disty;
+		  if(centroid.x<(image.cols-centroid.x))
+		    distx=centroid.x;
+		  else
+		    distx=image.cols-centroid.x;
+		  if(centroid.y<(image.rows-centroid.y))
+		    disty=centroid.y;
+		  else
+		    disty=image.rows-centroid.y;
+		  int distb;
+		  if(distx>disty)
+		  {
+		   // printf("Dist frm Bound: %d\t",disty);
+		    distb = disty;
+		  }
+		  else
+		  {
+		    distb = distx;
+		   // printf("Dist frm Bound: %d\t",distx);
+		  }
+		 // printf("Posi: (%d,%d)\t",centroid.y,centroid.x);
+		 // printf("width: %d\t",R.width);
+		  //printf("Ratio(h/w): %f\n",(R.width*1.0/R.height));
+		  
+		  if(B.GtClass==4)
+		  {
+		    fprintf(sep,"%d\t%d\t%f\n",distb,R.width,(R.width*1.0/R.height));
+		    printf("Separator\n");
+		  }
+		  if(B.GtClass==5)
+		  {
+		    fprintf(ns,"%d\t%d\t%f\n",distb,R.width,(R.width*1.0/R.height));
+		    printf("Noise\n");
+		  }
+		  
+		}
+		else
+		{
+		 // printf("Gt Class is %d\n",B.GtClass);
+		  Point2i centroid;
+		  centroid.x=R.x+(R.width/2);
+		  centroid.y=R.y+(R.height/2);
+		  int distx,disty;
+		  if(centroid.x<(image.cols-centroid.x))
+		    distx=centroid.x;
+		  else
+		    distx=image.cols-centroid.x;
+		  if(centroid.y<(image.rows-centroid.y))
+		    disty=centroid.y;
+		  else
+		    disty=image.rows-centroid.y;
+		  int distb;
+		  if(distx>disty)
+		  {
+		   // printf("Dist frm Bound: %d\t",disty);
+		    distb = disty;
+		  }
+		  else
+		  {
+		    distb = distx;
+		   // printf("Dist frm Bound: %d\t",distx);
+		  }
+		 // printf("Posi: (%d,%d)\t",centroid.y,centroid.x);
+		 // printf("width: %d\t",R.height);
+		 // printf("Ratio(h/w): %f\n",(R.height*1.0/R.width));
+		  
+		  if(B.GtClass==4)
+		    fprintf(sep,"%d\t%d\t%f\n",distb,R.height,(R.height*1.0/R.width));
+		  if(B.GtClass==5)
+		    fprintf(ns,"%d\t%d\t%f\n",distb,R.height,(R.height*1.0/R.width));
+		  
+		}
+		
+		
 	  }
 	}
 	else
@@ -725,7 +1006,7 @@ if(classifyTG_ignore)
 	    
 	    if(B_C.Fvecflag && B_C.gtflag)
 	    {
-	     // printf("Hello\n");
+	      printf("Hello in child\n");
 	      if(B_C.GtClass>7)
 	      {
 		printf("Error .... value of gt is %d\n",B_C.GtClass);
@@ -781,6 +1062,10 @@ if(classifyTG_ignore)
 	  }
 	}
       }
+      
+      fclose(sep);
+      fclose(ns);
+      
       if(!blocks.empty())
 	blocks.clear();
       
@@ -1600,7 +1885,7 @@ if(classifyTG_ignore)
 	    }
 	    
 	  }
-	  else if(CheckSeparator(B))
+	  else if(CheckSeparator(B,image))
 	  {
 	    if(classifyTG)
 	    {

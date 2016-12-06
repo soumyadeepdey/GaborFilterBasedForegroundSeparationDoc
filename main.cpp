@@ -87,6 +87,7 @@ int main(int argc, char* argv[])
     ClassifierName = (char *)malloc(2001*sizeof(char));
     strcpy(ClassifierName,"RF");
     TDC Tdata = Training(argv[1]);
+    exit(0);
     printf("ClassifierName = %s\n",ClassifierName);
     classify(argv[2],ClassifierName, argv[3],"CCCN", Tdata);
     

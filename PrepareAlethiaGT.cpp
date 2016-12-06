@@ -47,7 +47,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 	    vector<Point> poly = T.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",T.getid());
+	     // printf("Something wrong in %s\n",T.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -110,7 +110,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 	    vector<Point> poly = C.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",C.getid());
+	    //  printf("Something wrong in %s\n",C.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -169,7 +169,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 	    vector<Point> poly = G.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",G.getid());
+	    //  printf("Something wrong in %s\n",G.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -228,7 +228,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 	    vector<Point> poly = I.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",I.getid());
+	     // printf("Something wrong in %s\n",I.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -283,29 +283,91 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 	  for(int j=0;j<SR.size();j++)
 	  {
 	    SeparatorRegion S = SR[j];
+	   // printf("Seperator in %s\n",S.getid());
 	    vector<Point> poly = S.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",S.getid());
+	    //  printf("Something wrong in %s\n",S.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
 	    else
 	    {
 	      Point pp = poly[0];
-	      poly.push_back(pp);
+	     // poly.push_back(pp);
 	      int val;
 	      if(B.childs.empty())
 	      {
+		
+		vector<Point> poly1;
+		approxPolyDP( Mat(B.Contours), poly1, 3, true );
+		//val = PolygonInsidePolygonTest(poly, poly1);
 		val = PolygonInsidePolygonTest(poly, B.Contours);
+		//printf("Val=%d\n",val);
 		if(val == 2 || val == 3)
 		{
+		 // printf("Separator!!!\n");
 		  B.GtClass = 4;
 		  B.gtflag = true;
+		 // exit(0);
 		}
 	      }
 	      else
 	      {	   
+		//printf("Separator has Child :O !!!\n");
+		for(int k=0;k<B.childs.size();k++)
+		{
+		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
+		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
+		    {
+		      B.childs[k].GtClass = 4;
+		      B.childs[k].gtflag = true;
+		      B.GtClass = B.childs[k].GtClass;
+		      B.gtflag = true;
+		    }
+		}
+		
+	      }
+	    }
+	  }
+	}
+	else
+	{
+	  for(int j=0;j<SR.size();j++)
+	  {
+	    SeparatorRegion S = SR[j];
+	   // printf("Seperator in %s\n",S.getid());
+	    vector<Point> poly = S.GetCoord();
+	    if(poly.empty())
+	    {
+	    //  printf("Something wrong in %s\n",S.getid());
+	      //TR.erase(TR.begin()+j);
+	      //exit(0);
+	    }
+	    else
+	    {
+	      Point pp = poly[0];
+	     // poly.push_back(pp);
+	      int val;
+	      if(B.childs.empty())
+	      {
+		
+		vector<Point> poly1;
+		approxPolyDP( Mat(B.Contours), poly1, 3, true );
+		//val = PolygonInsidePolygonTest(poly, poly1);
+		val = PolygonInsidePolygonTest(poly, B.Contours);
+		//printf("Val=%d\n",val);
+		if(val == 2 || val == 3)
+		{
+		//  printf("Separator!!!\n");
+		  B.GtClass = 4;
+		  B.gtflag = true;
+		 // exit(0);
+		}
+	      }
+	      else
+	      {	   
+		//printf("Separator has Child :O !!!\n");
 		for(int k=0;k<B.childs.size();k++)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
@@ -341,10 +403,11 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 	  for(int j=0;j<NR.size();j++)
 	  {
 	    NoiseRegion N = NR[j];
+	    //printf("Noise in %s\n",N.getid());
 	    vector<Point> poly = N.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",N.getid());
+	    //  printf("Something wrong in %s\n",N.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -358,6 +421,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
+		 // printf("Noise in %s\n",N.getid());
 		  B.GtClass = 5;
 		  B.gtflag = true;
 		}
@@ -368,6 +432,52 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
 		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
+		    {
+		      B.childs[k].GtClass = 5;
+		      B.childs[k].gtflag = true;
+		      B.GtClass = B.childs[k].GtClass;
+		      B.gtflag = true;
+		    }
+		}
+		
+	      }
+	    }
+	  }
+	}
+	else
+	{
+	  for(int j=0;j<NR.size();j++)
+	  {
+	    NoiseRegion N = NR[j];
+	    //printf("Noise in %s\n",N.getid());
+	    vector<Point> poly = N.GetCoord();
+	    if(poly.empty())
+	    {
+	    //  printf("Something wrong in %s\n",N.getid());
+	      //TR.erase(TR.begin()+j);
+	      //exit(0);
+	    }
+	    else
+	    {
+	      Point pp = poly[0];
+	      poly.push_back(pp);
+	      int val;
+	      if(B.childs.empty())
+	      {
+		val = PolygonInsidePolygonTest(poly, B.Contours);
+		if(val == 2 || val == 3)
+		{
+		//  printf("Noise in %s\n",N.getid());
+		  B.GtClass = 5;
+		  B.gtflag = true;
+		}
+	      }
+	      else
+	      {	   
+		for(int k=0;k<B.childs.size();k++)
+		{
+		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
+		    if(val == 2 || val == 3)
 		    {
 		      B.childs[k].GtClass = 5;
 		      B.childs[k].gtflag = true;
@@ -401,7 +511,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 	    vector<Point> poly = M.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",M.getid());
+	   //  printf("Something wrong in %s\n",M.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -457,7 +567,7 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
 	    vector<Point> poly = Tab.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",Tab.getid());
+	    //  printf("Something wrong in %s\n",Tab.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -505,10 +615,14 @@ vector< SB > PrepareAlethiaGt(page P, vector< SB > blocks)
       {
 	if(blocks[i].gtflag)
 	{
+	//  if(blocks[i].GtClass==4)
+	   // printf("Separator is here :)!!!\n");
 	  i = i + 1;
 	}
 	else	
+	{
 	  blocks.erase(blocks.begin()+i);	
+	}
       }
       else
       {
@@ -587,7 +701,7 @@ vector< SB > PrepareAlethiaGt_tgns(page P, vector< SB > blocks)
 	    vector<Point> poly = T.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",T.getid());
+	    //  printf("Something wrong in %s\n",T.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -650,7 +764,7 @@ vector< SB > PrepareAlethiaGt_tgns(page P, vector< SB > blocks)
 	    vector<Point> poly = C.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",C.getid());
+	     // printf("Something wrong in %s\n",C.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -707,7 +821,7 @@ vector< SB > PrepareAlethiaGt_tgns(page P, vector< SB > blocks)
 	    vector<Point> poly = G.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",G.getid());
+	     // printf("Something wrong in %s\n",G.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -766,7 +880,7 @@ vector< SB > PrepareAlethiaGt_tgns(page P, vector< SB > blocks)
 	    vector<Point> poly = I.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",I.getid());
+	      //printf("Something wrong in %s\n",I.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -821,29 +935,91 @@ vector< SB > PrepareAlethiaGt_tgns(page P, vector< SB > blocks)
 	  for(int j=0;j<SR.size();j++)
 	  {
 	    SeparatorRegion S = SR[j];
+	    printf("Seperator in %s\n",S.getid());
 	    vector<Point> poly = S.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",S.getid());
+	    //  printf("Something wrong in %s\n",S.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
 	    else
 	    {
 	      Point pp = poly[0];
-	      poly.push_back(pp);
+	     // poly.push_back(pp);
 	      int val;
 	      if(B.childs.empty())
 	      {
+		
+		vector<Point> poly1;
+		approxPolyDP( Mat(B.Contours), poly1, 3, true );
+		//val = PolygonInsidePolygonTest(poly, poly1);
 		val = PolygonInsidePolygonTest(poly, B.Contours);
+		printf("Val=%d\n",val);
 		if(val == 2 || val == 3)
 		{
+		  printf("Separator!!!\n");
 		  B.GtClass = 4;
 		  B.gtflag = true;
+		 // exit(0);
 		}
 	      }
 	      else
 	      {	   
+		printf("Separator has Child :O !!!\n");
+		for(int k=0;k<B.childs.size();k++)
+		{
+		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
+		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
+		    {
+		      B.childs[k].GtClass = 4;
+		      B.childs[k].gtflag = true;
+		      B.GtClass = B.childs[k].GtClass;
+		      B.gtflag = true;
+		    }
+		}
+		
+	      }
+	    }
+	  }
+	}
+	else
+	{
+	  for(int j=0;j<SR.size();j++)
+	  {
+	    SeparatorRegion S = SR[j];
+	    printf("Seperator in %s\n",S.getid());
+	    vector<Point> poly = S.GetCoord();
+	    if(poly.empty())
+	    {
+	    //  printf("Something wrong in %s\n",S.getid());
+	      //TR.erase(TR.begin()+j);
+	      //exit(0);
+	    }
+	    else
+	    {
+	      Point pp = poly[0];
+	     // poly.push_back(pp);
+	      int val;
+	      if(B.childs.empty())
+	      {
+		
+		vector<Point> poly1;
+		approxPolyDP( Mat(B.Contours), poly1, 3, true );
+		//val = PolygonInsidePolygonTest(poly, poly1);
+		val = PolygonInsidePolygonTest(poly, B.Contours);
+		printf("Val=%d\n",val);
+		if(val == 2 || val == 3)
+		{
+		  printf("Separator!!!\n");
+		  B.GtClass = 4;
+		  B.gtflag = true;
+		 // exit(0);
+		}
+	      }
+	      else
+	      {	   
+		printf("Separator has Child :O !!!\n");
 		for(int k=0;k<B.childs.size();k++)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
@@ -879,10 +1055,11 @@ vector< SB > PrepareAlethiaGt_tgns(page P, vector< SB > blocks)
 	  for(int j=0;j<NR.size();j++)
 	  {
 	    NoiseRegion N = NR[j];
+	    //printf("Noise in %s\n",N.getid());
 	    vector<Point> poly = N.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",N.getid());
+	    //  printf("Something wrong in %s\n",N.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -896,6 +1073,7 @@ vector< SB > PrepareAlethiaGt_tgns(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
+		  printf("Noise in %s\n",N.getid());
 		  B.GtClass = 5;
 		  B.gtflag = true;
 		}
@@ -918,9 +1096,56 @@ vector< SB > PrepareAlethiaGt_tgns(page P, vector< SB > blocks)
 	    }
 	  }
 	}
+	else
+	{
+	  for(int j=0;j<NR.size();j++)
+	  {
+	    NoiseRegion N = NR[j];
+	    //printf("Noise in %s\n",N.getid());
+	    vector<Point> poly = N.GetCoord();
+	    if(poly.empty())
+	    {
+	    //  printf("Something wrong in %s\n",N.getid());
+	      //TR.erase(TR.begin()+j);
+	      //exit(0);
+	    }
+	    else
+	    {
+	      Point pp = poly[0];
+	      poly.push_back(pp);
+	      int val;
+	      if(B.childs.empty())
+	      {
+		val = PolygonInsidePolygonTest(poly, B.Contours);
+		if(val == 2 || val == 3)
+		{
+		  printf("Noise in %s\n",N.getid());
+		  B.GtClass = 5;
+		  B.gtflag = true;
+		}
+	      }
+	      else
+	      {	   
+		for(int k=0;k<B.childs.size();k++)
+		{
+		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
+		    if(val == 2 || val == 3)
+		    {
+		      B.childs[k].GtClass = 5;
+		      B.childs[k].gtflag = true;
+		      B.GtClass = B.childs[k].GtClass;
+		      B.gtflag = true;
+		    }
+		}
+		
+	      }
+	    }
+	  }
+	}
 	blocks[i] = B;	
       }
    }
+   
    
    // Maths region
    
@@ -939,7 +1164,7 @@ vector< SB > PrepareAlethiaGt_tgns(page P, vector< SB > blocks)
 	    vector<Point> poly = M.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",M.getid());
+	    //  printf("Something wrong in %s\n",M.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -994,7 +1219,7 @@ vector< SB > PrepareAlethiaGt_tgns(page P, vector< SB > blocks)
 	    vector<Point> poly = Tab.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",Tab.getid());
+	    //  printf("Something wrong in %s\n",Tab.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -1123,7 +1348,7 @@ vector< SB > PrepareAlethiaGt_tgns_ignore(page P, vector< SB > blocks)
 	    vector<Point> poly = T.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",T.getid());
+	    //  printf("Something wrong in %s\n",T.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -1192,7 +1417,7 @@ vector< SB > PrepareAlethiaGt_tgns_ignore(page P, vector< SB > blocks)
 	    vector<Point> poly = I.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",I.getid());
+	     // printf("Something wrong in %s\n",I.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -1248,29 +1473,91 @@ vector< SB > PrepareAlethiaGt_tgns_ignore(page P, vector< SB > blocks)
 	  for(int j=0;j<SR.size();j++)
 	  {
 	    SeparatorRegion S = SR[j];
+	    printf("Seperator in %s\n",S.getid());
 	    vector<Point> poly = S.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",S.getid());
+	    //  printf("Something wrong in %s\n",S.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
 	    else
 	    {
 	      Point pp = poly[0];
-	      poly.push_back(pp);
+	     // poly.push_back(pp);
 	      int val;
 	      if(B.childs.empty())
 	      {
+		
+		vector<Point> poly1;
+		approxPolyDP( Mat(B.Contours), poly1, 3, true );
+		//val = PolygonInsidePolygonTest(poly, poly1);
 		val = PolygonInsidePolygonTest(poly, B.Contours);
+		printf("Val=%d\n",val);
 		if(val == 2 || val == 3)
 		{
+		  printf("Separator!!!\n");
 		  B.GtClass = 4;
 		  B.gtflag = true;
+		 // exit(0);
 		}
 	      }
 	      else
 	      {	   
+		printf("Separator has Child :O !!!\n");
+		for(int k=0;k<B.childs.size();k++)
+		{
+		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
+		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
+		    {
+		      B.childs[k].GtClass = 4;
+		      B.childs[k].gtflag = true;
+		      B.GtClass = B.childs[k].GtClass;
+		      B.gtflag = true;
+		    }
+		}
+		
+	      }
+	    }
+	  }
+	}
+	else
+	{
+	  for(int j=0;j<SR.size();j++)
+	  {
+	    SeparatorRegion S = SR[j];
+	    printf("Seperator in %s\n",S.getid());
+	    vector<Point> poly = S.GetCoord();
+	    if(poly.empty())
+	    {
+	    //  printf("Something wrong in %s\n",S.getid());
+	      //TR.erase(TR.begin()+j);
+	      //exit(0);
+	    }
+	    else
+	    {
+	      Point pp = poly[0];
+	     // poly.push_back(pp);
+	      int val;
+	      if(B.childs.empty())
+	      {
+		
+		vector<Point> poly1;
+		approxPolyDP( Mat(B.Contours), poly1, 3, true );
+		//val = PolygonInsidePolygonTest(poly, poly1);
+		val = PolygonInsidePolygonTest(poly, B.Contours);
+		printf("Val=%d\n",val);
+		if(val == 2 || val == 3)
+		{
+		  printf("Separator!!!\n");
+		  B.GtClass = 4;
+		  B.gtflag = true;
+		 // exit(0);
+		}
+	      }
+	      else
+	      {	   
+		printf("Separator has Child :O !!!\n");
 		for(int k=0;k<B.childs.size();k++)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
@@ -1306,10 +1593,11 @@ vector< SB > PrepareAlethiaGt_tgns_ignore(page P, vector< SB > blocks)
 	  for(int j=0;j<NR.size();j++)
 	  {
 	    NoiseRegion N = NR[j];
+	    //printf("Noise in %s\n",N.getid());
 	    vector<Point> poly = N.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",N.getid());
+	    //  printf("Something wrong in %s\n",N.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -1323,6 +1611,7 @@ vector< SB > PrepareAlethiaGt_tgns_ignore(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
+		  printf("Noise in %s\n",N.getid());
 		  B.GtClass = 5;
 		  B.gtflag = true;
 		}
@@ -1345,10 +1634,55 @@ vector< SB > PrepareAlethiaGt_tgns_ignore(page P, vector< SB > blocks)
 	    }
 	  }
 	}
+	else
+	{
+	  for(int j=0;j<NR.size();j++)
+	  {
+	    NoiseRegion N = NR[j];
+	    //printf("Noise in %s\n",N.getid());
+	    vector<Point> poly = N.GetCoord();
+	    if(poly.empty())
+	    {
+	    //  printf("Something wrong in %s\n",N.getid());
+	      //TR.erase(TR.begin()+j);
+	      //exit(0);
+	    }
+	    else
+	    {
+	      Point pp = poly[0];
+	      poly.push_back(pp);
+	      int val;
+	      if(B.childs.empty())
+	      {
+		val = PolygonInsidePolygonTest(poly, B.Contours);
+		if(val == 2 || val == 3)
+		{
+		  printf("Noise in %s\n",N.getid());
+		  B.GtClass = 5;
+		  B.gtflag = true;
+		}
+	      }
+	      else
+	      {	   
+		for(int k=0;k<B.childs.size();k++)
+		{
+		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
+		    if(val == 2 || val == 3)
+		    {
+		      B.childs[k].GtClass = 5;
+		      B.childs[k].gtflag = true;
+		      B.GtClass = B.childs[k].GtClass;
+		      B.gtflag = true;
+		    }
+		}
+		
+	      }
+	    }
+	  }
+	}
 	blocks[i] = B;	
       }
    }
-   
    
    
    
@@ -1445,7 +1779,7 @@ vector< SB > PrepareAlethiaGt_tg(page P, vector< SB > blocks)
 	    vector<Point> poly = T.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",T.getid());
+	    //  printf("Something wrong in %s\n",T.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -1508,7 +1842,7 @@ vector< SB > PrepareAlethiaGt_tg(page P, vector< SB > blocks)
 	    vector<Point> poly = C.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",C.getid());
+	    //  printf("Something wrong in %s\n",C.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -1565,7 +1899,7 @@ vector< SB > PrepareAlethiaGt_tg(page P, vector< SB > blocks)
 	    vector<Point> poly = G.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",G.getid());
+	    //  printf("Something wrong in %s\n",G.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -1624,7 +1958,7 @@ vector< SB > PrepareAlethiaGt_tg(page P, vector< SB > blocks)
 	    vector<Point> poly = I.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",I.getid());
+	    //  printf("Something wrong in %s\n",I.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -1679,29 +2013,91 @@ vector< SB > PrepareAlethiaGt_tg(page P, vector< SB > blocks)
 	  for(int j=0;j<SR.size();j++)
 	  {
 	    SeparatorRegion S = SR[j];
+	    printf("Seperator in %s\n",S.getid());
 	    vector<Point> poly = S.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",S.getid());
+	    //  printf("Something wrong in %s\n",S.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
 	    else
 	    {
 	      Point pp = poly[0];
-	      poly.push_back(pp);
+	     // poly.push_back(pp);
 	      int val;
 	      if(B.childs.empty())
 	      {
+		
+		vector<Point> poly1;
+		approxPolyDP( Mat(B.Contours), poly1, 3, true );
+		//val = PolygonInsidePolygonTest(poly, poly1);
 		val = PolygonInsidePolygonTest(poly, B.Contours);
+		printf("Val=%d\n",val);
 		if(val == 2 || val == 3)
 		{
+		  printf("Separator!!!\n");
 		  B.GtClass = 4;
 		  B.gtflag = true;
+		 // exit(0);
 		}
 	      }
 	      else
 	      {	   
+		printf("Separator has Child :O !!!\n");
+		for(int k=0;k<B.childs.size();k++)
+		{
+		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
+		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
+		    {
+		      B.childs[k].GtClass = 4;
+		      B.childs[k].gtflag = true;
+		      B.GtClass = B.childs[k].GtClass;
+		      B.gtflag = true;
+		    }
+		}
+		
+	      }
+	    }
+	  }
+	}
+	else
+	{
+	  for(int j=0;j<SR.size();j++)
+	  {
+	    SeparatorRegion S = SR[j];
+	    printf("Seperator in %s\n",S.getid());
+	    vector<Point> poly = S.GetCoord();
+	    if(poly.empty())
+	    {
+	    //  printf("Something wrong in %s\n",S.getid());
+	      //TR.erase(TR.begin()+j);
+	      //exit(0);
+	    }
+	    else
+	    {
+	      Point pp = poly[0];
+	     // poly.push_back(pp);
+	      int val;
+	      if(B.childs.empty())
+	      {
+		
+		vector<Point> poly1;
+		approxPolyDP( Mat(B.Contours), poly1, 3, true );
+		//val = PolygonInsidePolygonTest(poly, poly1);
+		val = PolygonInsidePolygonTest(poly, B.Contours);
+		printf("Val=%d\n",val);
+		if(val == 2 || val == 3)
+		{
+		  printf("Separator!!!\n");
+		  B.GtClass = 4;
+		  B.gtflag = true;
+		 // exit(0);
+		}
+	      }
+	      else
+	      {	   
+		printf("Separator has Child :O !!!\n");
 		for(int k=0;k<B.childs.size();k++)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
@@ -1737,10 +2133,11 @@ vector< SB > PrepareAlethiaGt_tg(page P, vector< SB > blocks)
 	  for(int j=0;j<NR.size();j++)
 	  {
 	    NoiseRegion N = NR[j];
+	    //printf("Noise in %s\n",N.getid());
 	    vector<Point> poly = N.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",N.getid());
+	    //  printf("Something wrong in %s\n",N.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -1754,6 +2151,7 @@ vector< SB > PrepareAlethiaGt_tg(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
+		  printf("Noise in %s\n",N.getid());
 		  B.GtClass = 5;
 		  B.gtflag = true;
 		}
@@ -1776,9 +2174,56 @@ vector< SB > PrepareAlethiaGt_tg(page P, vector< SB > blocks)
 	    }
 	  }
 	}
+	else
+	{
+	  for(int j=0;j<NR.size();j++)
+	  {
+	    NoiseRegion N = NR[j];
+	    //printf("Noise in %s\n",N.getid());
+	    vector<Point> poly = N.GetCoord();
+	    if(poly.empty())
+	    {
+	    //  printf("Something wrong in %s\n",N.getid());
+	      //TR.erase(TR.begin()+j);
+	      //exit(0);
+	    }
+	    else
+	    {
+	      Point pp = poly[0];
+	      poly.push_back(pp);
+	      int val;
+	      if(B.childs.empty())
+	      {
+		val = PolygonInsidePolygonTest(poly, B.Contours);
+		if(val == 2 || val == 3)
+		{
+		  printf("Noise in %s\n",N.getid());
+		  B.GtClass = 5;
+		  B.gtflag = true;
+		}
+	      }
+	      else
+	      {	   
+		for(int k=0;k<B.childs.size();k++)
+		{
+		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
+		    if(val == 2 || val == 3)
+		    {
+		      B.childs[k].GtClass = 5;
+		      B.childs[k].gtflag = true;
+		      B.GtClass = B.childs[k].GtClass;
+		      B.gtflag = true;
+		    }
+		}
+		
+	      }
+	    }
+	  }
+	}
 	blocks[i] = B;	
       }
    }
+   
    
    // Maths region
    
@@ -1797,7 +2242,7 @@ vector< SB > PrepareAlethiaGt_tg(page P, vector< SB > blocks)
 	    vector<Point> poly = M.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",M.getid());
+	   //   printf("Something wrong in %s\n",M.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -1853,7 +2298,7 @@ vector< SB > PrepareAlethiaGt_tg(page P, vector< SB > blocks)
 	    vector<Point> poly = Tab.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",Tab.getid());
+	   //   printf("Something wrong in %s\n",Tab.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -1977,7 +2422,7 @@ vector< SB > PrepareAlethiaGt_tg_ignore(page P, vector< SB > blocks)
 	    vector<Point> poly = T.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",T.getid());
+	     // printf("Something wrong in %s\n",T.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -2044,7 +2489,7 @@ vector< SB > PrepareAlethiaGt_tg_ignore(page P, vector< SB > blocks)
 	    vector<Point> poly = I.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",I.getid());
+	   //   printf("Something wrong in %s\n",I.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -2085,7 +2530,7 @@ vector< SB > PrepareAlethiaGt_tg_ignore(page P, vector< SB > blocks)
    }
    
    
-   // Separator region
+  // Separator region
    
    
    if(!SR.empty())
@@ -2099,29 +2544,91 @@ vector< SB > PrepareAlethiaGt_tg_ignore(page P, vector< SB > blocks)
 	  for(int j=0;j<SR.size();j++)
 	  {
 	    SeparatorRegion S = SR[j];
+	    printf("Seperator in %s\n",S.getid());
 	    vector<Point> poly = S.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",S.getid());
+	    //  printf("Something wrong in %s\n",S.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
 	    else
 	    {
 	      Point pp = poly[0];
-	      poly.push_back(pp);
+	     // poly.push_back(pp);
 	      int val;
 	      if(B.childs.empty())
 	      {
+		
+		vector<Point> poly1;
+		approxPolyDP( Mat(B.Contours), poly1, 3, true );
+		//val = PolygonInsidePolygonTest(poly, poly1);
 		val = PolygonInsidePolygonTest(poly, B.Contours);
+		printf("Val=%d\n",val);
 		if(val == 2 || val == 3)
 		{
+		  printf("Separator!!!\n");
 		  B.GtClass = 4;
 		  B.gtflag = true;
+		 // exit(0);
 		}
 	      }
 	      else
 	      {	   
+		printf("Separator has Child :O !!!\n");
+		for(int k=0;k<B.childs.size();k++)
+		{
+		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
+		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
+		    {
+		      B.childs[k].GtClass = 4;
+		      B.childs[k].gtflag = true;
+		      B.GtClass = B.childs[k].GtClass;
+		      B.gtflag = true;
+		    }
+		}
+		
+	      }
+	    }
+	  }
+	}
+	else
+	{
+	  for(int j=0;j<SR.size();j++)
+	  {
+	    SeparatorRegion S = SR[j];
+	    printf("Seperator in %s\n",S.getid());
+	    vector<Point> poly = S.GetCoord();
+	    if(poly.empty())
+	    {
+	    //  printf("Something wrong in %s\n",S.getid());
+	      //TR.erase(TR.begin()+j);
+	      //exit(0);
+	    }
+	    else
+	    {
+	      Point pp = poly[0];
+	     // poly.push_back(pp);
+	      int val;
+	      if(B.childs.empty())
+	      {
+		
+		vector<Point> poly1;
+		approxPolyDP( Mat(B.Contours), poly1, 3, true );
+		//val = PolygonInsidePolygonTest(poly, poly1);
+		val = PolygonInsidePolygonTest(poly, B.Contours);
+		printf("Val=%d\n",val);
+		if(val == 2 || val == 3)
+		{
+		  printf("Separator!!!\n");
+		  B.GtClass = 4;
+		  B.gtflag = true;
+		 // exit(0);
+		}
+	      }
+	      else
+	      {	   
+		printf("Separator has Child :O !!!\n");
 		for(int k=0;k<B.childs.size();k++)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
@@ -2157,10 +2664,11 @@ vector< SB > PrepareAlethiaGt_tg_ignore(page P, vector< SB > blocks)
 	  for(int j=0;j<NR.size();j++)
 	  {
 	    NoiseRegion N = NR[j];
+	    //printf("Noise in %s\n",N.getid());
 	    vector<Point> poly = N.GetCoord();
 	    if(poly.empty())
 	    {
-	      printf("Something wrong in %s\n",N.getid());
+	    //  printf("Something wrong in %s\n",N.getid());
 	      //TR.erase(TR.begin()+j);
 	      //exit(0);
 	    }
@@ -2174,6 +2682,7 @@ vector< SB > PrepareAlethiaGt_tg_ignore(page P, vector< SB > blocks)
 		val = PolygonInsidePolygonTest(poly, B.Contours);
 		if(val == 2 || val == 3)
 		{
+		  printf("Noise in %s\n",N.getid());
 		  B.GtClass = 5;
 		  B.gtflag = true;
 		}
@@ -2184,6 +2693,52 @@ vector< SB > PrepareAlethiaGt_tg_ignore(page P, vector< SB > blocks)
 		{
 		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
 		    if((val == 2 || val == 3) && B.childs[k].Fvecflag  && !B.childs[k].gtflag)
+		    {
+		      B.childs[k].GtClass = 5;
+		      B.childs[k].gtflag = true;
+		      B.GtClass = B.childs[k].GtClass;
+		      B.gtflag = true;
+		    }
+		}
+		
+	      }
+	    }
+	  }
+	}
+	else
+	{
+	  for(int j=0;j<NR.size();j++)
+	  {
+	    NoiseRegion N = NR[j];
+	    //printf("Noise in %s\n",N.getid());
+	    vector<Point> poly = N.GetCoord();
+	    if(poly.empty())
+	    {
+	    //  printf("Something wrong in %s\n",N.getid());
+	      //TR.erase(TR.begin()+j);
+	      //exit(0);
+	    }
+	    else
+	    {
+	      Point pp = poly[0];
+	      poly.push_back(pp);
+	      int val;
+	      if(B.childs.empty())
+	      {
+		val = PolygonInsidePolygonTest(poly, B.Contours);
+		if(val == 2 || val == 3)
+		{
+		  printf("Noise in %s\n",N.getid());
+		  B.GtClass = 5;
+		  B.gtflag = true;
+		}
+	      }
+	      else
+	      {	   
+		for(int k=0;k<B.childs.size();k++)
+		{
+		    val = PolygonInsidePolygonTest(poly, B.childs[k].Contours);
+		    if(val == 2 || val == 3)
 		    {
 		      B.childs[k].GtClass = 5;
 		      B.childs[k].gtflag = true;

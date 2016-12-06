@@ -7,6 +7,8 @@
 #include "connectedcomponent.h"
 #include "FeatureExtraction.h"
 #include "ScalarColorFeature.h"
+#include "RunLengthFeature.h"
+#include "SpatialAndAotocorrelatedFeature.h"
 
 using namespace IITkgp_functions;
 
@@ -88,6 +90,8 @@ Mat BoundarytoFullimage(Mat src)
     
     return temp;
 }
+
+
 vector<SB> GetProcessingBlocks(Mat image)
 {
   Mat blurimage; 
@@ -109,9 +113,12 @@ vector<SB> GetProcessingBlocks(Mat image)
    // imwrite("Boundary_Binary_bound.png",BB_B);
   
     Mat Binary = binarization(image,1);
+    imwrite("Binary.png",Binary);
     
     Mat Hgap = horizontal_gapfilling(Binary,8);
     Mat Vgap = vertical_gapfilling(Hgap,5);
+    
+    imwrite("GapFilled.png",Vgap);
     
     Hgap.release();
   
@@ -139,26 +146,29 @@ vector<SB> GetProcessingBlocks(Mat image)
      
      for( int j = 0; j < contours.size(); j++ )
      {
-       if(hierarchy[j][3] == -1 && boundRect[j].height > 6 &&  boundRect[j].width > 10)
+       if(hierarchy[j][3] == -1)
        {
-	 if(contours[j].size()==0)
-	 {
-	   printf("There is some problem ERROR\n");
-	   exit(0);
-	 }
-	 avg_height = avg_height +  boundRect[j].height;
-	 count++;
-	 SB B;
-	 B.B = boundRect[j];
-	 B.Contours = contours[j];
-	 B.gtflag = false;
-	 B.Fvecflag = false;
-	 B.PredFlag = true;
-	 blocks.push_back(B);
-	 //rectangle(Draw,boundRect[j].tl(),boundRect[j].br(),Scalar(255,0,0),8,1);
+	 if(!(boundRect[j].height<10 && boundRect[j].width<10))
+	 {	 
+	  if(contours[j].size()==0)
+	  {
+	    printf("There is some problem ERROR\n");
+	    exit(0);
+	  }
+	  avg_height = avg_height +  boundRect[j].height;
+	  count++;
+	  SB B;
+	  B.B = boundRect[j];
+	  B.Contours = contours[j];
+	  B.gtflag = false;
+	  B.Fvecflag = false;
+	  B.PredFlag = true;
+	  blocks.push_back(B);
+	  rectangle(Draw,boundRect[j].tl(),boundRect[j].br(),Scalar(255,0,0),8,1);
+        }
        }
      }
-     //imwrite("INiblocks.png",Draw);
+     imwrite("INiblocks.png",Draw);
      //Draw.release();
      if(!boundRect.empty())
       boundRect.clear();
@@ -176,8 +186,10 @@ vector<SB> GetProcessingBlocks(Mat image)
        {
 	 if(i!=j)
 	 {
+	   //if(FindOverlappingRectangles(blocks[i].B,blocks[j].B)==2)
 	   if(PolygonInsidePolygonTest(blocks[i].Contours,blocks[j].Contours)==2)
 	   {
+	     //printf("Hello ... I am working !!!\n");
 	     blocks.erase(blocks.begin()+j);
 	   }
 	   else
@@ -188,11 +200,17 @@ vector<SB> GetProcessingBlocks(Mat image)
        }
      }
      
+     Draw.release();
+     blurimage.copyTo(Draw);
+     
      for(int i=0;i<blocks.size();i++)
      {
-       printf("Block %d\n",i);
+       //printf("Block %d\n",i);
 	SB B = blocks[i];
 	Rect R = B.B;
+	
+	rectangle(Draw,R.tl(),R.br(),Scalar(255,0,0),8,1);
+	
 	 Mat temp_clrimg = Mat(R.height,R.width,CV_8UC3,Scalar(255,255,255));
 	 Mat temp_bin = Mat(R.height,R.width,CV_8UC1,Scalar(255));
 	 Mat temp_img = Mat(R.height,R.width,CV_8UC1,Scalar(255));
@@ -223,17 +241,49 @@ vector<SB> GetProcessingBlocks(Mat image)
 	    
 	 if(cnt > 5)
 	 {
+	   
+	   bool flag = true;
+	   
+	    RLF FeatureRLF = ComputeRLFeatures(temp_bin);
+	    SF FeatureSF = ComputeSpatialFeatures(temp_bin);
+	    //AF FeatureAF = ComputeAutoCoRelatedFeatures(temp_bin);
+	    
+	    vector<float> RunLTFeature;
+	    RLFtoFVector(FeatureRLF,RunLTFeature);
+	    for(int f=0;f<RunLTFeature.size();f++)
+	    {
+	      if(isnan(RunLTFeature[f]))
+	      {
+		//printf("Nan In Run Length \n");
+		flag = false;
+	      }
+	      B.FeatureVec.push_back(RunLTFeature[f]);
+	    }
+	    
+	    vector<float> SpatialFeature;
+	    SFtoFVector(FeatureSF,SpatialFeature);
+	    for(int f=0;f<SpatialFeature.size();f++)
+	    {
+	      if(isnan(SpatialFeature[f]))
+	      {
+		//printf("Nan In Spatial Feature \n");
+		flag = false;
+	      }
+	      B.FeatureVec.push_back(SpatialFeature[f]);
+	    }
+	    
+	   
 	   vector<float> GaborFeature = GetGaborFeature(temp_clrimg);
-	    printf("\ngabor feature:\n");
+	   // printf("\ngabor feature:\n");
 	    for(int f=0;f<GaborFeature.size();f++)
 	    {
 	      B.FeatureVec.push_back(GaborFeature[f]);
-	      printf("%f\t",GaborFeature[f]);
+	     // printf("%f\t",GaborFeature[f]);
 	    }
-	    vector<float> colorFeature = GetColorFeature(temp_clrimg,temp_bin);
-	    vector<float> swfeature = GetStrokeWidthFeature(temp_clrimg,temp_bin);
-	    bool flag = true;
-	    printf("\nColorFeature:\n");
+	   /* vector<float> colorFeature = GetColorFeature(temp_clrimg,temp_bin);
+	  
+	    
+	   // printf("\nColorFeature:\n");
 	    if(colorFeature[2]<3)
 	      flag = false;
 	    for(int f=0;f<colorFeature.size();f++)
@@ -241,9 +291,10 @@ vector<SB> GetProcessingBlocks(Mat image)
 	      if(isnan(colorFeature[f]))
 		flag = false;
 	      B.FeatureVec.push_back(colorFeature[f]);
-	      printf("%f\t",colorFeature[f]);
-	    }
-	    printf("\nSWFeature:\n");
+	     // printf("%f\t",colorFeature[f]);
+	    }*/
+	  /*  vector<float> swfeature = GetStrokeWidthFeature(temp_clrimg,temp_bin);
+	  //  printf("\nSWFeature:\n");
 	    if(swfeature[2]<3)
 	      flag = false;
 	    for(int f=0;f<swfeature.size();f++)
@@ -251,9 +302,10 @@ vector<SB> GetProcessingBlocks(Mat image)
 	      if(isnan(swfeature[f]))
 		flag = false;
 	      B.FeatureVec.push_back(swfeature[f]);
-	      printf("%f\t",swfeature[f]);
+	     // printf("%f\t",swfeature[f]);
 	    }
-	    printf("\n");
+	    */
+	  //  printf("\n");
 	    if(flag)
 	      B.Fvecflag = true;
 	 }
@@ -542,19 +594,34 @@ vector<SB> GetProcessingBlocks(Mat image)
 	 
      }
      
-    // imwrite("blocks.png",Draw);
+     imwrite("blocks.png",Draw);
      Draw.release();
      //exit(0);
+     
+     blurimage.copyTo(Draw);
      
      for(int i=0;i<blocks.size();)
      {
        if(blocks[i].Fvecflag)
        {
+	 Rect R = blocks[i].B;
+	
+	rectangle(Draw,R.tl(),R.br(),Scalar(255,0,0),8,1);
 	 i++;
        }
        else
-	 blocks.erase(blocks.begin()+i);
+       {
+	 Rect R = blocks[i].B;
+	 //blocks.erase(blocks.begin()+i);
+	 rectangle(Draw,R.tl(),R.br(),Scalar(0,0,255),8,1);
+	 i++;
+       }
      }
+     
+     imwrite("blocks_new.png",Draw);
+     Draw.release();
+     
+     
      
      return blocks;
 }
@@ -942,7 +1009,7 @@ vector< SB > GetSegmentationUnit(Mat image)
      }
 
      //exit(0);
-     printf("Printing Features from Blocks\n");
+   /*  printf("Printing Features from Blocks\n");
      for(int i=0;i<blocks.size();i++)
      {
        SB B = blocks[i];
@@ -968,6 +1035,7 @@ vector< SB > GetSegmentationUnit(Mat image)
        }
      }
      //exit(0);
+     */
      return blocks;
     
 }
